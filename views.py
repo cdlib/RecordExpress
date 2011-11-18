@@ -7,6 +7,10 @@ from django.shortcuts import render, get_object_or_404
 from collection_record.forms import CollectionRecordForm
 from collection_record.forms import CreatorPersonFormset 
 from collection_record.forms import CreatorFamilyFormset 
+from collection_record.forms import CreatorOrganizationFormset 
+from collection_record.forms import SubjectTopicFormset 
+from collection_record.forms import SubjectNameFormset 
+from collection_record.forms import SubjectGeographicFormset 
 
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
@@ -15,10 +19,18 @@ def add_collection_record(request):
         form  = CollectionRecordForm(request.POST)
         formset_person = CreatorPersonFormset(request.POST, prefix='person') 
         formset_family = CreatorFamilyFormset(request.POST, prefix='family') 
+        formset_organization = CreatorOrganizationFormset(request.POST, prefix='organization') 
+        formset_topic = SubjectTopicFormset (request.POST, prefix='topic') 
+        formset_subjectname = SubjectNameFormset (request.POST, prefix='subject_name') 
+        formset_geog = SubjectGeographicFormset (request.POST, prefix='geog') 
     else:
         form  = CollectionRecordForm()
         formset_person = CreatorPersonFormset(prefix='person') 
         formset_family = CreatorFamilyFormset(prefix='family') 
+        formset_organization =CreatorOrganizationFormset(prefix='organization') 
+        formset_topic = SubjectTopicFormset (prefix='topic') 
+        formset_subjectname = SubjectNameFormset (prefix='subject_name') 
+        formset_geog = SubjectGeographicFormset (prefix='geog') 
     return render(request,'collection_record/collection_record/add.html',
                               locals(),
                               )

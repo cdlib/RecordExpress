@@ -1,7 +1,17 @@
 <form action="" method="POST">
     {%csrf_token%}
 {{form}}
+<h3>Personal names</h3>
 {{formset_person}}
+<h3>Family names</h3>
 {{formset_family}}
+<h3>Organization names</h3>
+{{formset_organization}}
+<h3>Topics</h3>
+{{formset_topic}}
+<h3>Subjects: Personal, Family or Organization names</h3>
+{{formset_subjectname}}
+<h3>Geographical location</h3>
+{{formset_geog}}
 <input type='submit' value='Create collection record'/>
 </form>
