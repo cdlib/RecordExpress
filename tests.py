@@ -39,11 +39,15 @@ class NewCollectionRecordViewTestCase(TestCase):
         self.assertContains(response, 'CR')
         self.assertContains(response, 'person')
         self.assertContains(response, 'family')
+        #below is reason to use WebTest
         postdata = {
-                'ark':'',
+        #        'ark':'',
                 'title':'Test Title',
                 'title_filing':'TEST Filing Title',
+                'date':'1970-01-01',
                 'local_identifier':'Local test ID',
+                'extent':'big',
+                'abstract':'test abastract',
                 'language':'eng',
                 'accessrestrict':'test access cond',
                 'userestrict':'test pub rights',
@@ -91,3 +95,5 @@ class NewCollectionRecordViewTestCase(TestCase):
         response = self.client.post(url, data=postdata)
         self.failUnlessEqual(200, response.status_code)
         print response
+        self.assertTemplateUsed(response,'add_preview.html') 
+        # get a the collection_record created and view?

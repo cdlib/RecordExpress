@@ -23,6 +23,15 @@ def add_collection_record(request):
         formset_topic = SubjectTopicFormset (request.POST, prefix='topic') 
         formset_subjectname = SubjectNameFormset (request.POST, prefix='subject_name') 
         formset_geog = SubjectGeographicFormset (request.POST, prefix='geog') 
+        if form.is_valid() and formset_person.is_valid():
+            if not request.POST.get('previewed', None):
+                #preview it
+                # create new unsaved obj from forms, include forms as hidden element?
+                return render(request,'collection_record/collection_record/add_preview.html',
+                              locals(),
+                              )
+            else:
+                pass #save collection and send to view/edit page?
     else:
         form  = CollectionRecordForm()
         formset_person = CreatorPersonFormset(prefix='person') 

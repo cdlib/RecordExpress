@@ -1,5 +1,6 @@
 {% extends 'collection_record/base.html' %}
-{%block title%}Add a Collection Record{%endblock title%}
+{%block title%}Preview new Collection Record{%endblock title%}
+
 
 {%block bodycontent%}
 <form action="" method="POST">
@@ -17,6 +18,6 @@
 {{formset_subjectname}}
 <h3>Geographical location</h3>
 {{formset_geog}}
-<input name='submit' type='submit' value='Preview record'/>
+<input name='submit' type='submit' value='Create collection record'/>
 </form>
 {%endblock bodycontent%}

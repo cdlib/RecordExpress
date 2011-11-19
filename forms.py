@@ -4,7 +4,7 @@ from django.forms.formsets import formset_factory
 from collection_record.ISO_639_2b import ISO_639_2b
 
 class CollectionRecordForm(forms.Form):
-    ark = forms.CharField(max_length=255, initial='<Will be assigned>')
+#    ark = forms.CharField(max_length=255, initial='<Will be assigned>')
     title = forms.CharField(max_length=512)
     title_filing = forms.CharField(max_length=256)
     date = forms.DateField()

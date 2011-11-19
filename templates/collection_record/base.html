@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Collection Record Generator - {%block title%}{%endblock title%}</title>
+
+    {% block blueprintcss %}
+    <!-- Framework CSS -->
+    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]><link rel="stylesheet" href="/site_media/css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+    <!-- Import fancy-type plugin for the sample page. -->
+    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="/site_media/css/djsite/blueprint_dsc.css" type="text/css" media="screen, projection">
+     {%endblock blueprintcss%}
+
+     {%block extrahead%}{%endblock extrahead%}
+
+  </head>
+  <body {%block bodyattrs%}{%endblock bodyattrs%}>
+
+      {%block bodycontent%}<h1>Welcome to the OAC Collection Record Generator</h1>{%endblock bodycontent%}
+
+{%block footer%}
+{%endblock footer%}
+
+</body>
+</html>
+
