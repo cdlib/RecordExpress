@@ -95,5 +95,5 @@ class NewCollectionRecordViewTestCase(TestCase):
         response = self.client.post(url, data=postdata)
         self.failUnlessEqual(200, response.status_code)
         print response
-        self.assertTemplateUsed(response,'add_preview.html') 
+        self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
         # get a the collection_record created and view?
