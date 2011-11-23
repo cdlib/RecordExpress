@@ -1,22 +1,76 @@
 {% extends 'collection_record/base.html' %}
-{%block title%}Add a Collection Record{%endblock title%}
+{%block pagetitle%}Add a Collection Record{%endblock pagetitle%}
+{%block extrahead %}<style type="text/css"> h4 { font-weight:bold;}</style>{%endblock extrahead %}
 
 {%block bodycontent%}
+<div class="container" id="bodycontainer">
+    <div class="area span-24 pageheader">
+        <h1>Add a Collection Record to the OAC.</h1>
+    </div>
+    <div class="area span-24">
 <form action="" method="POST">
     {%csrf_token%}
-{{form.as_p}}
-<h3>Personal names</h3>
-{{formset_person}}
-<h3>Family names</h3>
-{{formset_family}}
-<h3>Organization names</h3>
-{{formset_organization}}
-<h3>Topics</h3>
-{{formset_topic}}
-<h3>Subjects: Personal, Family or Organization names</h3>
-{{formset_subjectname}}
-<h3>Geographical location</h3>
-{{formset_geog}}
-<input name='submit' type='submit' value='Preview record'/>
-</form>
+    <fieldset>
+        <h3>Basic Metadata</h3>
+        {%for field in form_main%}
+        <div class="span-5"><label for="{{form.id}}">{{field.label}}</label></div><div class="span-18 last">{{field}}</div>
+        {% endfor %}
+    </fieldset>
+    <fieldset>
+        <h3>Creators</h3>
+        <fieldset>
+            <h4>Personal names</h4>
+            {{ formset_person.management_form }}
+            {% for form in formset_person %}
+            {{form.term}}{{form.qualifier}}
+            <div class="span-5"><label for="xx">{{form.content.label}}</label></div><div class="span-17 last">{{form.content}}</div>
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <h4>Family names</h4>
+            {{ formset_family.management_form }}
+            {% for form in formset_family %}
+            {{form.term}}{{form.qualifier}}
+            <div class="span-5"><label for="xx">{{form.content.label}}</label></div><div class="span-17 last">{{form.content}}</div>
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <h4>Organization names</h4>
+            {{ formset_organization.management_form }}
+            {% for form in formset_organization %}
+            {{form.term}}{{form.qualifier}}
+            <div class="span-5"><label for="xx">{{form.content.label}}</label></div><div class="span-17 last">{{form.content}}</div>
+            {% endfor %}
+        </fieldset>
+    </fieldset>
+    <fieldset>
+        <h3>Subjects</h3>
+        <fieldset>
+            <h4>Topics</h4>
+            {{ formset_topic.management_form }}
+            {% for form in formset_topic %}
+            {{form.term}}{{form.qualifier}}
+            <div class="span-5"><label for="xx">{{form.content.label}}</label></div><div class="span-17 last">{{form.content}}</div>
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <h4>Subjects: Personal, Family or Organization names</h4>
+            {{ formset_subjectname.management_form }}
+            {% for form in formset_subjectname %}
+            {{form.term}}{{form.qualifier}}
+            <div class="span-5"><label for="xx">{{form.content.label}}</label></div><div class="span-17 last">{{form.content}}</div>
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <h4>Geographical location</h4>
+            {{ formset_geog.management_form }}
+            {% for form in formset_geog %}
+            {{form.term}}{{form.qualifier}}
+            <div class="span-5"><label for="xx">{{form.content.label}}</label></div><div class="span-17 last">{{form.content}}</div>
+            {% endfor %}
+        </fieldset>
+        <input name="submit" type="submit" value="Preview record"/>
+        </form>
+    </div>
+</div>
 {%endblock bodycontent%}

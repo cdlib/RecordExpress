@@ -16,14 +16,14 @@ from collection_record.forms import SubjectGeographicFormset
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
     if request.method == 'POST':
-        form  = CollectionRecordForm(request.POST)
+        form_main  = CollectionRecordForm(request.POST)
         formset_person = CreatorPersonFormset(request.POST, prefix='person') 
         formset_family = CreatorFamilyFormset(request.POST, prefix='family') 
         formset_organization = CreatorOrganizationFormset(request.POST, prefix='organization') 
         formset_topic = SubjectTopicFormset (request.POST, prefix='topic') 
         formset_subjectname = SubjectNameFormset (request.POST, prefix='subject_name') 
         formset_geog = SubjectGeographicFormset (request.POST, prefix='geog') 
-        if form.is_valid() and formset_person.is_valid():
+        if form_main.is_valid() and formset_person.is_valid():
             if not request.POST.get('previewed', None):
                 #preview it
                 # create new unsaved obj from forms, include forms as hidden element?
@@ -33,7 +33,7 @@ def add_collection_record(request):
             else:
                 pass #save collection and send to view/edit page?
     else:
-        form  = CollectionRecordForm()
+        form_main  = CollectionRecordForm()
         formset_person = CreatorPersonFormset(prefix='person') 
         formset_family = CreatorFamilyFormset(prefix='family') 
         formset_organization =CreatorOrganizationFormset(prefix='organization') 

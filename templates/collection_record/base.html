@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Collection Record Generator - {%block title%}{%endblock title%}</title>
+    {%block title%}
+    <title>Collection Record Generator - {%block pagetitle%}{%endblock pagetitle%}</title>
+    {%endblock title%}
 
     {% block blueprintcss %}
     <!-- Framework CSS -->
@@ -13,9 +15,10 @@
     <!-- Import fancy-type plugin for the sample page. -->
     <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
     <link rel="stylesheet" href="/site_media/css/djsite/blueprint_dsc.css" type="text/css" media="screen, projection">
-     {%endblock blueprintcss%}
+    {%endblock blueprintcss%}
 
-     {%block extrahead%}{%endblock extrahead%}
+
+    {%block extrahead%}{%endblock extrahead%}
 
   </head>
   <body {%block bodyattrs%}{%endblock bodyattrs%}>
