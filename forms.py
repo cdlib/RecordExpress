@@ -46,7 +46,7 @@ SubjectTopicFormset = formset_factory(SubjectTopicForm, extra=1)
 class SubjectNameForm(forms.Form):
     term = forms.CharField(max_length=4, initial='SUB', widget=forms.HiddenInput)
     qualifier = forms.CharField(max_length=40, initial='name', widget=forms.HiddenInput)
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Subject (Personal, Family, or Organization Name)')
+    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Name of person, family or organization')
 SubjectNameFormset = formset_factory(SubjectNameForm, extra=1)
 
 class SubjectGeographicForm(forms.Form):
