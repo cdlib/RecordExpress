@@ -24,6 +24,9 @@
     height: 40px;
     vertical-align: bottom;
     }
+  .orangetext {
+      color: #C2492C;
+  }
 </style>
 
 <script type="text/javascript" src="/site_media/js/jquery-1.3.2.min.js"></script>
@@ -37,23 +40,24 @@
 {%block bodycontent%}
 <div class="container" id="bodycontainer">
     <div class="area span-24 pageheader">
-        <h1>Add a Collection Record to the OAC.</h1>
+        <h1>Add a Collection Record to the OAC</h1>
     </div>
     <div class="area span-24">
 <form action="" method="POST">
     {%csrf_token%}
     <fieldset>
         <input style="float:right" name="submit" type="submit" value="Preview record"/>
-        <h3>Basic Metadata</h3>
+        <h3>Basic Information</h3>
+        <h5 class="orangetext">* indicates required field</h5>
         {%for field in form_main%}
         <p class="span-23">
         <span class="span-5"><label for="{{form.id}}">
             {%for err in field.errors %}
                 <span class="errorlist">{{err}}</span>
             {% endfor %}
-        {{field.label}}</label>
+            {{field.label}}{%if field.field.required %}<span class="orangetext">*</span>{%endif%}</label>
         </span>
-        <span class="span-18 last">{{field}}</span>
+        <span class="span-18 last">{{field}}&nbsp;{{field.help_text}}</span>
 </p>
         {% endfor %}
     </fieldset>
@@ -103,7 +107,7 @@
         </fieldset>
     </fieldset>
     <fieldset>
-        <h3>Subjects</h3>
+        <h3>Subject Headings</h3>
         <fieldset id="id_fieldset_topic">
             <h4>Topics</h4>
             {{ formset_topic.management_form }}
@@ -118,10 +122,38 @@
             </div>
             {% endfor %}
         </fieldset>
-        <fieldset id="id_fieldset_subjectname">
-            <h4>Subjects: Personal, Family or Organization names</h4>
-            {{ formset_subjectname.management_form }}
-            {% for form in formset_subjectname %}
+        <fieldset id="id_fieldset_subject_person_name">
+            <h4>Subject: Personal Name</h4>
+            {{ formset_subject_person_name.management_form }}
+            {% for form in formset_subject_person_name %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_family_name">
+            <h4>Subject: Family Name</h4>
+            {{ formset_subject_family_name.management_form }}
+            {% for form in formset_subject_family_name %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_organization_name">
+            <h4>Subject: Organization Name</h4>
+            {{ formset_subject_organization_name.management_form }}
+            {% for form in formset_subject_organization_name %}
             <div>
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
@@ -146,6 +178,62 @@
             </div>
            {% endfor %}
         </fieldset>
+        <fieldset id="id_fieldset_genre">
+            <h4>Form/genres of material</h4>
+            {{ formset_genre.management_form }}
+            {% for form in formset_genre %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_title">
+            <h4>Titles</h4>
+            {{ formset_subject_title.management_form }}
+            {% for form in formset_subject_title %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_function">
+            <h4>Functions</h4>
+            {{ formset_subject_function.management_form }}
+            {% for form in formset_subject_function %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_occupation">
+            <h4>Occupations</h4>
+            {{ formset_subject_occupation.management_form }}
+            {% for form in formset_subject_occupation %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
         <input name="submit" type="submit" value="Preview record"/>
         </form>
     </div>
@@ -168,13 +256,37 @@
             formCssClass: 'dynamic-fieldset-form',
             prefix: "topic_form"
         });
-        $('#id_fieldset_subjectname div').formset({
+        $('#id_fieldset_subject_person_name div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subjectname_form"
+            prefix: "subject_person_name_form"
+        });
+        $('#id_fieldset_subject_family_name div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_family_name_form"
+        });
+        $('#id_fieldset_subject_organization_name div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_organization_name_form"
         });
         $('#id_fieldset_geog div').formset({
             formCssClass: 'dynamic-fieldset-form',
             prefix: "geog_form"
+        });
+        $('#id_fieldset_genre div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "genre_form"
+        });
+        $('#id_fieldset_subject_title div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_title_form"
+        });
+        $('#id_fieldset_subject_function div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_function_form"
+        });
+        $('#id_fieldset_subject_occupation div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_occupation_form"
         });
     });
 </script>
