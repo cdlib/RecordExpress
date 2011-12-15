@@ -1,23 +1,295 @@
 {% extends 'collection_record/base.html' %}
-{%block title%}Preview new Collection Record{%endblock title%}
+{%block pagetitle%}Add a Collection Record{%endblock pagetitle%}
+{%block extrahead %}
+<style type="text/css"> h4 { font-weight:bold;}</style>
+<style type="text/css">
+    .add-row {
+        padding-left:18px;
+        padding-top:10px;
+        display:block;
+        background:url(/site_media/images/formsets/add.png) no-repeat left center;
+    }
+    .delete-row {
+        /*float:right;
+        display:block;*/
+        vertical-align:middle;
+        margin-left:4px;
+        padding-left:18px;
+        background:url(/site_media/images/formsets/delete.png) no-repeat left center;
+    }
+</style>
+<style type="text/css">
+ textarea {
+    width: 560px;
+    height: 40px;
+    vertical-align: bottom;
+    }
+  .orangetext {
+      color: #C2492C;
+  }
+</style>
 
+<script type="text/javascript" src="/site_media/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="/site_media/js/jquery.formset.js"></script>
+<script type="text/javascript" src="/media/js/core.js"></script>
+<script type="text/javascript" src="/media/js/calendar.js"></script>
+<script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+
+{%endblock extrahead %}
 
 {%block bodycontent%}
+<div class="container" id="bodycontainer">
+    <div class="area span-24 pageheader">
+        <h1>Preview the Collection Record for the OAC</h1>
+    </div>
+    <div class="area span-24">
 <form action="" method="POST">
     {%csrf_token%}
-{{form.as_p}}
-<h3>Personal names</h3>
-{{formset_person}}
-<h3>Family names</h3>
-{{formset_family}}
-<h3>Organization names</h3>
-{{formset_organization}}
-<h3>Topics</h3>
-{{formset_topic}}
-<h3>Subjects: Personal, Family or Organization names</h3>
-{{formset_subjectname}}
-<h3>Geographical location</h3>
-{{formset_geog}}
-<input name='submit' type='submit' value='Create collection record'/>
-</form>
+    <fieldset>
+        <input style="float:right" name="submit" type="submit" value="Create record"/>
+        <input type="hidden" name="previewed" value="true" />
+        <h3>Basic Information</h3>
+        <h5 class="orangetext">* indicates required field</h5>
+        {%for field in form_main%}
+        <p class="span-23">
+        <span class="span-5"><label for="{{form.id}}">
+            {%for err in field.errors %}
+                <span class="errorlist">{{err}}</span>
+            {% endfor %}
+            {{field.label}}{%if field.field.required %}<span class="orangetext">*</span>{%endif%}</label>
+        </span>
+        <span class="span-18 last">{{field}}&nbsp;{{field.help_text}}</span>
+</p>
+        {% endfor %}
+    </fieldset>
+    <fieldset>
+        <h3>Creators</h3>
+        <fieldset id="id_fieldset_persname">
+            <h4>Personal Names</h4>
+            {{ formset_person.management_form }}
+            {% for form in formset_person %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_familyname">
+            <h4>Family Names</h4>
+            {{ formset_family.management_form }}
+            {% for form in formset_family %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_orgname">
+            <h4>Organization Names</h4>
+            {{ formset_organization.management_form }}
+            {% for form in formset_organization %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+    </fieldset>
+    <fieldset>
+        <h3>Subject Headings</h3>
+        <fieldset id="id_fieldset_topic">
+            <h4>Topics</h4>
+            {{ formset_topic.management_form }}
+            {% for form in formset_topic %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_person_name">
+            <h4>Personal Names</h4>
+            {{ formset_subject_person_name.management_form }}
+            {% for form in formset_subject_person_name %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_family_name">
+            <h4>Family Names</h4>
+            {{ formset_subject_family_name.management_form }}
+            {% for form in formset_subject_family_name %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_organization_name">
+            <h4>Organization Names</h4>
+            {{ formset_subject_organization_name.management_form }}
+            {% for form in formset_subject_organization_name %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_geog">
+            <h4>Geographical Locations</h4>
+            {{ formset_geog.management_form }}
+            {% for form in formset_geog %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+           {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_genre">
+            <h4>Form/Genres of Materials</h4>
+            {{ formset_genre.management_form }}
+            {% for form in formset_genre %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_title">
+            <h4>Titles</h4>
+            {{ formset_subject_title.management_form }}
+            {% for form in formset_subject_title %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_function">
+            <h4>Functions</h4>
+            {{ formset_subject_function.management_form }}
+            {% for form in formset_subject_function %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <fieldset id="id_fieldset_subject_occupation">
+            <h4>Occupations</h4>
+            {{ formset_subject_occupation.management_form }}
+            {% for form in formset_subject_occupation %}
+            <div>
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <label class="span-5">{{form.content.label}}</label>
+                {{form.content}}
+                {{form.term}}{{form.qualifier}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        <input name="submit" type="submit" value="Create record"/>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function() {
+        $('#id_fieldset_persname div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "person_form"
+        });
+        $('#id_fieldset_familyname div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "family_form"
+        });
+        $('#id_fieldset_orgname div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "org_form"
+        });
+        $('#id_fieldset_topic div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "topic_form"
+        });
+        $('#id_fieldset_subject_person_name div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_person_name_form"
+        });
+        $('#id_fieldset_subject_family_name div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_family_name_form"
+        });
+        $('#id_fieldset_subject_organization_name div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_organization_name_form"
+        });
+        $('#id_fieldset_geog div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "geog_form"
+        });
+        $('#id_fieldset_genre div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "genre_form"
+        });
+        $('#id_fieldset_subject_title div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_title_form"
+        });
+        $('#id_fieldset_subject_function div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_function_form"
+        });
+        $('#id_fieldset_subject_occupation div').formset({
+            formCssClass: 'dynamic-fieldset-form',
+            prefix: "subject_occupation_form"
+        });
+    });
+</script>
+
 {%endblock bodycontent%}

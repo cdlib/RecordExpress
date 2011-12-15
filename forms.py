@@ -12,7 +12,7 @@ class CollectionRecordForm(forms.Form):
     local_identifier = forms.CharField(max_length=512, label='Collection Identifier/Call Number')
     extent=forms.CharField(widget=forms.TextInput(attrs={'size':'40'},), label='Extent of Collection')
     abstract=forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}))
-    language = forms.ChoiceField(choices=(('eng', 'English'), ), initial='eng', label='Language of Materials')
+    language = forms.ChoiceField(choices=(ISO_639_2b), initial='eng', label='Language of Materials')
     accessrestrict = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}), label='Access Conditions')
     userestrict = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}), label='Publication Rights')
     acqinfo = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}), label='Acquisition Information')
@@ -46,25 +46,25 @@ SubjectTopicFormset = formset_factory(SubjectTopicForm, extra=1)
 
 class SubjectPersonNameForm(forms.Form):
     term = forms.CharField(max_length=4, initial='SUB', widget=forms.HiddenInput)
-    qualifier = forms.CharField(max_length=40, initial='person_name', widget=forms.HiddenInput)
+    qualifier = forms.CharField(max_length=40, initial='name_person', widget=forms.HiddenInput)
     content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Personal Name')
 SubjectPersonNameFormset = formset_factory(SubjectPersonNameForm, extra=1)
 
 class SubjectFamilyNameForm(forms.Form):
     term = forms.CharField(max_length=4, initial='SUB', widget=forms.HiddenInput)
-    qualifier = forms.CharField(max_length=40, initial='famaily_name', widget=forms.HiddenInput)
+    qualifier = forms.CharField(max_length=40, initial='name_family', widget=forms.HiddenInput)
     content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Family Name')
 SubjectFamilyNameFormset = formset_factory(SubjectFamilyNameForm, extra=1)
 
 class SubjectOrganizationNameForm(forms.Form):
     term = forms.CharField(max_length=4, initial='SUB', widget=forms.HiddenInput)
-    qualifier = forms.CharField(max_length=40, initial='organization_name', widget=forms.HiddenInput)
+    qualifier = forms.CharField(max_length=40, initial='name_organization', widget=forms.HiddenInput)
     content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Organization Name')
 SubjectOrganizationNameFormset = formset_factory(SubjectOrganizationNameForm, extra=1)
 
 class GeographicForm(forms.Form):
     term = forms.CharField(max_length=4, initial='COV', widget=forms.HiddenInput)
-    qualifier = forms.CharField(max_length=40, initial='geog', widget=forms.HiddenInput)
+    qualifier = forms.CharField(max_length=40, initial='geo', widget=forms.HiddenInput)
     content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Geographical Location')
 GeographicFormset = formset_factory(GeographicForm, extra=1)
 

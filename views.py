@@ -42,14 +42,14 @@ def add_collection_record(request):
             if not request.POST.get('previewed', None):
                 #preview it
                 # create new unsaved obj from forms, include forms as hidden element?
-                return render(request,'collection_record/collection_record/add.html',
-                              locals(),
-                              )
                 return render(request,'collection_record/collection_record/add_preview.html',
                               locals(),
                               )
             else:
-                pass #save collection and send to view/edit page?
+                #save collection and send to view/edit page?
+                return render(request,'collection_record/collection_record/added.html',
+                              locals(),
+                              )
     else:
         form_main  = CollectionRecordForm()
         formset_person = CreatorPersonFormset(prefix='person')
