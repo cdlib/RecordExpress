@@ -22,6 +22,26 @@ class CollectionRecord(models.Model):
     online_items_url = models.URLField(null=True, blank=True, )
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
 
+    @models.permalink
+    def get_absolute_url(self):
+        return ('collectionrecord_view', (), {'ark': self.ark, })
+
+    def save(self, *args, **kwargs):
+        '''On save if ark is not set, get a new one from EZID.
+        Also, if someone is trying to change the ARK, don't let them
+        '''
+        if self.pk:# existing object
+            try:
+                db_self = CollectionRecord.objects.get(pk=self.pk)
+                if self.ark != db_self.ark:
+                    #NOTE: this only works if I have a hidden numeric pk
+                    raise ValueError('Can not change ARK for an collection')
+            except CollectionRecord.DoesNotExist:
+                pass
+        if not self.ark:
+            raise ValueError('Collection Records must have an ARK')
+        return super(CollectionRecord, self).save(*args, **kwargs)
+
     #or should I just make a nice dictionary of subsetted values?
     #Need to define corresponding accessors (& setters?) for the various
     #multi-valued terms stored in the QDCElements.

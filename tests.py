@@ -1,3 +1,4 @@
+import os
 from urllib import quote
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -15,6 +16,9 @@ class CollectionRecordFormTestCase(TestCase):
      
 class NewCollectionRecordViewTestCase(WebTest):
     fixtures = ['sites.json', 'auth.json', ]
+    def setUp(self):
+        '''Override the "databases" config file to use the test shoulder'''
+        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
 
     def testNewView(self):
         '''Test the view for creating new collection records.
@@ -52,12 +56,43 @@ class NewCollectionRecordViewTestCase(WebTest):
         form['scopecontent'] = 'test content'
         response = form.submit(user='oactestuser')
         self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
-        # get a the collection_record created and view?
-        # redirect to the view page, which is indexed by ark???
-        #
         response = response.form.submit(user='oactestuser')
-        self.assertTemplateUsed(response,'collection_record/collection_record/added.html') 
+        self.failUnlessEqual(302, response.status_code)
+        response = response.follow()
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'ark:')
+        self.assertContains(response, 'Test Title')
+        self.assertTemplateUsed(response,'collection_record/collection_record/view.html') 
 
+    def testNewWithDCView(self):
+        url = reverse('collection_record_add')
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        form = response.form
+        #fill out basic info only,required fields only
+        form['title'] = 'Test 2 Title'
+        form['title_filing'] = 'Test Filing Title'
+        form['date_dacs'] = 'circa 1980'
+        form['date_iso'] = '1980'
+        form['local_identifier'] = 'LOCALID-test'
+        form['extent'] = 'loads of boxes'
+        form['abstract'] = 'a nice test collection'
+        form['accessrestrict'] = 'public domain'
+        form['userestrict'] = 'go craxy'
+        form['acqinfo'] = 'by mark'
+        form['scopecontent'] = 'test content'
+        form['person-0-content'] = 'mark redar'
+        form['family-0-content'] = 'redar'
+        response = form.submit(user='oactestuser')
+        self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
+        response = response.form.submit(user='oactestuser')
+        self.failUnlessEqual(302, response.status_code)
+        response = response.follow()
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'ark:')
+        self.assertContains(response, 'Test 2 Title')
+        self.assertContains(response, 'redar')
+        self.assertTemplateUsed(response,'collection_record/collection_record/view.html') 
 
 class CollectionRecordModelTest(TestCase):
     '''Test the CollectionRecord django model'''
