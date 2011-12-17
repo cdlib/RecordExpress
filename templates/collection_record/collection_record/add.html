@@ -50,7 +50,7 @@
         <h3>Basic Information</h3>
         <h5 class="orangetext">* indicates required field</h5>
         {%for field in form_main%}
-        <p class="span-23">
+        <div class="span-23">
         <span class="span-5"><label for="{{form.id}}">
             {%for err in field.errors %}
                 <span class="errorlist">{{err}}</span>
@@ -58,7 +58,7 @@
             {{field.label}}{%if field.field.required %}<span class="orangetext">*</span>{%endif%}</label>
         </span>
         <span class="span-18 last">{{field}}&nbsp;{{field.help_text}}</span>
-</p>
+</div>
         {% endfor %}
     </fieldset>
     <fieldset>
