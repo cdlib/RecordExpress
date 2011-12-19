@@ -20,6 +20,8 @@ class CollectionRecord(models.Model):
     scopecontent = models.TextField()
     bioghist = models.TextField(null=True, blank=True)
     online_items_url = models.URLField(null=True, blank=True, )
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
 
     @models.permalink
