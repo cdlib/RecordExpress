@@ -7,6 +7,7 @@ class CollectionRecordForm(forms.Form):
 #    ark = forms.CharField(max_length=255, initial='<Will be assigned>')
     title = forms.CharField(max_length=512, widget=forms.TextInput(attrs={'size':'100'},), label='Collection Title')
     title_filing = forms.CharField(max_length=256, label='Collection Title (Filing)', widget=forms.TextInput(attrs={'size':'100'},))
+    publishing_institution = forms.ChoiceField()
     date_dacs = forms.CharField(label='Collection Date')
     date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', required=False)
     local_identifier = forms.CharField(max_length=512, label='Collection Identifier/Call Number')

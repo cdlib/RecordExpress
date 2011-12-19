@@ -21,13 +21,26 @@ from collection_record.forms import GenreFormset
 from collection_record.forms import SubjectTitleFormset
 from collection_record.forms import SubjectFunctionFormset
 from collection_record.forms import SubjectOccupationFormset
+from collection_record.perm_backend import get_publishing_institutions_for_user
 
+
+def get_publishing_institution_choices_for_user(user):
+    '''Return a tuple that represents the possible choices for publishing 
+    institution for a given user
+    '''
+    pub_insts = get_publishing_institutions_for_user(user)
+    choices = []
+    for i in pub_insts:
+        choices.append((i.id, i.name))
+    return choices
 
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
+    choices_publishing_institution = get_publishing_institution_choices_for_user(request.user)
     if request.method == 'POST':
         form_main  = CollectionRecordForm(request.POST)
+        form_main.fields['publishing_institution'].choices = choices_publishing_institution 
         formset_person = CreatorPersonFormset(request.POST, prefix='person')
         formset_family = CreatorFamilyFormset(request.POST, prefix='family')
         formset_organization = CreatorOrganizationFormset(request.POST, prefix='organization')
@@ -64,6 +77,7 @@ def add_collection_record(request):
                 collection_record.ark = ark
                 collection_record.title = form_main.cleaned_data['title']
                 collection_record.title_filing = form_main.cleaned_data['title_filing']
+                collection_record.publisher_id = form_main.cleaned_data['publishing_institution']
                 collection_record.date_dacs = form_main.cleaned_data['date_dacs']
                 collection_record.date_iso = form_main.cleaned_data['date_iso']
                 collection_record.local_identifier = form_main.cleaned_data['local_identifier']
@@ -92,6 +106,7 @@ def add_collection_record(request):
                 return redirect(collection_record)
     else:
         form_main  = CollectionRecordForm()
+        form_main.fields['publishing_institution'].choices = choices_publishing_institution 
         formset_person = CreatorPersonFormset(prefix='person')
         formset_family = CreatorFamilyFormset(prefix='family')
         formset_organization =CreatorOrganizationFormset(prefix='organization')

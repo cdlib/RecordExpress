@@ -7,6 +7,18 @@ from django_webtest import WebTest
 from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
 
+class CollectionRecordModelTest(TestCase):
+    '''Test the CollectionRecord django model'''
+    def testModelExists(self):
+        rec = CollectionRecord()
+        self.failUnlessRaises(ValidationError, rec.full_clean)
+
+    def testEZID_DublinCoreUpdate(TestCase):
+        '''Test that the Dublin Core attrs of the EZID get updateed by 
+        a save of the object.
+        '''
+        pass
+
 class CollectionRecordFormTestCase(TestCase):
     '''Test the form for creating new collection records. Is this form different
     from the existing record form?
@@ -14,8 +26,9 @@ class CollectionRecordFormTestCase(TestCase):
     def testNewForm(self):
         f = CollectionRecordForm()
      
+
 class NewCollectionRecordViewTestCase(WebTest):
-    fixtures = ['sites.json', 'auth.json', ]
+    fixtures = ['sites.json', 'auth.json', 'oac.institution.json', 'oac.groupprofile.json']
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
         os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
@@ -93,9 +106,3 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.assertContains(response, 'Test 2 Title')
         self.assertContains(response, 'redar')
         self.assertTemplateUsed(response,'collection_record/collection_record/view.html') 
-
-class CollectionRecordModelTest(TestCase):
-    '''Test the CollectionRecord django model'''
-    def testModelExists(self):
-        rec = CollectionRecord()
-        self.failUnlessRaises(ValidationError, rec.full_clean)

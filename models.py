@@ -4,8 +4,33 @@ from django.contrib.contenttypes import generic
 from ISO_639_2b import ISO_639_2b
 from DublinCore.models import QualifiedDublinCoreElement
 
+NOT_OAC = True
+try:
+    from oac.models import Institution
+    NOT_OAC = False
+except ImportError:
+    pass
+
+if NOT_OAC:
+    class PublishingInstitution(models.Model):
+        '''Publisher if you're not oac
+        '''
+        name = models.CharField(max_length=255)
+        mainagency = models.CharField(max_length=255, null=True, blank=True)
+
+
+else:
+    class PublishingInstitution(Institution):
+        '''Proxy for the Institution, to make it look like a Publisher?
+        '''
+        class Meta:
+            proxy = True
+
+
+
 class CollectionRecord(models.Model):
     ark = models.CharField(max_length=255, unique=True) #mysql length limit
+    publisher = models.ForeignKey(PublishingInstitution)
     title = models.CharField(max_length=512,)
     title_filing = models.SlugField(max_length=255, unique=True)
     date_dacs = models.CharField(max_length=128,)
