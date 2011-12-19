@@ -45,6 +45,10 @@
     <div class="area span-24">
     <fieldset>
         <h3>Basic Information</h3>
+        <div class="span-23">
+        <span class="span-5"><h4>Ead Element</h4></span>
+        <span class="span-18 last"><h4>Value</h4></span>
+        </div>
         {%for field, value in collection_record_dict.items %}
         <div class="span-23">
         <span class="span-5"><label>{{field}}</label></span>
@@ -53,9 +57,13 @@
         {% endfor %}
     </fieldset>
     <fieldset>
+        <div class="span-23">
+        <span class="span-5"><h4>Dublin Core Element</h4></span>
+        <span class="span-18 last"><h4>Content</h4></span>
+        </div>
         {%for dce in collection_record.QDCElements.all %}
         <div class="span-23">
-        <span class="span-5"><label>{{dce.term}}:{{dce.qualifier}}</label></span>
+        <span class="span-5"><label>{{dce.get_term_display}} : {{dce.qualifier}}</label></span>
         <span class="span-18 last">{{dce.content}}</span>
         </div>
         {% endfor %}
