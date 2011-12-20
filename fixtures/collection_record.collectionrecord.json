@@ -1,0 +1,50 @@
+[
+  {
+    "pk": 1,
+    "model": "collection_record.collectionrecord",
+    "fields": {
+      "online_items_url": "http://oac.cdlib.org/ark:/13030/c8s180ts",
+      "publisher": 34,
+      "extent": "big",
+      "date_iso": "1900",
+      "date_dacs": "circa 1900",
+      "abstract": "a nice abstract",
+      "title": "First Test title",
+      "updated_at": "2011-12-19 17:27:55",
+      "bioghist": "A biographical history",
+      "accessrestrict": "public domain",
+      "language": "eng",
+      "local_identifier": "localid",
+      "title_filing": "filetitle",
+      "scopecontent": "a test collection",
+      "created_at": "2011-12-19 17:28:03",
+      "userestrict": "public domain",
+      "ark": "ark:/13030/c8s180ts",
+      "acqinfo": "public domain"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "collection_record.collectionrecord",
+    "fields": {
+      "online_items_url": "",
+      "publisher": 34,
+      "extent": "small",
+      "date_iso": "1901",
+      "date_dacs": "1901",
+      "abstract": "test 2 abs",
+      "title": "test 2",
+      "updated_at": "2011-12-19 17:27:55",
+      "bioghist": "",
+      "accessrestrict": "pub",
+      "language": "eng",
+      "local_identifier": "localid",
+      "title_filing": "test2file",
+      "scopecontent": "scope",
+      "created_at": "2011-12-19 17:28:03",
+      "userestrict": "pub",
+      "ark": "ark:/99999/fk4vh5x06",
+      "acqinfo": "pub"
+    }
+  }
+]

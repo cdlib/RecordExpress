@@ -1,5 +1,6 @@
 import os
 from urllib import quote
+import xml.etree.ElementTree as ET
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.db.models.base import ValidationError
@@ -9,15 +10,47 @@ from collection_record.models import CollectionRecord
 
 class CollectionRecordModelTest(TestCase):
     '''Test the CollectionRecord django model'''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
+
     def testModelExists(self):
         rec = CollectionRecord()
         self.failUnlessRaises(ValidationError, rec.full_clean)
 
-    def testEZID_DublinCoreUpdate(TestCase):
+    def testEZID_DublinCoreUpdate(self):
         '''Test that the Dublin Core attrs of the EZID get updateed by 
         a save of the object.
         '''
         pass
+
+    def testEAD_xml_output(self):
+        '''Test the ead string output for a CollectionRecord. Check unicode
+        support
+        '''
+        rec = CollectionRecord.objects.get(pk=1)
+        ead_xml = rec.ead_xml
+        self.failUnless(ead_xml.index('<?xml') == 0)
+        self.failUnless(ead_xml.index('<ead>') == 162)
+        self.failUnless('ark:/13030/c8s180ts' in ead_xml)
+        self.failUnless('persname' in ead_xml)
+        self.failUnless('<physdesc label="Extent">' in ead_xml)
+        self.failUnless('<repository label="' in ead_xml)
+        self.failUnless('<abstract label="Abstract">' in ead_xml)
+        self.failUnless('<langmaterial><language langcode="' in ead_xml)
+        self.failUnless('<accessrestrict><head>Access</head><p>' in ead_xml)
+        self.failUnless('<userestrict><head>Publication Rights</head><p>' in ead_xml)
+        self.failUnless('<prefercite><head>Preferred Citation</head>' in ead_xml)
+        self.failUnless('<acqinfo><head>Acquisition Information</head>' in ead_xml)
+        self.failUnless('<bioghist><head>Biography/Administrative History</head>' in ead_xml)
+        self.failUnless('<scopecontent><head>Scope and Content of Collection</head>' in ead_xml)
+        self.failUnless('<controlaccess>' in ead_xml)
+        self.failUnless('</archdesc>' in ead_xml)
+        self.failUnless('</ead>' in ead_xml)
+        try:
+            ET.fromstring(ead_xml)
+        except:
+            self.fail('ElementTree could not parse xml')
+        print ead_xml
+
 
 class CollectionRecordFormTestCase(TestCase):
     '''Test the form for creating new collection records. Is this form different
