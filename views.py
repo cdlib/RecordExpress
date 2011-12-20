@@ -38,6 +38,9 @@ def get_publishing_institution_choices_for_user(user):
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
+    '''Add a collection record. Must be a logged in user associated with a 
+    publishing institution.
+    '''
     choices_publishing_institution = get_publishing_institution_choices_for_user(request.user)
     if request.method == 'POST':
         form_main  = CollectionRecordForm(request.POST)
@@ -127,14 +130,18 @@ def add_collection_record(request):
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def view_collection_record(request, ark, *args, **kwargs):
+    '''Formatted html view of the collection record with ark'''
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     collection_record_dict = model_to_dict(collection_record)
+    collection_record_dict['publisher'] = collection_record.publisher.name #TODO: better here
+    #remove id?
     return render(request, 'collection_record/collection_record/view.html',
             locals(),
             )
 
 @login_required
 def view_collection_record_xml(request, ark, *args, **kwargs):
+    '''XML view of collection record'''
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     xml = collection_record.ead_xml
     response = HttpResponse(xml)
@@ -142,3 +149,22 @@ def view_collection_record_xml(request, ark, *args, **kwargs):
     #response['Last-Modified'] = http_date(time.mktime(arkobject.dc_last_modified.timetuple()))
     return response
 
+@login_required
+def view_all_collection_records(request,):# *args, **kwargs):
+    '''Formatted html of all collection records that are associated with
+    the logged in user's publishing institutions association.
+    '''
+    collection_records = CollectionRecord.objects.all()
+    if request.user.is_superuser:
+        user_records = collection_records
+    else:
+        #subset records based on user
+        user_insts = get_publishing_institutions_for_user(request.user)
+        user_records = []
+        for rec in collection_records:
+            if rec.publisher in user_insts:
+                user_records.append(rec)
+    object_list = user_records #alias for Django generic view
+    return render(request, 'collection_record/collection_record/list.html',
+            locals(),
+            )

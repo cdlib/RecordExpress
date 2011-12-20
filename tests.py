@@ -60,6 +60,22 @@ class CollectionRecordFormTestCase(TestCase):
         f = CollectionRecordForm()
      
 
+class CollectionRecordViewAllTestCase(TestCase):
+    '''Test the view of all collection records for a a user
+    '''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+
+    def testViewAllCollectionRecords(self):
+        '''Verify that the user can see their institution's collection records
+        and not others.
+        '''
+        url = reverse('collection_record_view_all', args=None)
+        ret = self.client.login(username='oactestuser',password='oactestuser')
+        response = self.client.get(url)
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'Collection')
+        
+
 class CollectionRecordViewTestCase(WebTest):
     '''Test views of the CollectionRecord'''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
@@ -73,6 +89,7 @@ class CollectionRecordViewTestCase(WebTest):
         self.failUnlessEqual(200, response.status_code)
         #print response
         self.assertContains(response, '<ead>')
+        self.assertContains(response, 'Banc')
 
 
 class NewCollectionRecordViewTestCase(WebTest):
