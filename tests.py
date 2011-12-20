@@ -60,6 +60,21 @@ class CollectionRecordFormTestCase(TestCase):
         f = CollectionRecordForm()
      
 
+class CollectionRecordViewTestCase(WebTest):
+    '''Test views of the CollectionRecord'''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+
+    def testXMLView(self):
+        rec = CollectionRecord.objects.get(pk=1)
+        url = rec.get_absolute_url() + 'xml/'
+        print "URL", url
+        ret = self.client.login(username='oactestuser',password='oactestuser')
+        response = self.client.get(url)
+        self.failUnlessEqual(200, response.status_code)
+        #print response
+        self.assertContains(response, '<ead>')
+
+
 class NewCollectionRecordViewTestCase(WebTest):
     fixtures = ['sites.json', 'auth.json', 'oac.institution.json', 'oac.groupprofile.json']
     def setUp(self):

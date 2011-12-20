@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
+from django.http import HttpResponse
 #from django.http import HttpResponse
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 from DSC_EZID_minter import main as EZIDMinter
@@ -131,3 +132,13 @@ def view_collection_record(request, ark, *args, **kwargs):
     return render(request, 'collection_record/collection_record/view.html',
             locals(),
             )
+
+@login_required
+def view_collection_record_xml(request, ark, *args, **kwargs):
+    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    xml = collection_record.ead_xml
+    response = HttpResponse(xml)
+    response['Content-Type'] = 'application/xml; charset=utf-8'
+    #response['Last-Modified'] = http_date(time.mktime(arkobject.dc_last_modified.timetuple()))
+    return response
+
