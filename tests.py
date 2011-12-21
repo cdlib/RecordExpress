@@ -49,7 +49,7 @@ class CollectionRecordModelTest(TestCase):
             ET.fromstring(ead_xml)
         except:
             self.fail('ElementTree could not parse xml')
-        print ead_xml
+        #print ead_xml
 
 
 class CollectionRecordFormTestCase(TestCase):
@@ -74,6 +74,15 @@ class CollectionRecordViewAllTestCase(TestCase):
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'Collection')
+        self.assertContains(response, '0')
+        self.assertContains(response, 'fk4vh5x06')
+        ret = self.client.login(username='oactestsuperuser', password='oactestsuperuser')
+        self.failUnless(ret)
+        response = self.client.get(url)
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'Collection')
+        self.assertContains(response, '5')
+        self.assertContains(response, 'fk42r40zx')
         
 
 class CollectionRecordViewTestCase(WebTest):
@@ -83,7 +92,6 @@ class CollectionRecordViewTestCase(WebTest):
     def testXMLView(self):
         rec = CollectionRecord.objects.get(pk=1)
         url = rec.get_absolute_url() + 'xml/'
-        print "URL", url
         ret = self.client.login(username='oactestuser',password='oactestuser')
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
@@ -112,7 +120,6 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.assertContains(response, 'itle')
         self.assertContains(response, '<option value="eng" selected="selected">English</option>')
         self.assertContains(response, 'access')
-        self.assertContains(response, 'CR')
         self.assertContains(response, 'person')
         self.assertContains(response, 'family')
         form = response.form

@@ -33,10 +33,10 @@ class CollectionRecord(models.Model):
     ark = models.CharField(max_length=255, unique=True) #mysql length limit
     publisher = models.ForeignKey(PublishingInstitution)
     title = models.CharField(max_length=512,)
-    title_filing = models.SlugField(max_length=255, unique=True)
+    title_filing = models.SlugField(max_length=255)#, unique=True)
     date_dacs = models.CharField(max_length=128,)
     date_iso = models.CharField(max_length=128,)
-    local_identifier = models.CharField(max_length=512, )
+    local_identifier = models.CharField(max_length=255, )
     extent=models.CharField(max_length=255)
     abstract=models.TextField()
     language = models.CharField(max_length=3, choices=(ISO_639_2b))
@@ -49,6 +49,10 @@ class CollectionRecord(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
+
+    class Meta:
+        unique_together = (("title_filing", "publisher"), ("local_identifier",
+            "publisher"))
 
     @models.permalink
     def get_absolute_url(self):

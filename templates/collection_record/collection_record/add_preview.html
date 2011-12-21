@@ -74,7 +74,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -88,7 +87,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -102,7 +100,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -119,7 +116,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -133,7 +129,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -147,7 +142,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -161,7 +155,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -175,7 +168,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
            {% endfor %}
         </fieldset>
@@ -189,7 +181,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -203,7 +194,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -217,7 +207,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -231,7 +220,6 @@
             {% endif %}
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
-                {{form.term}}{{form.qualifier}}
             </div>
             {% endfor %}
         </fieldset>
@@ -243,51 +231,51 @@
     $(function() {
         $('#id_fieldset_persname div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "person_form"
+            prefix: "{{formset_person.prefix}}"
         });
         $('#id_fieldset_familyname div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "family_form"
+            prefix: "{{formset_family.prefix}}"
         });
         $('#id_fieldset_orgname div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "org_form"
+            prefix: "{{formset_organization.prefix}}"
         });
         $('#id_fieldset_topic div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "topic_form"
+            prefix: "{{formset_topic.prefix}}"
         });
         $('#id_fieldset_subject_person_name div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subject_person_name_form"
+            prefix: "{{formset_subject_person_name.prefix}}"
         });
         $('#id_fieldset_subject_family_name div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subject_family_name_form"
+            prefix: "{{formset_subject_family_name.prefix}}"
         });
         $('#id_fieldset_subject_organization_name div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subject_organization_name_form"
+            prefix: "{{formset_subject_organization_name.prefix}}"
         });
         $('#id_fieldset_geog div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "geog_form"
+            prefix: "{{formset_geog.prefix}}"
         });
         $('#id_fieldset_genre div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "genre_form"
+            prefix: "{{formset_genre.prefix}}"
         });
         $('#id_fieldset_subject_title div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subject_title_form"
+            prefix: "{{formset_subject_title.prefix}}"
         });
         $('#id_fieldset_subject_function div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subject_function_form"
+            prefix: "{{formset_subject_function.prefix}}"
         });
         $('#id_fieldset_subject_occupation div').formset({
             formCssClass: 'dynamic-fieldset-form',
-            prefix: "subject_occupation_form"
+            prefix: "{{formset_subject_occupation.prefix}}"
         });
     });
 </script>

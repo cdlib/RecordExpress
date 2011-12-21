@@ -102,8 +102,9 @@ def add_collection_record(request):
                     for form in formset:
                         if form.is_valid():
                             try:
-                                term, qualifier, content = form.cleaned_data['term'], form.cleaned_data['qualifier'], form.cleaned_data['content']
-                                qdce = QualifiedDublinCoreElement(term=term, qualifier=qualifier, content=content, content_object=collection_record)
+                                content = form.cleaned_data['content']
+                                qdce = QualifiedDublinCoreElement(term=form.term, qualifier=form.qualifier, content=content, content_object=collection_record)
+                                qdce.full_clean()
                                 qdce.save()
                             except KeyError:
                                 pass
@@ -162,7 +163,7 @@ def view_all_collection_records(request,):# *args, **kwargs):
         user_insts = get_publishing_institutions_for_user(request.user)
         user_records = []
         for rec in collection_records:
-            if rec.publisher in user_insts:
+            if rec.publisher.id in [ inst.id for inst in user_insts]:
                 user_records.append(rec)
     object_list = user_records #alias for Django generic view
     return render(request, 'collection_record/collection_record/list.html',
