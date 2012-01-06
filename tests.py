@@ -28,8 +28,7 @@ class CollectionRecordModelTest(TestCase):
         '''
         rec = CollectionRecord.objects.get(pk=1)
         ead_xml = rec.ead_xml
-        self.failUnless(ead_xml.index('<?xml') == 0)
-        self.failUnless(ead_xml.index('<ead>') == 162)
+        self.failUnless(ead_xml.index('<ead>') >= 62)
         self.failUnless('ark:/13030/c8s180ts' in ead_xml)
         self.failUnless('persname' in ead_xml)
         self.failUnless('<physdesc label="Extent">' in ead_xml)
@@ -51,6 +50,9 @@ class CollectionRecordModelTest(TestCase):
             self.fail('ElementTree could not parse xml')
         #print ead_xml
 
+    def testEAD_file_save(self):
+        rec = CollectionRecord.objects.get(pk=1)
+        rec.save_ead_file(directory_root=os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'tests/data'))
 
 class CollectionRecordFormTestCase(TestCase):
     '''Test the form for creating new collection records. Is this form different
