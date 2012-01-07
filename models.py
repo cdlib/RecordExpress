@@ -92,6 +92,13 @@ class CollectionRecord(models.Model):
         # to disk
         self.save_ead_file()
 
+    def has_extended_metadata(self):
+        '''Tests if any extended metadata items (held in QDCElements)
+        are associated with the instance.
+        '''
+        return True if self.QDCElements.count() > 0 else False
+    has_extended_metadata.short_description = 'XMetadata'
+
     #or should I just make a nice dictionary of subsetted values?
     #Need to define corresponding accessors (& setters?) for the various
     #multi-valued terms stored in the QDCElements.

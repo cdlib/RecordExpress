@@ -24,8 +24,8 @@ class CollectionRecordAdmin(admin.ModelAdmin):
     #readonly_fields = ('ark', ) #Had to remove to allow adding through admin
     # still guarded in the CollectionRecord.save() method
     search_fields = ('ark', 'title', 'abstract')
-    list_display = ('ark', 'title' , 'abstract', 'publisher', 'updated_at', 'created_at', )
-    #list_filter = ('', )
+    list_display = ('ark', 'title' , 'abstract', 'publisher', 'has_extended_metadata', 'updated_at', 'created_at', )
+    #list_filter = ('QDCElements',)
     inlines = (QDCElementInline, )
     save_on_top = True
     actions = [publish_to_oac]
