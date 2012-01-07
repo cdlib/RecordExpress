@@ -26,7 +26,7 @@ class CollectionRecordModelTest(TestCase):
         '''Test the ead string output for a CollectionRecord. Check unicode
         support
         '''
-        rec = CollectionRecord.objects.get(pk=1)
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         ead_xml = rec.ead_xml
         self.failUnless(ead_xml.index('<ead>') >= 62)
         self.failUnless('ark:/13030/c8s180ts' in ead_xml)
@@ -51,7 +51,7 @@ class CollectionRecordModelTest(TestCase):
         #print ead_xml
 
     def testEAD_file_save(self):
-        rec = CollectionRecord.objects.get(pk=1)
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         rec.save_ead_file(directory_root=os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'tests/data'))
 
 class CollectionRecordFormTestCase(TestCase):
@@ -92,7 +92,7 @@ class CollectionRecordViewTestCase(WebTest):
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
 
     def testXMLView(self):
-        rec = CollectionRecord.objects.get(pk=1)
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         url = rec.get_absolute_url() + 'xml/'
         ret = self.client.login(username='oactestuser',password='oactestuser')
         response = self.client.get(url)

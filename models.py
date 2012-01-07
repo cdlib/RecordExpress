@@ -37,7 +37,7 @@ else:
 
 
 class CollectionRecord(models.Model):
-    ark = models.CharField(max_length=255, unique=True) #mysql length limit
+    ark = models.CharField(max_length=255, primary_key=True) #mysql length limit
     publisher = models.ForeignKey(PublishingInstitution)
     title = models.CharField(max_length=512,)
     title_filing = models.SlugField(max_length=255)#, unique=True)
