@@ -1,5 +1,5 @@
 {% extends 'collection_record/base.html' %}
-{%block pagetitle%}Add a Collection Record{%endblock pagetitle%}
+{%block pagetitle%}{% if not preview%}Add a Collection Record{%else%}Preview Collection Record{%endif%}{%endblock pagetitle%}
 {%block extrahead %}
 <style type="text/css"> h4 { font-weight:bold;}</style>
 <style type="text/css">
@@ -40,14 +40,19 @@
 {%block bodycontent%}
 <div class="container" id="bodycontainer">
     <div class="area span-24 pageheader">
-        <h1>Add a Collection Record to the OAC</h1>
+        {%block bodytitle%}<h1>{%if not preview%}Add a Collection Record To the Oac{%else%}Preview the Collection Record for the OAC{%endif%}</h1>{%endblock bodytitle%}
     </div>
     <div class="area span-24">
 <form action="" method="POST">
     {%csrf_token%}
     <fieldset>
         {% if form_main.errors %}<h3 class="orangetext" style="background-color:yellow;">Please fix the errors below</h3>{%endif%}
+        {%if not preview %}
         <input style="float:right" name="submit" type="submit" value="Preview record"/>
+        {%else%}
+        <input style="float:right" name="submit" type="submit" value="Create record"/>
+        <input type="hidden" name="previewed" value="true" />
+        {%endif%}
         <h3>Basic Information</h3>
         <h5 class="orangetext">* indicates required field</h5>
         {%for field in form_main%}
@@ -224,7 +229,11 @@
             </div>
             {% endfor %}
         </fieldset>
-        <input name="submit" type="submit" value="Preview record"/>
+        {%if not preview %}
+        <input style="float:right" name="submit" type="submit" value="Preview record"/>
+        {%else%}
+        <input style="float:right" name="submit" type="submit" value="Create record"/>
+        {%endif%}
         </form>
 <script type="text/javascript">
     $(function() {

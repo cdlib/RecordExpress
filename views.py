@@ -70,7 +70,8 @@ def add_collection_record(request):
             if not request.POST.get('previewed', None):
                 #preview it
                 # create new unsaved obj from forms, include forms as hidden element?
-                return render(request,'collection_record/collection_record/add_preview.html',
+                preview = True
+                return render(request,'collection_record/collection_record/add.html',
                               locals(),
                               )
             else:
