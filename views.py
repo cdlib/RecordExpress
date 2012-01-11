@@ -140,7 +140,7 @@ def view_collection_record(request, ark, *args, **kwargs):
             locals(),
             )
 
-@login_required
+#@login_required
 def view_collection_record_xml(request, ark, *args, **kwargs):
     '''XML view of collection record'''
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
