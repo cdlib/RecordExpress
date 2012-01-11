@@ -221,7 +221,7 @@ class CollectionRecord(models.Model):
         ead_xml = ''.join((ead_xml, origination_xml,))
         ead_xml = ''.join((ead_xml, '<physdesc label="Extent"><extent>', self.extent, '</extent>\n',))
         if self.online_items_url:
-            ead_xml = ''.join((ead_xml, '<extent type="dao">Online items available</extent>\n<dao role="http://oac.cdlib.org/arcrole/link/search/" href="', self.online_items_url, '" title="Online items"/>\n',))
+            ead_xml = ''.join((ead_xml, '<extent type="dao">Online items available</extent>\n<dao role="http://oac.cdlib.org/arcrole/link/search/" href="', escape(self.online_items_url), '" title="Online items"/>\n',))
         ead_xml = ''.join((ead_xml, '</physdesc>\n',))
         ead_xml = ''.join((ead_xml, '<repository label="Repository">\n<corpname>', self.publisher.name, '</corpname>\n</repository>\n'))
         ead_xml = ''.join((ead_xml, '<abstract label="Abstract">', self.abstract, '</abstract>\n',))
