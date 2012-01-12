@@ -5,6 +5,7 @@ from xml.sax.saxutils import escape
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.conf import settings
+from django.utils.safestring import mark_safe
 
 from ISO_639_2b import ISO_639_2b
 from DublinCore.models import QualifiedDublinCoreElement
@@ -60,6 +61,9 @@ class CollectionRecord(models.Model):
     class Meta:
         unique_together = (("title_filing", "publisher"), ("local_identifier",
             "publisher"))
+
+    def __unicode__(self):
+        return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
 
     @models.permalink
     def get_absolute_url(self):

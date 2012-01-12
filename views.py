@@ -146,21 +146,52 @@ def edit_collection_record(request, ark, *args, **kwargs):
     url_preview = _url_xtf_preview(collection_record)
     #collection_record_dict = model_to_dict(collection_record)
     #collection_record_dict['publisher'] = collection_record.publisher.name #TODO: better here
-    form_main = CollectionRecordForm(instance=collection_record)
     #TODO: use model form, need to init DublinCore ones as well
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0)
-    formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
-    formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
-    formset_organization =dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
-    formset_topic = dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
-    formset_subject_person_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
-    formset_subject_family_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
-    formset_subject_organization_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_name_organization')
-    formset_geog = dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
-    formset_genre = dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
-    formset_subject_title = dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
-    formset_subject_function = dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
-    formset_subject_occupation = dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
+    if request.method == 'POST':
+        form_main = CollectionRecordForm(request.POST, instance=collection_record)
+        formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
+        formset_family = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_family, prefix='family')
+        formset_organization =dcformset_factory(request.POST, instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
+        formset_topic = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
+        formset_subject_person_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
+        formset_subject_family_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
+        formset_subject_organization_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_name_organization')
+        formset_geog = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.coverage, prefix='geog')
+        formset_genre = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.type_format, prefix='genre')
+        formset_subject_title = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
+        formset_subject_function = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
+        formset_subject_occupation = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
+        formset_list = [ formset_person, formset_family, formset_organization,
+                formset_topic, formset_subject_person_name,
+                formset_subject_family_name, formset_subject_organization_name,
+                formset_geog, formset_genre, formset_subject_title,
+                formset_subject_function, formset_subject_occupation
+                ]
+        valid_formsets = False not in [x.is_valid() for x in formset_list]  
+        print "VALID FORMSETS??? ", valid_formsets
+        if form_main.is_valid() and valid_formsets:
+            form_main.save()
+            for formset in formset_list:
+                formset.save()
+                #for form in formset:
+                #    if form.is_valid():
+                #        form.save()
+                    #save all of the formsets forms
+    else:#NOT POST
+        form_main = CollectionRecordForm(instance=collection_record)
+        formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
+        formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
+        formset_organization =dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
+        formset_topic = dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
+        formset_subject_person_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
+        formset_subject_family_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
+        formset_subject_organization_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_name_organization')
+        formset_geog = dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
+        formset_genre = dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
+        formset_subject_title = dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
+        formset_subject_function = dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
+        formset_subject_occupation = dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
     return render(request, 'collection_record/collection_record/edit.html',
             locals(),
             )

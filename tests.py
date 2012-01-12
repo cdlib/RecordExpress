@@ -149,7 +149,7 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test Title')
-        self.assertTemplateUsed(response,'collection_record/collection_record/view.html') 
+        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
 
     def testNewWithDCView(self):
         url = reverse('collection_record_add')
@@ -179,4 +179,4 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test 2 Title')
         self.assertContains(response, 'redar')
-        self.assertTemplateUsed(response,'collection_record/collection_record/view.html') 
+        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 

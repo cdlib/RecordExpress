@@ -23,8 +23,8 @@ def publish_to_oac(modeladmin, request, queryset):
 class CollectionRecordAdmin(admin.ModelAdmin):
     #readonly_fields = ('ark', ) #Had to remove to allow adding through admin
     # still guarded in the CollectionRecord.save() method
-    search_fields = ('ark', 'title', 'abstract')
-    list_display = ('ark', 'title' , 'abstract', 'publisher', 'has_extended_metadata', 'updated_at', 'created_at', )
+    search_fields = ('ark', 'title', 'title_filing', 'abstract')
+    list_display = ('ark', 'title_filing' , 'publisher', 'has_extended_metadata', 'updated_at', 'created_at', )
     #list_filter = ('QDCElements',)
     inlines = (QDCElementInline, )
     save_on_top = True

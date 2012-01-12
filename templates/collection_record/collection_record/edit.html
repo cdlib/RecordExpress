@@ -46,7 +46,7 @@
 <form action="" method="POST">
     {%csrf_token%}
     <fieldset>
-        {% if form_main.errors %}<h3 class="orangetext" style="background-color:yellow;">Please fix the errors below</h3>{%endif%}
+        {% if form_main.errors %}<h3 class="orangetext" style="background-color:yellow;">Please fix the errors below -- {{form_main.errors}}</h3>{%endif%}
         {% block submit_top %}
         <input style="float:right" name="submit" type="submit" value="Update record"/>
         {% endblock submit_top %}
@@ -54,7 +54,7 @@
         <h5 class="orangetext">* indicates required field</h5>
         {%for field in form_main%}
         <div class="span-23" {%if field.errors%}style="background-color:yellow;"{%endif%}>
-        <span class="span-5"><label for="{{form.id}}">
+        <span class="span-5"><label>
             {{field.label}}{%if field.field.required %}<span class="orangetext">*</span>{%endif%}</label>
         </span>
         <span class="span-18 last">{{field}}&nbsp;{{field.help_text}}
@@ -75,6 +75,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -88,6 +89,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -101,6 +103,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -117,6 +120,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -130,6 +134,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -143,6 +148,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -156,6 +162,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -169,6 +176,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -182,6 +190,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -195,6 +204,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -208,6 +218,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class='hide'>{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
@@ -221,6 +232,7 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
+            <span class="hide">{{form.id}}{{form.term}}{{form.qualifier}}</span>
             <label class="span-5">{{form.content.label}}</label>
                 {{form.content}}
             </div>
