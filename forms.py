@@ -2,8 +2,14 @@ from django import forms
 from django.forms.formsets import formset_factory
 
 from collection_record.ISO_639_2b import ISO_639_2b
+from collection_record.models import CollectionRecord
 
-class CollectionRecordForm(forms.Form):
+class CollectionRecordForm(forms.ModelForm):
+    class Meta:
+        model = CollectionRecord
+        exclude = ('ark', )
+
+class CollectionRecordAddForm(forms.Form):
 #    ark = forms.CharField(max_length=255, initial='<Will be assigned>')
     title = forms.CharField(max_length=512, widget=forms.TextInput(attrs={'size':'100'},), label='Collection Title')
     title_filing = forms.CharField(max_length=256, label='Collection Title (Filing)', widget=forms.TextInput(attrs={'size':'100'},))

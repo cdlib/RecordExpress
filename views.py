@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
+from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from django.http import HttpResponse
 #from django.http import HttpResponse
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
@@ -10,6 +11,7 @@ from DSC_EZID_minter import main as EZIDMinter
 from DublinCore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
 from collection_record.forms import CollectionRecordForm
+from collection_record.forms import CollectionRecordAddForm
 from collection_record.forms import CreatorPersonFormset
 from collection_record.forms import CreatorFamilyFormset
 from collection_record.forms import CreatorOrganizationFormset
@@ -43,7 +45,7 @@ def add_collection_record(request):
     '''
     choices_publishing_institution = get_publishing_institution_choices_for_user(request.user)
     if request.method == 'POST':
-        form_main  = CollectionRecordForm(request.POST)
+        form_main  = CollectionRecordAddForm(request.POST)
         form_main.fields['publishing_institution'].choices = choices_publishing_institution 
         formset_person = CreatorPersonFormset(request.POST, prefix='person')
         formset_family = CreatorFamilyFormset(request.POST, prefix='family')
@@ -71,7 +73,7 @@ def add_collection_record(request):
                 #preview it
                 # create new unsaved obj from forms, include forms as hidden element?
                 preview = True
-                return render(request,'collection_record/collection_record/add.html',
+                return render(request,'collection_record/collection_record/add_preview.html',
                               locals(),
                               )
             else:
@@ -111,7 +113,7 @@ def add_collection_record(request):
                                 pass
                 return redirect(collection_record)
     else:
-        form_main  = CollectionRecordForm()
+        form_main  = CollectionRecordAddForm()
         form_main.fields['publishing_institution'].choices = choices_publishing_institution 
         formset_person = CreatorPersonFormset(prefix='person')
         formset_family = CreatorFamilyFormset(prefix='family')
@@ -129,15 +131,37 @@ def add_collection_record(request):
                               locals(),
                               )
 
+def _url_xtf_preview(collection_record):
+    import os
+    URL_XTF_EAD_VIEW = 'http://' + os.environ['FINDAID_HOSTNAME']+'/view?docId=ead-preview&doc.view=entire_text&source=http://' + os.environ['BACK_SERVER'] + '/djsite/collection-record/'
+    URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
+    return URL_XTF_EAD_VIEW + collection_record.ark + URL_XTF_EAD_VIEW_SUFFIX
+
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
-def view_collection_record(request, ark, *args, **kwargs):
+def edit_collection_record(request, ark, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
+    pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    collection_record_dict = model_to_dict(collection_record)
-    collection_record_dict['publisher'] = collection_record.publisher.name #TODO: better here
-    #remove id?
-    return render(request, 'collection_record/collection_record/view.html',
+    url_preview = _url_xtf_preview(collection_record)
+    #collection_record_dict = model_to_dict(collection_record)
+    #collection_record_dict['publisher'] = collection_record.publisher.name #TODO: better here
+    form_main = CollectionRecordForm(instance=collection_record)
+    #TODO: use model form, need to init DublinCore ones as well
+    dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0)
+    formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
+    formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
+    formset_organization =dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
+    formset_topic = dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
+    formset_subject_person_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
+    formset_subject_family_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
+    formset_subject_organization_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_name_organization')
+    formset_geog = dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
+    formset_genre = dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
+    formset_subject_title = dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
+    formset_subject_function = dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
+    formset_subject_occupation = dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
+    return render(request, 'collection_record/collection_record/edit.html',
             locals(),
             )
 
