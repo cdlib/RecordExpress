@@ -148,7 +148,7 @@ class CollectionRecord(models.Model):
 
     @property
     def coverage(self):
-        return self.QDCElements.all().filter(term__exact='COV').filter(qualifier__exact='geo')
+        return self.QDCElements.all().filter(term__exact='CVR').filter(qualifier__exact='geo')
 
     @property
     def type_format(self):
