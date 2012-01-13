@@ -334,4 +334,6 @@ def view_collection_record_oac_preview(request, ark, *args, **kwargs):
                     )
     atag.insert(0, 'Edit')
     body.insert(0, atag)
-    return HttpResponse(unicode(soup))
+    return HttpResponse(soup.prettify()) # works
+    #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
+    #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
