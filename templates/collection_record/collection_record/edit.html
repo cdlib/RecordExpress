@@ -38,9 +38,11 @@
 {%endblock extrahead %}
 
 {%block bodycontent%}
+{% if collection_record %}<a style="float:right;background-color:#C2492C;color:white;border-radius:10px;font-size:30px;margin:5px;text-decoration:none;padding:5px;" href="./oac/">View</a>
+    {% endif %}
 <div class="container" id="bodycontainer">
     <div class="area span-24 pageheader">
-        {%block bodytitle%}<h1>Edit Collection Record : {{ collection_record.ark }}</h1><a href="{{ url_preview }}">Preview</a>{%endblock bodytitle%}
+        {%block bodytitle%}<h1>Edit Collection Record : {{ collection_record.ark }}</h1>{%endblock bodytitle%}
     </div>
     <div class="area span-24">
 <form action="" method="POST">

@@ -1,3 +1,4 @@
+import urllib
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -5,8 +6,9 @@ from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from django.http import HttpResponse
-#from django.http import HttpResponse
+from django.http import HttpResponse
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
+import BeautifulSoup
 from DSC_EZID_minter import main as EZIDMinter
 from DublinCore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
@@ -143,11 +145,11 @@ def add_collection_record(request):
                               locals(),
                               )
 
-def _url_xtf_preview(collection_record):
+def _url_xtf_preview(ark):
     import os
     URL_XTF_EAD_VIEW = 'http://' + os.environ['FINDAID_HOSTNAME']+'/view?docId=ead-preview&doc.view=entire_text&source=http://' + os.environ['BACK_SERVER'] + '/djsite/collection-record/'
     URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
-    return URL_XTF_EAD_VIEW + collection_record.ark + URL_XTF_EAD_VIEW_SUFFIX
+    return URL_XTF_EAD_VIEW + ark + URL_XTF_EAD_VIEW_SUFFIX
 
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
@@ -155,7 +157,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    url_preview = _url_xtf_preview(collection_record)
+    url_preview = _url_xtf_preview(collection_record.ark)
     #collection_record_dict = model_to_dict(collection_record)
     #collection_record_dict['publisher'] = collection_record.publisher.name #TODO: better here
     #TODO: use model form, need to init DublinCore ones as well
@@ -317,3 +319,19 @@ def view_all_collection_records(request,):# *args, **kwargs):
     return render(request, 'collection_record/collection_record/list.html',
             locals(),
             )
+
+@login_required
+def view_collection_record_oac_preview(request, ark, *args, **kwargs):
+    '''Proxy the xtf preview page'''
+    url = _url_xtf_preview(ark)
+    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    foo = urllib.urlopen(url)
+    html = foo.read()
+    soup = BeautifulSoup.BeautifulSoup(html)
+    body = soup.find('body')
+    atag = BeautifulSoup.Tag(soup, 'a',
+                    attrs={'style':"float:right;background-color:#C2492C;color:white;border-radius:10px;font-size:30px;margin:5px;text-decoration:none;padding:5px;", 'href':collection_record.get_absolute_url()}
+                    )
+    atag.insert(0, 'Edit')
+    body.insert(0, atag)
+    return HttpResponse(unicode(soup))

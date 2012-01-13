@@ -5,6 +5,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.db.models.base import ValidationError
 from django_webtest import WebTest
+from liveTestCase import TestCaseLiveServer
 from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
 
@@ -101,6 +102,24 @@ class CollectionRecordViewTestCase(WebTest):
         self.assertContains(response, '<ead>')
         self.assertContains(response, 'Banc')
 
+class CollectionRecordEditTestCase(WebTest):
+    '''Test the edit page for the collection records. Should be able to modify
+    all data (main & assoc. DCs) and delete and add DC stored data
+    '''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+
+    def testEditPageAuth(self):
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        url = rec.get_absolute_url()
+        response = self.app.get(url)
+        self.failUnlessEqual('302 FOUND', response.status)
+        self.failUnlessEqual(302, response.status_code)
+        self.assertRedirects(response, '/accounts/login/?next='+quote(url))
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'itle')
+        self.assertContains(response, '<option value="eng" selected="selected">English</option>')
+        self.assertContains(response, 'access')
 
 class NewCollectionRecordViewTestCase(WebTest):
     fixtures = ['sites.json', 'auth.json', 'oac.institution.json', 'oac.groupprofile.json']
@@ -180,3 +199,32 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.assertContains(response, 'Test 2 Title')
         self.assertContains(response, 'redar')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+
+class CollectionRecordOACViewTestCase(TestCaseLiveServer):
+    '''Test the annotated view from the xtf. We add a couple of elements (edit button)
+    There needs to be a working DSC OAC xtf running on the host specified in 
+    the env var FINDAID_HOSTNAME
+    '''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+    def setUp(self):
+        # Start a test server and tell selenium where to find it.
+        os.environ['BACK_SERVER'] = 'localhost:8080'
+#URL_XTF_EAD_VIEW = 'http://' + os.environ['FINDAID_HOSTNAME']+'/view?docId=ead-preview&doc.view=entire_text&source=http://' + os.environ['BACK_SERVER'] + '/djsite/collection-record/'
+        self.start_test_server('localhost', 8080)
+
+    def tearDown(self):
+        self.stop_test_server()
+
+    def testOACView(self):
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        url = rec.get_absolute_url()+'oac/'
+        response = self.client.get(url)
+        self.failUnlessEqual(302, response.status_code)
+        ret = self.client.login(username='oactestuser',password='oactestuser')
+        self.failUnless(ret)
+        response = self.client.get(url)
+        self.failUnlessEqual(200, response.status_code)
+        #Need a live serverfor this to work....
+        self.assertContains(response, 'First Test Title')
+        self.assertContains(response, 'localid')
+        self.assertContains(response, 'Bancroft')
