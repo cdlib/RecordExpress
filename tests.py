@@ -121,6 +121,49 @@ class CollectionRecordEditTestCase(WebTest):
         self.assertContains(response, '<option value="eng" selected="selected">English</option>')
         self.assertContains(response, 'access')
 
+    def testEditAttr(self):
+        '''Edit a directly associated value of the Record'''
+        rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        url = rec.get_absolute_url()
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        form = response.form
+        #fill out basic info only,required fields only
+        form['title'] = 'Test Title'
+        form['title_filing'] = 'Test Filing Title'
+        form['date_dacs'] = 'circa 1980'
+        form['date_iso'] = '1980'
+        form['local_identifier'] = 'LOCALID-test'
+        form['extent'] = 'loads of boxes'
+        form['abstract'] = 'a nice test collection'
+        form['accessrestrict'] = 'public domain'
+        form['userestrict'] = 'go craxy'
+        form['acqinfo'] = 'by mark'
+        form['scopecontent'] = 'test content'
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+        print unicode(response)
+        self.assertNotContains(response, 'errorlist')
+
+    def testEditDCTerm(self):
+        '''Test the editing of a term stored in an associated DC object
+        '''
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        url = rec.get_absolute_url()
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        form = response.form
+        newPerson = 'Mark Redar Test'
+        form['person-0-content'] = newPerson
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, newPerson)
+
+    def testDeletionOfDCTerm(self):
+        '''Test the deletion of a term'''
+        pass
+
 class NewCollectionRecordViewTestCase(WebTest):
     fixtures = ['sites.json', 'auth.json', 'oac.institution.json', 'oac.groupprofile.json']
     def setUp(self):
@@ -209,7 +252,6 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
     def setUp(self):
         # Start a test server and tell selenium where to find it.
         os.environ['BACK_SERVER'] = 'localhost:8080'
-#URL_XTF_EAD_VIEW = 'http://' + os.environ['FINDAID_HOSTNAME']+'/view?docId=ead-preview&doc.view=entire_text&source=http://' + os.environ['BACK_SERVER'] + '/djsite/collection-record/'
         self.start_test_server('localhost', 8080)
 
     def tearDown(self):
