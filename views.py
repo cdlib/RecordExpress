@@ -209,6 +209,10 @@ def edit_collection_record(request, ark, *args, **kwargs):
                     #save all of the formsets forms
         #TODO: RESET FORM DATA TO BE FROM JUST SAVED DATA (INCLUDING DELETES)_
         else:
+            formset_errors = ''
+            if not valid_formsets:
+                for formset in formset_list:
+                    formset_errors = ''.join((formset_errors, unicode(formset.errors)))
             return render(request, 'collection_record/collection_record/edit.html',
                 locals(),
             )
