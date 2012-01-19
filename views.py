@@ -167,28 +167,52 @@ def edit_collection_record(request, ark, *args, **kwargs):
         form_main = CollectionRecordForm(request.POST, instance=collection_record)
         formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
         formset_person.qualifier = 'person'
+        formset_person.term = 'CR'
+        formset_person.content_label = 'Personal Name'
         formset_family = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_family, prefix='family')
         formset_family.qualifier = 'family'
+        formset_family.term = 'CR'
+        formset_family.content_label = 'Family Name'
         formset_organization =dcformset_factory(request.POST, instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
         formset_organization.qualifier = 'organization'
+        formset_organization.term = 'CR'
+        formset_organization.content_label = 'Organization/Corporation Name'
         formset_topic = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
         formset_topic.qualifier = 'topic'
+        formset_topic.term = 'SUB'
+        formset_topic.content_label = 'Topical Term'
         formset_subject_person_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
         formset_subject_person_name.qualifier = 'name_person'
+        formset_subject_person_name.term = 'SUB'
+        formset_subject_person_name.content_label = 'Subject Personal Name'
         formset_subject_family_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
         formset_subject_family_name.qualifier = 'name_family'
+        formset_subject_family_name.term = 'SUB'
+        formset_subject_family_name.content_label = 'Subject Family Name'
         formset_subject_organization_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
         formset_subject_organization_name.qualifier = 'name_organization'
+        formset_subject_organization_name.term = 'SUB'
+        formset_subject_organization_name.content_label = 'Subject Organization Name'
         formset_geog = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.coverage, prefix='geog')
         formset_geog.qualifier = 'geo'
+        formset_geog.term = 'CVR'
+        formset_geog.content_label = 'Geographical Location'
         formset_genre = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.type_format, prefix='genre')
         formset_genre.qualifier = 'genre'
+        formset_genre.term = 'TYP'
+        formset_genre.content_label = 'Form/Genre Term'
         formset_subject_title = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
         formset_subject_title.qualifier = SubjectTitleForm.qualifier
+        formset_subject_title.term = SubjectTitleForm.term
+        formset_subject_title.content_label = SubjectTitleForm.content_label
         formset_subject_function = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
         formset_subject_function.qualifier = 'function'
+        formset_subject_function.term = 'SUB'
+        formset_subject_function.content_label = 'Function Term'
         formset_subject_occupation = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
         formset_subject_occupation.qualifier = 'occupation'
+        formset_subject_occupation.term = 'SUB'
+        formset_subject_occupation.content_label = 'Occupation Term'
         formset_list = [ formset_person, formset_family, formset_organization,
                 formset_topic, formset_subject_person_name,
                 formset_subject_family_name, formset_subject_organization_name,
@@ -213,6 +237,10 @@ def edit_collection_record(request, ark, *args, **kwargs):
             if not valid_formsets:
                 for formset in formset_list:
                     formset_errors = ''.join((formset_errors, unicode(formset.errors)))
+            for formset in formset_list:
+                for form in formset:
+                    form.initial = {'term':formset.term, 'qualifier':formset.qualifier}
+                form.fields['content'].label = formset.content_label
             return render(request, 'collection_record/collection_record/edit.html',
                 locals(),
             )
@@ -220,76 +248,100 @@ def edit_collection_record(request, ark, *args, **kwargs):
     form_main = CollectionRecordForm(instance=collection_record)
     if not collection_record.creator_person:
         formset_person = blank_dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
-        for form in formset_person:
-            form.initial = {'term':'CR', 'qualifier':'person'}
     else:
         formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
     if not collection_record.creator_family:
         formset_family = blank_dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
-        for form in formset_family:
-            form.initial = {'term':'CR', 'qualifier':'family'}
     else:
         formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
     if not collection_record.creator_organization:
         formset_organization = blank_dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
-        for form in formset_organization:
-            form.initial = {'term':'CR', 'qualifier':'organization'}
     else:
         formset_organization = dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
     if not collection_record.subject_topic:
         formset_topic = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
-        for form in formset_topic:
-            form.initial = {'term':'SUB', 'qualifier':'topic'}
     else:
         formset_topic = dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
     if not collection_record.subject_name_person:
         formset_subject_person_name = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
-        for form in formset_subject_person_name:
-            form.initial = {'term':'SUB', 'qualifier':'name_person'}
     else:
         formset_subject_person_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
     if not collection_record.subject_name_family:
         formset_subject_family_name = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
-        for form in formset_subject_family_name:
-            form.initial = {'term':'SUB', 'qualifier':'name_family'}
     else:
         formset_subject_family_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
     if not collection_record.subject_name_organization:
         formset_subject_organization_name = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
-        for form in formset_subject_organization_name:
-            form.initial = {'term':'SUB', 'qualifier':'name_organization'}
     else:
         formset_subject_organization_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
     if not collection_record.coverage:
         formset_geog = blank_dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
-        for form in formset_geog:
-            form.initial = {'term':'CVR', 'qualifier':'geo'}
     else:
         formset_geog = dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
     if not collection_record.type_format:
         formset_genre = blank_dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
-        for form in formset_genre:
-            form.initial = {'term':'TYP', 'qualifier':'genre'}
     else:
         formset_genre = dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
     if not collection_record.subject_title:
         formset_subject_title = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
-        for form in formset_subject_title:
-            form.initial = {'term':'SUB', 'qualifier':'title'}
     else:
         formset_subject_title = dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
     if not collection_record.subject_function:
         formset_subject_function = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
-        for form in formset_subject_function:
-            form.initial = {'term':'SUB', 'qualifier':'function'}
     else:
         formset_subject_function = dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
     if not collection_record.subject_occupation:
         formset_subject_occupation = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
-        for form in formset_subject_occupation:
-            form.initial = {'term':'SUB', 'qualifier':'occupation'}
     else:
         formset_subject_occupation = dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
+
+    formset_person.qualifier = 'person'
+    formset_person.term = 'CR'
+    formset_person.content_label = 'Personal Name'
+    formset_family.qualifier = 'family'
+    formset_family.term = 'CR'
+    formset_family.content_label = 'Family Name'
+    formset_organization.qualifier = 'organization'
+    formset_organization.term = 'CR'
+    formset_organization.content_label = 'Organization/Corporation Name'
+    formset_topic.qualifier = 'topic'
+    formset_topic.term = 'SUB'
+    formset_topic.content_label = 'Topical Term'
+    formset_subject_person_name.qualifier = 'name_person'
+    formset_subject_person_name.term = 'SUB'
+    formset_subject_person_name.content_label = 'Subject Personal Name'
+    formset_subject_family_name.qualifier = 'name_family'
+    formset_subject_family_name.term = 'SUB'
+    formset_subject_family_name.content_label = 'Subject Family Name'
+    formset_subject_organization_name.qualifier = 'name_organization'
+    formset_subject_organization_name.term = 'SUB'
+    formset_subject_organization_name.content_label = 'Subject Organization Name'
+    formset_geog.qualifier = 'geo'
+    formset_geog.term = 'CVR'
+    formset_geog.content_label = 'Geographical Location'
+    formset_genre.qualifier = 'genre'
+    formset_genre.term = 'TYP'
+    formset_genre.content_label = 'Form/Genre Term'
+    formset_subject_title.qualifier = SubjectTitleForm.qualifier
+    formset_subject_title.term = SubjectTitleForm.term
+    formset_subject_title.content_label = SubjectTitleForm.content_label
+    formset_subject_function.qualifier = 'function'
+    formset_subject_function.term = 'SUB'
+    formset_subject_function.content_label = 'Function Term'
+    formset_subject_occupation.qualifier = 'occupation'
+    formset_subject_occupation.term = 'SUB'
+    formset_subject_occupation.content_label = 'Occupation Term'
+    formset_list = [ formset_person, formset_family, formset_organization,
+                formset_topic, formset_subject_person_name,
+                formset_subject_family_name, formset_subject_organization_name,
+                formset_geog, formset_genre, formset_subject_title,
+                formset_subject_function, formset_subject_occupation
+                ]
+    for formset in formset_list:
+        for form in formset:
+            form.initial = {'term':formset.term, 'qualifier':formset.qualifier}
+            form.fields['content'].label = formset.content_label
+
     return render(request, 'collection_record/collection_record/edit.html',
             locals(),
             )

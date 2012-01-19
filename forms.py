@@ -48,7 +48,8 @@ CreatorOrganizationFormset = formset_factory(CreatorOrganizationForm, extra=1)
 class SubjectTopicForm(forms.Form):
     term = 'SUB'
     qualifier = 'topic'
-    content = forms.CharField(max_length=40, label='Topical Term', widget=forms.TextInput(attrs={'size':'60',})) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
+    content_label = 'Topical Term'
+    content = forms.CharField(max_length=40, label=content_label, widget=forms.TextInput(attrs={'size':'60',})) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
 SubjectTopicFormset = formset_factory(SubjectTopicForm, extra=1)
 
 class SubjectPersonNameForm(forms.Form):
@@ -84,7 +85,8 @@ GenreFormset = formset_factory(GenreForm, extra=1)
 class SubjectTitleForm(forms.Form):
     term = 'SUB'
     qualifier = 'title'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Title')
+    content_label = 'Title'
+    content = forms.CharField(max_length=40, label=content_label, widget=forms.TextInput(attrs={'size':'60',})) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
 SubjectTitleFormset = formset_factory(SubjectTitleForm, extra=1)
 
 class SubjectFunctionForm(forms.Form):
