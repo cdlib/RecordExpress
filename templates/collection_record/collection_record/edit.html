@@ -30,6 +30,9 @@
   .errorbox {
     background-color:yellow;
 }
+    .empty-form {
+        display:none;
+    }
 </style>
 
 <script type="text/javascript" src="/site_media/js/jquery-1.3.2.min.js"></script>
@@ -76,7 +79,7 @@
             <h4>Personal Names</h4>
             {{ formset_person.management_form }}
             {% for form in formset_person %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -91,7 +94,7 @@
             <h4>Family Names</h4>
             {{ formset_family.management_form }}
             {% for form in formset_family %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -106,7 +109,7 @@
             <h4>Organization Names</h4>
             {{ formset_organization.management_form }}
             {% for form in formset_organization %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -124,7 +127,7 @@
             <h4>Topics</h4>
             {{ formset_topic.management_form }}
             {% for form in formset_topic %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -139,7 +142,7 @@
             <h4>Personal Names</h4>
             {{ formset_subject_person_name.management_form }}
             {% for form in formset_subject_person_name %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -154,7 +157,7 @@
             <h4>Family Names</h4>
             {{ formset_subject_family_name.management_form }}
             {% for form in formset_subject_family_name %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -169,7 +172,7 @@
             <h4>Organization Names</h4>
             {{ formset_subject_organization_name.management_form }}
             {% for form in formset_subject_organization_name %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -184,7 +187,7 @@
             <h4>Geographical Locations</h4>
             {{ formset_geog.management_form }}
             {% for form in formset_geog %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -199,7 +202,7 @@
             <h4>Form/Genres of Materials</h4>
             {{ formset_genre.management_form }}
             {% for form in formset_genre %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -214,7 +217,7 @@
             <h4>Titles</h4>
             {{ formset_subject_title.management_form }}
             {% for form in formset_subject_title %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -229,7 +232,7 @@
             <h4>Functions</h4>
             {{ formset_subject_function.management_form }}
             {% for form in formset_subject_function %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
@@ -244,7 +247,7 @@
             <h4>Occupations</h4>
             {{ formset_subject_occupation.management_form }}
             {% for form in formset_subject_occupation %}
-            <div {% if form.errors %}class="errorbox"{%endif%}>
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
