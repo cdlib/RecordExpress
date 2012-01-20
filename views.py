@@ -173,7 +173,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
         formset_organization =dcformset_factory(request.POST, instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
         formset_organization.qualifier = 'organization'
         formset_organization.term = 'CR'
-        formset_organization.content_label = 'Organization/Corporation Name'
+        formset_organization.content_label = 'Organization Name'
         formset_topic = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
         formset_topic.qualifier = 'topic'
         formset_topic.term = 'SUB'
@@ -254,7 +254,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
     formset_family.content_label = 'Family Name'
     formset_organization.qualifier = 'organization'
     formset_organization.term = 'CR'
-    formset_organization.content_label = 'Organization/Corporation Name'
+    formset_organization.content_label = 'Organization Name'
     formset_topic.qualifier = 'topic'
     formset_topic.term = 'SUB'
     formset_topic.content_label = 'Topical Term'
@@ -340,7 +340,21 @@ def view_collection_record_oac_preview(request, ark, *args, **kwargs):
     soup = BeautifulSoup.BeautifulSoup(html)
     body = soup.find('body')
     atag = BeautifulSoup.Tag(soup, 'a',
-                    attrs={'style':"float:right;background-color:#C2492C;color:white;border-radius:10px;font-size:30px;margin:5px;text-decoration:none;padding:5px;", 'href':collection_record.get_edit_url()}
+            attrs={'href':collection_record.get_edit_url(),
+                'style':"""\
+float:right;\
+background-color:#C2492C;\
+color:white;\
+border-radius:10px;\
+font-size:30px;\
+margin:5px;\
+text-decoration:none;\
+padding:7px;\
+font-family:inherit;\
+vertical-align:baseline;\
+line-height:1.5;\
+""",
+            } 
                     )
     atag.insert(0, 'Edit')
     body.insert(0, atag)
