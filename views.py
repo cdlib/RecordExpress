@@ -158,14 +158,11 @@ def edit_collection_record(request, ark, *args, **kwargs):
     pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     url_preview = _url_xtf_preview(collection_record.ark)
-    #collection_record_dict = model_to_dict(collection_record)
-    #collection_record_dict['publisher'] = collection_record.publisher.name #TODO: better here
-    #TODO: use model form, need to init DublinCore ones as well
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
-    blank_dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=1, can_delete=True)
     if request.method == 'POST':
         form_main = CollectionRecordForm(request.POST, instance=collection_record)
-        formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
+        #formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
+        formset_person = dcformset_factory(request.POST, instance=collection_record, prefix='person')
         formset_person.qualifier = 'person'
         formset_person.term = 'CR'
         formset_person.content_label = 'Personal Name'
@@ -223,77 +220,30 @@ def edit_collection_record(request, ark, *args, **kwargs):
         if form_main.is_valid() and valid_formsets:
             form_main.save()
             for formset in formset_list:
-                #NOTE: for added ones, the qualifier was not being picked up. this caused problems....
                 for form in formset:
                     form.cleaned_data['qualifier'] = formset.qualifier
                 formset.save()
-                #for form in formset:
-                #    if form.is_valid():
-                #        form.save()
-                    #save all of the formsets forms
-        #TODO: RESET FORM DATA TO BE FROM JUST SAVED DATA (INCLUDING DELETES)_
         else:
             formset_errors = ''
             if not valid_formsets:
                 for formset in formset_list:
                     formset_errors = ''.join((formset_errors, unicode(formset.errors)))
-            for formset in formset_list:
-                for form in formset:
-                    form.initial = {'term':formset.term, 'qualifier':formset.qualifier}
-                    #form.initial = {'term':formset.term, 'qualifier':formset.qualifier, 'content':form.instance.content}
-                    form.fields['content'].label = formset.content_label
             return render(request, 'collection_record/collection_record/edit.html',
                 locals(),
             )
     #NOT POST and post valid update
     form_main = CollectionRecordForm(instance=collection_record)
-####    if not collection_record.creator_person:
-####        formset_person = blank_dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
-####    else:
     formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
-####    if not collection_record.creator_family:
-####        formset_family = blank_dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
-####    else:
     formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
-####    if not collection_record.creator_organization:
-####        formset_organization = blank_dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
-####    else:
     formset_organization = dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
-####    if not collection_record.subject_topic:
-####        formset_topic = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
-####    else:
     formset_topic = dcformset_factory(instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
-####    if not collection_record.subject_name_person:
-####        formset_subject_person_name = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
-####    else:
     formset_subject_person_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
-####    if not collection_record.subject_name_family:
-####        formset_subject_family_name = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
-####    else:
     formset_subject_family_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
-####    if not collection_record.subject_name_organization:
-####        formset_subject_organization_name = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
-####    else:
     formset_subject_organization_name = dcformset_factory(instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
-####    if not collection_record.coverage:
-####        formset_geog = blank_dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
-####    else:
     formset_geog = dcformset_factory(instance=collection_record, queryset=collection_record.coverage, prefix='geog')
-####    if not collection_record.type_format:
-####        formset_genre = blank_dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
-####    else:
     formset_genre = dcformset_factory(instance=collection_record, queryset=collection_record.type_format, prefix='genre')
-####    if not collection_record.subject_title:
-####        formset_subject_title = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
-####    else:
     formset_subject_title = dcformset_factory(instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
-####    if not collection_record.subject_function:
-####        formset_subject_function = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
-####    else:
     formset_subject_function = dcformset_factory(instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
-####    if not collection_record.subject_occupation:
-####        formset_subject_occupation = blank_dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
-####    else:
     formset_subject_occupation = dcformset_factory(instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
 
     formset_person.qualifier = 'person'

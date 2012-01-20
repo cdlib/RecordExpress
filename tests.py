@@ -49,7 +49,6 @@ class CollectionRecordModelTest(TestCase):
             ET.fromstring(ead_xml)
         except:
             self.fail('ElementTree could not parse xml')
-        #print ead_xml
 
     def testEAD_file_save(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
@@ -98,7 +97,6 @@ class CollectionRecordViewTestCase(WebTest):
         ret = self.client.login(username='oactestuser',password='oactestuser')
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
-        #print response
         self.assertContains(response, '<ead>')
         self.assertContains(response, 'Banc')
 
@@ -143,8 +141,13 @@ class CollectionRecordEditTestCase(WebTest):
         response = form.submit(user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
-        print unicode(response)
         self.assertNotContains(response, 'errorlist')
+        form = response.form
+        form['title'] = ''
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+        self.assertContains(response, 'errorlist')
 
     def testEditDCTerm(self):
         '''Test the editing of a term stored in an associated DC object
@@ -159,6 +162,10 @@ class CollectionRecordEditTestCase(WebTest):
         response = form.submit(user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, newPerson)
+        form['person-0-content'] = ''
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'errorlist')
 
     def testDeletionOfDCTerm(self):
         '''Test the deletion of a term'''
