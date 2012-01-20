@@ -69,6 +69,10 @@ class CollectionRecord(models.Model):
     def get_absolute_url(self):
         return ('collectionrecord_view', (), {'ark': self.ark, })
 
+    @models.permalink
+    def get_edit_url(self):
+        return ('collectionrecord_edit', (), {'ark': self.ark, })
+
     def save_ead_file(self, directory_root=EAD_ROOT_DIRECTORY):
         '''Save the EAD file to it's DSC CDL specific location?
         '''

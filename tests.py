@@ -87,18 +87,19 @@ class CollectionRecordViewAllTestCase(TestCase):
         self.assertContains(response, 'fk42r40zx')
         
 
-class CollectionRecordViewTestCase(WebTest):
-    '''Test views of the CollectionRecord'''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
-
-    def testXMLView(self):
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
-        url = rec.get_absolute_url() + 'xml/'
-        ret = self.client.login(username='oactestuser',password='oactestuser')
-        response = self.client.get(url)
-        self.failUnlessEqual(200, response.status_code)
-        self.assertContains(response, '<ead>')
-        self.assertContains(response, 'Banc')
+#TODO:this is going to require a live test server for xtf to talk to
+###class CollectionRecordXMLViewTestCase(WebTest):
+###    '''Test views of the CollectionRecord'''
+###    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+###
+###    def testXMLView(self):
+###        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+###        url = rec.get_absolute_url() + '/xml/'
+###        ret = self.client.login(username='oactestuser',password='oactestuser')
+###        response = self.client.get(url)
+###        self.failUnlessEqual(200, response.status_code)
+###        self.assertContains(response, '<ead>')
+###        self.assertContains(response, 'Banc')
 
 class CollectionRecordEditTestCase(WebTest):
     '''Test the edit page for the collection records. Should be able to modify
@@ -108,7 +109,7 @@ class CollectionRecordEditTestCase(WebTest):
 
     def testEditPageAuth(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
-        url = rec.get_absolute_url()
+        url = rec.get_edit_url()
         response = self.app.get(url)
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
@@ -122,7 +123,7 @@ class CollectionRecordEditTestCase(WebTest):
     def testEditAttr(self):
         '''Edit a directly associated value of the Record'''
         rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
-        url = rec.get_absolute_url()
+        url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         form = response.form
@@ -153,7 +154,7 @@ class CollectionRecordEditTestCase(WebTest):
         '''Test the editing of a term stored in an associated DC object
         '''
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
-        url = rec.get_absolute_url()
+        url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         form = response.form
@@ -217,6 +218,11 @@ class NewCollectionRecordViewTestCase(WebTest):
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
+        #Goto the edit page to see if ok
+        url = response.request.url + '/edit'
+        response = self.app.get(url)
+        self.assertContains(response, 'ark:')
+        self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'Test Title')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
 
@@ -245,6 +251,11 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
+        #goto edit page to confirm, need live server to test view
+        url = response.request.url + '/edit'
+        response = self.app.get(url)
+        self.assertContains(response, 'ark:')
+        self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test 2 Title')
         self.assertContains(response, 'redar')
@@ -266,7 +277,7 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
 
     def testOACView(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
-        url = rec.get_absolute_url()+'oac/'
+        url = rec.get_absolute_url()
         response = self.client.get(url)
         self.failUnlessEqual(302, response.status_code)
         ret = self.client.login(username='oactestuser',password='oactestuser')

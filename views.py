@@ -340,7 +340,7 @@ def view_collection_record_oac_preview(request, ark, *args, **kwargs):
     soup = BeautifulSoup.BeautifulSoup(html)
     body = soup.find('body')
     atag = BeautifulSoup.Tag(soup, 'a',
-                    attrs={'style':"float:right;background-color:#C2492C;color:white;border-radius:10px;font-size:30px;margin:5px;text-decoration:none;padding:5px;", 'href':collection_record.get_absolute_url()}
+                    attrs={'style':"float:right;background-color:#C2492C;color:white;border-radius:10px;font-size:30px;margin:5px;text-decoration:none;padding:5px;", 'href':collection_record.get_edit_url()}
                     )
     atag.insert(0, 'Edit')
     body.insert(0, atag)
