@@ -265,3 +265,12 @@ class CollectionRecord(models.Model):
         ead_xml = ''.join((ead_xml, controlaccess_xml))
         ead_xml = ''.join((ead_xml, '</archdesc>\n</ead>\n',))
         return ead_xml
+
+class SupplementalFile(models.Model):
+    '''A file associated with a Collection record'''
+    collection_record = models.ForeignKey(CollectionRecord)
+    filename = models.CharField(max_length=512)
+    label = models.CharField(max_length=512, blank=True)
+
+    def unicode(self):
+        return ''.join((self.filename, ' for ', self.collection_record))

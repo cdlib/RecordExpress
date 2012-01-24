@@ -4,14 +4,16 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
+from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from django.http import HttpResponse
-from django.http import HttpResponse
+from django.http import HttpResponseBadRequest
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 import BeautifulSoup
 from DSC_EZID_minter import main as EZIDMinter
 from DublinCore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
+from collection_record.models import SupplementalFile
 from collection_record.forms import CollectionRecordForm
 from collection_record.forms import CollectionRecordAddForm
 from collection_record.forms import CreatorPersonFormset
@@ -54,7 +56,7 @@ def get_publishing_institution_choices_for_user(user):
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
-    '''Add a collection record. Must be a logged in user associated with a 
+    '''Add a collection record. Must be a logged in user supplemental with a 
     publishing institution.
     '''
     choices_publishing_institution = get_publishing_institution_choices_for_user(request.user)
@@ -159,6 +161,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     url_preview = _url_xtf_preview(collection_record.ark)
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
+    supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  extra=0)
     if request.method == 'POST':
         form_main = CollectionRecordForm(request.POST, instance=collection_record)
         #formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
@@ -210,6 +213,10 @@ def edit_collection_record(request, ark, *args, **kwargs):
         formset_subject_occupation.qualifier = 'occupation'
         formset_subject_occupation.term = 'SUB'
         formset_subject_occupation.content_label = 'Occupation Term'
+        formset_supp_files = supp_files_formset_factory(request.POST, instance=collection_record)
+        f=formset_supp_files.empty_form
+        f.is_empty = True
+        formset_supp_files.forms.append(f)
         formset_list = [ formset_person, formset_family, formset_organization,
                 formset_topic, formset_subject_person_name,
                 formset_subject_family_name, formset_subject_organization_name,
@@ -296,6 +303,10 @@ def edit_collection_record(request, ark, *args, **kwargs):
             form.initial = {'term':formset.term, 'qualifier':formset.qualifier, 'content':form.instance.content}
             form.fields['content'].label = formset.content_label
 
+    formset_supp_files = supp_files_formset_factory(instance=collection_record)
+    f=formset_supp_files.empty_form
+    f.is_empty = True
+    formset_supp_files.forms.append(f)
     return render(request, 'collection_record/collection_record/edit.html',
             locals(),
             )
@@ -312,7 +323,7 @@ def view_collection_record_xml(request, ark, *args, **kwargs):
 
 @login_required
 def view_all_collection_records(request,):# *args, **kwargs):
-    '''Formatted html of all collection records that are associated with
+    '''Formatted html of all collection records that are supplemental with
     the logged in user's publishing institutions association.
     '''
     collection_records = CollectionRecord.objects.all()
@@ -361,3 +372,19 @@ line-height:1.5;\
     return HttpResponse(soup.prettify()) # works
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
+
+def add_supplemental_file(request, ark):
+    '''Handle files uploaded by puploader
+    '''
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    #first save file to disk, if successful do rest
+    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    # new SupplementalFile object here with file as request.FILES[??]
+    file_obj = SupplementalFile()
+    file_obj.collection_record = collection_record
+    file_obj.filename = request.POST['name']
+    #file_obj.
+
+    return HttpResponse('{response:"success", ark:"'+ark+'", file:"' + str(file_obj)+'"}')
+

@@ -53,10 +53,15 @@
 
 <script type="text/javascript" src="/site_media/js/jquery-1.3.2.min.js"></script>
 <script type="text/javascript" src="/site_media/js/jquery.formset.js"></script>
+{%comment%}
 <script type="text/javascript" src="/media/js/core.js"></script>
 <script type="text/javascript" src="/media/js/calendar.js"></script>
+{%endcomment%}
 <script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
 
+{%block uploader_head%}
+<link rel="stylesheet" href="/site_media/js/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"/>
+{%endblock uploader_head%}
 {%endblock extrahead %}
 
 {%block bodycontent%}
@@ -77,7 +82,7 @@
         <h3>Basic Information</h3>
         <h5 class="orangetext">* indicates required field</h5>
         {%for field in form_main%}
-        <div class="span-23" {%if field.errors%}style="background-color:yellow;"{%endif%}>
+        <div class="span-23{%if field.errors%} errorbox {%endif%}">
         <span class="span-5"><label>
             {{field.label}}{%if field.field.required %}<span class="orangetext">*</span>{%endif%}</label>
         </span>
@@ -86,7 +91,7 @@
                 <span class="errorlist">{{err}}</span>
                 {% endfor %}
         </span>
-</div>
+        </div>
         {% endfor %}
     </fieldset>
     <fieldset>
@@ -274,10 +279,37 @@
             </div>
             {% endfor %}
         </fieldset>
+        {%block supplemental_files%}
+        <fieldset id="supplemental_files">
+            <h4>Supplemental Files</h4>
+            {{ formset_supp_files.management_form }}
+            {% for form in formset_supp_files %}
+            <div class="{% if form.errors %}errorbox{%endif%}{% if form.is_empty%} empty-form{%endif%}">
+            {% if form.errors %}
+                <span class="errorlist">{{form.errors}}</span>
+            {% endif %}
+            <span class="hide">{{form.id}}</span>
+            <label class="span-5">{{form.filename.value}}/>
+                {{form.label}}
+                {{form.DELETE}}
+            </div>
+            {% endfor %}
+        </fieldset>
+        {%endblock supplemental_files%}
         {%block submit_bottom%}
         <input style="float:right" name="submit" type="submit" value="Update record"/>
         {%endblock submit_bottom%}
         </form>
+    </div>
+    {%block uploader%}
+    <div class="area span-24">
+        <fieldset id="upload-files">
+            <div id="filelist"></div>
+            <div id="uploader"><button id="pickfile" >Your browser doesn't support our javascript uploader</button></div>
+        </fieldset>
+    </div>
+    {%endblock uploader%}
+</div>
 <script type="text/javascript">
     $(function() {
         $('#id_fieldset_persname div').formset({
@@ -330,4 +362,115 @@
         });
     });
 </script>
+{%block uploader_footer%}
+<script type="text/javascript" src="/site_media/js/plupload/plupload.full.js"></script>
+<script type="text/javascript" src="/site_media/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js"></script>
+<script type="text/javascript" src="/site_media/js/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
+<script type="text/javascript">
+$(function() {
+    //create a django formset object to ease use?
+        /*
+    $('#supplemental_files div').formset({
+        formCssClass: 'dynamic-fieldset-form',
+        prefix: "supp_files"
+    });
+    */
+    config = {
+       runtimes : 'gears,html5,html4,',
+       url : '{% url collection_record.views.add_supplemental_file ark=collection_record.ark %}',
+       browse_button : 'pickfile',
+       container : 'uploader',
+       max_file_size : '1mb',
+       chunk_size: '1mb',
+       unique_names : false,
+       multipart: true,
+       headers : {'X-Requested-With' : 'XMLHttpRequest', 'X-CSRFToken' : '{{csrf_token}}'},
+   };
+    var uploader = new plupload.Uploader(config);
+   $("#uploader").uploader = uploader;
+
+   /*
+   $('form').submit(function(e) {
+       var uploader = $('#uploader').pluploadQueue();
+
+       // Validate number of uploaded files
+       if (uploader.total.uploaded == 0) {
+           // Files in queue upload them first
+           if (uploader.files.length > 0) {
+               // When all files are uploaded submit form
+               uploader.bind('UploadProgress', function() {
+                   if (uploader.total.uploaded == uploader.files.length)
+                       $('form').submit();
+               });
+
+               uploader.start();
+           } else {
+               alert('You must at least upload one file.');
+           }
+
+           e.preventDefault();
+       }
+   });
+   */
+   uploader.init();
+   $("#pickfile").text('Select a file to upload');
+
+   uploader.bind('FilesAdded', function(up, files) {
+        $.each(files, function(i, file) {
+            $('#filelist').append(
+                '<div id="' + file.id + '">' +
+                file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
+            '</div>');
+        });
+
+        up.refresh(); // Reposition Flash/Silverlight
+        up.start();
+    });
+
+    uploader.bind('UploadProgress', function(up, file) {
+        $('#' + file.id + " b").html(file.percent + "%");
+    });
+
+    uploader.bind('Error', function(up, err) {
+        $('#filelist').append("<div>Error: " + err.code +
+            ", Message: " + err.message +
+            (err.file ? ", File: " + err.file.name : "") +
+            "</div>"
+        );
+ 
+        up.refresh(); // Reposition Flash/Silverlight
+    });
+
+    updateElementIndex = function(elem, prefix, ndx) {
+        var idRegex = new RegExp(prefix + '-(\\d+|__prefix__)-'),
+             replacement = prefix + '-' + ndx + '-';
+        if (elem.attr("for")) elem.attr("for", elem.attr("for").replace(idRegex, replacement));
+        if (elem.attr('id')) elem.attr('id', elem.attr('id').replace(idRegex, replacement));
+        if (elem.attr('name')) elem.attr('name', elem.attr('name').replace(idRegex, replacement));
+    },
+
+    uploader.bind('FileUploaded', function(up, file) {
+            //should update the formset for assoc files
+            //look at total num forms and get the empty-form
+            //update total num and sub id (which is cur tot. num)
+            var tot_num = $('#id_supplementalfile_set-TOTAL_FORMS').val(); 
+            //do it the regex way
+            var empty_form = $('.empty-form', $('#supplemental_files'));
+
+            var new_form = empty_form.clone();
+            new_form.removeClass('empty-form');
+            //regex here
+            alert(new_form);
+            $('#supplemental_files').append(new_form);
+            $('#supplemental_files').append(
+                '<div id="' + file.id + '_supp">' +
+                file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
+            '</div>');
+            $('#' + file.id + " b").remove();//.html("100%");
+            $('#' + file.id ).remove();//.html("100%");
+    });
+
+});
+</script>
+{%endblock uploader_footer%}
 {%endblock bodycontent%}

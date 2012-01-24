@@ -3,6 +3,7 @@ from django.forms.formsets import formset_factory
 
 from collection_record.ISO_639_2b import ISO_639_2b
 from collection_record.models import CollectionRecord
+from collection_record.models import SupplementalFile
 
 class CollectionRecordForm(forms.ModelForm):
     class Meta:
@@ -100,3 +101,7 @@ class SubjectOccupationForm(forms.Form):
     qualifier = 'occupation'
     content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Occupation')
 SubjectOccupationFormset = formset_factory(SubjectOccupationForm, extra=1)
+
+class SupplementalFile(forms.ModelForm):
+    class Meta:
+        model = SupplementalFile
