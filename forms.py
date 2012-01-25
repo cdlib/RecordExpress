@@ -102,6 +102,9 @@ class SubjectOccupationForm(forms.Form):
     content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Occupation')
 SubjectOccupationFormset = formset_factory(SubjectOccupationForm, extra=1)
 
-class SupplementalFile(forms.ModelForm):
+class SupplementalFileForm(forms.ModelForm):
     class Meta:
         model = SupplementalFile
+        widgets = {
+                'filename': forms.HiddenInput,
+                }

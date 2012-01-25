@@ -1,4 +1,7 @@
 import urllib
+import os
+import json
+from django.conf import settings
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render
 from django.shortcuts import redirect
@@ -40,6 +43,7 @@ from collection_record.forms import GenreForm
 from collection_record.forms import SubjectTitleForm
 from collection_record.forms import SubjectFunctionForm
 from collection_record.forms import SubjectOccupationForm
+from collection_record.forms import SupplementalFileForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
 
@@ -161,7 +165,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     url_preview = _url_xtf_preview(collection_record.ark)
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
-    supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  extra=0)
+    supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)
     if request.method == 'POST':
         form_main = CollectionRecordForm(request.POST, instance=collection_record)
         #formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
@@ -224,17 +228,20 @@ def edit_collection_record(request, ark, *args, **kwargs):
                 formset_subject_function, formset_subject_occupation
                 ]
         valid_formsets = False not in [x.is_valid() for x in formset_list]  
-        if form_main.is_valid() and valid_formsets:
+        if form_main.is_valid() and valid_formsets and formset_supp_files.is_valid():
             form_main.save()
             for formset in formset_list:
                 for form in formset:
                     form.cleaned_data['qualifier'] = formset.qualifier
                 formset.save()
+            formset_supp_files.save()
         else:
             formset_errors = ''
             if not valid_formsets:
                 for formset in formset_list:
                     formset_errors = ''.join((formset_errors, unicode(formset.errors)))
+            if not formset_supp_files.is_valid():
+                    formset_errors = ''.join((formset_errors, unicode(formset_supp_files.errors)))
             return render(request, 'collection_record/collection_record/edit.html',
                 locals(),
             )
@@ -385,6 +392,21 @@ def add_supplemental_file(request, ark):
     file_obj.collection_record = collection_record
     file_obj.filename = request.POST['name']
     #file_obj.
+    #TODO: send the institution # or ark as a parameter
+    dir_collection_files = collection_record.dir_supplemental_files
+    if not os.path.isdir(dir_collection_files):
+        os.makedirs(dir_collection_files)
+    with open(os.path.join(dir_collection_files, str(file_obj.filename)), 'wb') as dest:
+        for chunk in request.FILES['file'].chunks():
+            dest.write(chunk)
+    file_obj.full_clean()
+    file_obj.save()
 
-    return HttpResponse('{response:"success", ark:"'+ark+'", file:"' + str(file_obj)+'"}')
+    resp_json = json.dumps(dict(response="success",
+                                ark=ark,
+                                pk=str(file_obj.pk),
+                                #file=str(file_obj),
+                            )
+                        )
+    return HttpResponse(resp_json)
 

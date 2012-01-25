@@ -51,8 +51,6 @@
 }
 </style>
 
-<script type="text/javascript" src="/site_media/js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="/site_media/js/jquery.formset.js"></script>
 {%comment%}
 <script type="text/javascript" src="/media/js/core.js"></script>
 <script type="text/javascript" src="/media/js/calendar.js"></script>
@@ -288,12 +286,18 @@
             {% if form.errors %}
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
-            <span class="hide">{{form.id}}</span>
-            <label class="span-5">{{form.filename.value}}/>
+            <span class="hide" id="file-id">{{form.id}}</span>
+            <label class="span-5" id="file-name">{{form.filename.value}}</label>
+            <label class="span-3" id="label-input">Display Label</label>
                 {{form.label}}
                 {{form.DELETE}}
+                {{form.filename}}
             </div>
             {% endfor %}
+            {%block uploader%}
+                <div id="filelist"></div>
+                <div id="uploader"><button id="pickfile" >Your browser doesn't support our javascript uploader</button></div>
+            {%endblock uploader%}
         </fieldset>
         {%endblock supplemental_files%}
         {%block submit_bottom%}
@@ -301,15 +305,10 @@
         {%endblock submit_bottom%}
         </form>
     </div>
-    {%block uploader%}
-    <div class="area span-24">
-        <fieldset id="upload-files">
-            <div id="filelist"></div>
-            <div id="uploader"><button id="pickfile" >Your browser doesn't support our javascript uploader</button></div>
-        </fieldset>
-    </div>
-    {%endblock uploader%}
 </div>
+<script type="text/javascript" src="/site_media/js/jquery-1.7.min.js"></script>
+<script type="text/javascript" src="/site_media/js/jquery-1.7.js"></script>
+<script type="text/javascript" src="/site_media/js/jquery.formset.js"></script>
 <script type="text/javascript">
     $(function() {
         $('#id_fieldset_persname div').formset({
@@ -449,7 +448,11 @@ $(function() {
         if (elem.attr('name')) elem.attr('name', elem.attr('name').replace(idRegex, replacement));
     },
 
-    uploader.bind('FileUploaded', function(up, file) {
+    uploader.bind('FileUploaded', function(up, file, data) {
+
+            //cheesy but works...
+            location.reload();
+            /*
             //should update the formset for assoc files
             //look at total num forms and get the empty-form
             //update total num and sub id (which is cur tot. num)
@@ -459,15 +462,27 @@ $(function() {
 
             var new_form = empty_form.clone();
             new_form.removeClass('empty-form');
+            new_form.addClass('dynamic-fieldset-form');
             //regex here
-            alert(new_form);
+            var data_obj = jQuery.parseJSON(data.response);
+            $('#id_supplementalfile_set-__prefix__-id', new_form).val(data_obj.pk);
+            updateElementIndex($('#id_supplementalfile_set-__prefix__-id', new_form), '', tot_num);
+            updateElementIndex($('#id_supplementalfile_set-__prefix__-label', new_form), '', tot_num);
+            updateElementIndex($('#id_supplementalfile_set-__prefix__-DELETE', new_form), '', tot_num);
+            $('#id_supplementalfile_set-__prefix__-filename', new_form).val(file.name);
+            updateElementIndex($('#id_supplementalfile_set-__prefix__-filename', new_form), '', tot_num);
+            $('#file-name', new_form).text(file.name);
             $('#supplemental_files').append(new_form);
-            $('#supplemental_files').append(
+            $('#id_supplementalfile_set-TOTAL_FORMS').val(tot_num+1); 
+
+/*            $('#supplemental_files').append(
                 '<div id="' + file.id + '_supp">' +
                 file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
             '</div>');
             $('#' + file.id + " b").remove();//.html("100%");
             $('#' + file.id ).remove();//.html("100%");
+
+            */
     });
 
 });

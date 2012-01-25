@@ -6,6 +6,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 from django.conf import settings
 from django.utils.safestring import mark_safe
+from django.core.exceptions import ValidationError
 
 from ISO_639_2b import ISO_639_2b
 from DublinCore.models import QualifiedDublinCoreElement
@@ -38,7 +39,7 @@ else:
 
 
 class CollectionRecord(models.Model):
-    ark = models.CharField(max_length=255, primary_key=True) #mysql length limit
+    ark = models.CharField(max_length=255, primary_key=True)
     publisher = models.ForeignKey(PublishingInstitution)
     title = models.CharField(max_length=512,)
     title_filing = models.CharField(max_length=255)#, unique=True)
@@ -106,6 +107,11 @@ class CollectionRecord(models.Model):
         '''
         return True if self.QDCElements.count() > 0 else False
     has_extended_metadata.short_description = 'XMetadata'
+
+    @property
+    def dir_supplemental_files(self):
+        return os.path.join(str(settings.DIR_COLLECTION_RECORD_FILES), 'files',
+                str(self.publisher.pk), str(self.ark))
 
     #or should I just make a nice dictionary of subsetted values?
     #Need to define corresponding accessors (& setters?) for the various
@@ -268,11 +274,28 @@ class CollectionRecord(models.Model):
 
 class SupplementalFile(models.Model):
     '''A file associated with a Collection record'''
-    collection_record = models.ForeignKey(CollectionRecord)
-    filename = models.CharField(max_length=512)
+    collection_record = models.ForeignKey(CollectionRecord, editable=False)
+    filename = models.CharField(max_length=78, blank=False, null=False, )#limited by unique key of ark(255 long) and this 1000 *byte* limit, 3byte unichar
     label = models.CharField(max_length=512, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def file_path(self):
+        return os.path.join(self.collection_record.dir_supplemental_files, self.filename)
+
+    class Meta:
+        unique_together = (("filename", "collection_record"))
+
+    def clean(self):
+        super(SupplementalFile, self).clean()
+        if not self.filename:
+            raise ValidationError("Use the editing application to add files....")
+
+    def delete(self, **kwargs):
+        '''Delete the file first then the DB object'''
+        os.remove(self.file_path)
+        super(SupplementalFile, self).delete(**kwargs)
 
     def unicode(self):
         return ''.join((self.filename, ' for ', self.collection_record))
