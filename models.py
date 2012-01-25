@@ -271,6 +271,8 @@ class SupplementalFile(models.Model):
     collection_record = models.ForeignKey(CollectionRecord)
     filename = models.CharField(max_length=512)
     label = models.CharField(max_length=512, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def unicode(self):
         return ''.join((self.filename, ' for ', self.collection_record))
