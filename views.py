@@ -47,23 +47,13 @@ from collection_record.forms import SupplementalFileForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
 
-def get_publishing_institution_choices_for_user(user):
-    '''Return a tuple that represents the possible choices for publishing 
-    institution for a given user
-    '''
-    pub_insts = get_publishing_institutions_for_user(user)
-    choices = []
-    for i in pub_insts:
-        choices.append((i.id, i.name))
-    return choices
-
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
     '''Add a collection record. Must be a logged in user supplemental with a 
     publishing institution.
     '''
-    choices_publishing_institution = get_publishing_institution_choices_for_user(request.user)
+    choices_publishing_institution = [ (i.id, i.name) for i in get_publishing_institutions_for_user(request.user) ]
     if request.method == 'POST':
         form_main  = CollectionRecordAddForm(request.POST)
         form_main.fields['publishing_institution'].choices = choices_publishing_institution 
@@ -163,11 +153,15 @@ def edit_collection_record(request, ark, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
+        return  HttpResponseForbidden('<h1>Permission Denied</h1>')
     url_preview = _url_xtf_preview(collection_record.ark)
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
     supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)
+    choices_publishing_institution = [ (i.id, i.name) for i in get_publishing_institutions_for_user(request.user) ]
     if request.method == 'POST':
         form_main = CollectionRecordForm(request.POST, instance=collection_record)
+        form_main.fields['publisher'].choices = choices_publishing_institution 
         #formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
         formset_person = dcformset_factory(request.POST, instance=collection_record, prefix='person')
         formset_person.qualifier = 'person'
@@ -247,6 +241,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
             )
     #NOT POST and post valid update
     form_main = CollectionRecordForm(instance=collection_record)
+    form_main.fields['publisher'].choices = choices_publishing_institution 
     formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
     formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
     formset_organization = dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
@@ -380,6 +375,8 @@ line-height:1.5;\
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
 
+#TODO: csrf protect//login
+@login_required
 def add_supplemental_file(request, ark):
     '''Handle files uploaded by puploader
     '''
