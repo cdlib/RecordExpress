@@ -11,6 +11,7 @@ from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
+from django.http import HttpResponseForbidden
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 import BeautifulSoup
 from DSC_EZID_minter import main as EZIDMinter

@@ -23,7 +23,7 @@ if NOT_OAC:
                 return False
             if obj is None:
                 return False
-            if not user_obj.is_superuser():
+            if not user_obj.is_superuser:
                 return True
             return False
 
@@ -49,11 +49,11 @@ else:
                 return False
             if obj is None:
                 return False
-            if user_obj.is_superuser():
+            if user_obj.is_superuser:
                 return True
             publisher = getattr(obj, 'publisher', None)
-            if i and isinstance(i, Institution):
-                groups = [prof.group for prof in i.groupprofile_set.all()]
+            if publisher and isinstance(publisher, Institution):
+                groups = [prof.group for prof in publisher.groupprofile_set.all()]
                 for grp in groups:
                     if user_obj in grp.user_set.all():
                         return True
