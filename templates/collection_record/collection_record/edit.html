@@ -33,6 +33,9 @@
  .empty-form {
         display:none;
  }
+ input[type=text] {
+     width:260px;
+ }
  .dynamic-fieldset-form textarea {
         width:40em;
         height:1.3em;
@@ -287,16 +290,18 @@
                 <span class="errorlist">{{form.errors}}</span>
             {% endif %}
             <span class="hide" id="file-id">{{form.id}}</span>
-            <label class="span-5" id="file-name">{{form.filename.value}}</label>
+            <label class="span-8" id="file-name">{{form.filename.value}}</label>
             <label class="span-3" id="label-input">Display Label</label>
                 {{form.label}}
-                {{form.DELETE}}
+                {{form.DELETE}} Delete
                 {{form.filename}}
             </div>
             {% endfor %}
             {%block uploader%}
+            <div class="span-15 first">
                 <div id="filelist"></div>
                 <div id="uploader"><button id="pickfile" >Your browser doesn't support our javascript uploader</button></div>
+            </div>
             {%endblock uploader%}
         </fieldset>
         {%endblock supplemental_files%}
