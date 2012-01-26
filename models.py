@@ -1,5 +1,6 @@
 from string import Template
 import os
+import re
 from xml.sax.saxutils import quoteattr
 from xml.sax.saxutils import escape
 from django.db import models
@@ -74,10 +75,14 @@ class CollectionRecord(models.Model):
     def get_edit_url(self):
         return ('collectionrecord_edit', (), {'ark': self.ark, })
 
+    @property
+    def ead_dir(self, directory_root=EAD_ROOT_DIRECTORY):
+        return  os.path.join(directory_root, self.publisher.cdlpath,)
+
     def save_ead_file(self, directory_root=EAD_ROOT_DIRECTORY):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
-        fname = os.path.join(directory_root, self.publisher.cdlpath, self.ark.rsplit('/', 1)[1]+'.xml')
+        fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
         print fname
         with open(fname, 'w') as foo:
             foo.write(self.ead_xml)
@@ -110,8 +115,10 @@ class CollectionRecord(models.Model):
 
     @property
     def dir_supplemental_files(self):
-        return os.path.join(str(settings.DIR_COLLECTION_RECORD_FILES), 'files',
-                str(self.publisher.pk), str(self.ark))
+        root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
+        match = re.compile("ark:/(?P<NAAN>\d{5}|\d{9})/([a-zA-Z0-9=#\*\+@_\$/%-\.]+)$").match(self.ark)
+        dir_supp_files = os.path.join(root_dir, match.group('NAAN'), self.ark[-2:], match.group(2), 'files')
+        return dir_supp_files 
 
     #or should I just make a nice dictionary of subsetted values?
     #Need to define corresponding accessors (& setters?) for the various
