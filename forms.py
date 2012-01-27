@@ -13,7 +13,10 @@ class CollectionRecordForm(forms.ModelForm):
         exclude = ('ark', )
 
 class CollectionRecordAddForm(forms.Form):
-    ark = forms.CharField(max_length=255, initial='<Will be assigned>', required=False, help_text='If you have a previously assigned ARK add it here')
+    ark = forms.CharField(max_length=255, initial='<Will be assigned>',
+            required=False,
+            help_text='If you have a previously assigned ARK add it here',
+            label='ARK')
     title = forms.CharField(max_length=512, widget=forms.TextInput(attrs={'size':'100'},), label='Collection Title')
     title_filing = forms.CharField(max_length=256, label='Collection Title (Filing)', widget=forms.TextInput(attrs={'size':'100'},))
     publishing_institution = forms.ChoiceField()
