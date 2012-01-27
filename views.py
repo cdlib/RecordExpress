@@ -89,8 +89,13 @@ def add_collection_record(request):
                               )
             else:
                 #save collection and send to view/edit page?
-                # need to assign a new ark
-                ark = EZIDMinter(1)[0]
+                #check value of ark field in form. If it is blank or is still
+                #the intial value, get a new ark
+                # else validate ark or reject...
+                ark = form_main.cleaned_data['ark']
+                if ark == '' or ark == form_main.fields['ark'].initial:
+                    #mint an ark
+                    ark = EZIDMinter(1)[0]
                 collection_record = CollectionRecord()
                 collection_record.ark = ark
                 collection_record.title = form_main.cleaned_data['title']

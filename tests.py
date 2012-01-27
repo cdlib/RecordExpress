@@ -4,10 +4,12 @@ import xml.etree.ElementTree as ET
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.db.models.base import ValidationError
+from django.contrib.auth.models import User
 from django_webtest import WebTest
 from liveTestCase import TestCaseLiveServer
 from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
+from collection_record.perm_backend import CollectionRecordPermissionBackend
 
 class CollectionRecordModelTest(TestCase):
     '''Test the CollectionRecord django model'''
@@ -217,12 +219,14 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
+        self.assertTrue('ark:' in response.request.url)
         self.assertContains(response, 'ark:')
-        #Goto the edit page to see if ok
-        url = response.request.url + '/edit'
-        response = self.app.get(url)
-        self.assertContains(response, 'ark:')
+        ark_from_url = response.request.url[response.request.url.index('ark:'):]
+        ark_from_url = ark_from_url.rstrip('/')
+        cr=CollectionRecord.objects.get(ark=ark_from_url)
+        response = self.app.get(cr.get_edit_url(), user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test Title')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
 
@@ -252,14 +256,66 @@ class NewCollectionRecordViewTestCase(WebTest):
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
         #goto edit page to confirm, need live server to test view
-        url = response.request.url + '/edit'
-        response = self.app.get(url)
+        ark_from_url = response.request.url[response.request.url.index('ark:'):]
+        ark_from_url = ark_from_url.rstrip('/')
+        cr=CollectionRecord.objects.get(ark=ark_from_url)
+        response = self.app.get(cr.get_edit_url(), user='oactestuser')
         self.assertContains(response, 'ark:')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test 2 Title')
         self.assertContains(response, 'redar')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+
+    def testNewWithARK(self):
+        '''Test the collection editor basic function when you've got an ARK already
+        '''
+        url = reverse('collection_record_add')
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'itle')
+        self.assertContains(response, '<option value="eng" selected="selected">English</option>')
+        self.assertContains(response, 'access')
+        self.assertContains(response, 'person')
+        self.assertContains(response, 'family')
+        form = response.form
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
+        form = response.form
+        #fill out basic info only,required fields only
+        form['ark'] = 'hh' #bad ark should fail
+        form['title'] = 'Test Title'
+        form['title_filing'] = 'Test Filing Title'
+        form['date_dacs'] = 'circa 1980'
+        form['date_iso'] = '1980'
+        form['local_identifier'] = 'LOCALID-test'
+        form['extent'] = 'loads of boxes'
+        form['abstract'] = 'a nice test collection'
+        form['accessrestrict'] = 'public domain'
+        form['userestrict'] = 'go craxy'
+        form['acqinfo'] = 'by mark'
+        form['scopecontent'] = 'test content'
+        response = form.submit(user='oactestuser')
+        self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
+        form=response.form
+        testark = 'ark:/99999/fk45b0b4n'
+        form['ark'] = testark
+        response = form.submit(user='oactestuser')
+        self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
+        response = response.form.submit(user='oactestuser')
+        self.failUnlessEqual(302, response.status_code)
+        response = response.follow()
+        self.failUnlessEqual(200, response.status_code)
+        self.assertTrue('ark:' in response.request.url)
+        self.assertContains(response, 'ark:')
+        cr=CollectionRecord.objects.get(ark=testark)
+        response = self.app.get(cr.get_edit_url(), user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'ark:')
+        self.assertContains(response, 'Test Title')
+        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+
 
 class CollectionRecordOACViewTestCase(TestCaseLiveServer):
     '''Test the annotated view from the xtf. We add a couple of elements (edit button)
@@ -288,3 +344,21 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
         self.assertContains(response, 'First Test Title')
         self.assertContains(response, 'localid')
         self.assertContains(response, 'Bancroft')
+
+class CollectionRecordPermissionsBackendTestCase(TestCase):
+    '''test the permission backend for the Collection record app
+    '''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'auth.json', ]
+
+    def setUp(self):
+        self.backend = CollectionRecordPermissionBackend()
+
+    def testUserNotAuthenticated(self):
+        '''Test when the user object has not been authenticated
+        '''
+        u = User.objects.get(pk=1)
+        self.backend.has_perm(u, 'collection_record.change_collectionrecord')
+
+    def testNoObject(self):
+        u = User.objects.get(pk=1)
+        self.backend.has_perm(u, 'collection_record.change_collectionrecord')

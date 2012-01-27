@@ -83,7 +83,6 @@ class CollectionRecord(models.Model):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
         fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
-        print fname
         with open(fname, 'w') as foo:
             foo.write(self.ead_xml)
 

@@ -1,6 +1,8 @@
 from django import forms
 from django.forms.formsets import formset_factory
 
+from ARK_validator import validate, ARKInvalid
+
 from collection_record.ISO_639_2b import ISO_639_2b
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
@@ -11,7 +13,7 @@ class CollectionRecordForm(forms.ModelForm):
         exclude = ('ark', )
 
 class CollectionRecordAddForm(forms.Form):
-#    ark = forms.CharField(max_length=255, initial='<Will be assigned>')
+    ark = forms.CharField(max_length=255, initial='<Will be assigned>', required=False, help_text='If you have a previously assigned ARK add it here')
     title = forms.CharField(max_length=512, widget=forms.TextInput(attrs={'size':'100'},), label='Collection Title')
     title_filing = forms.CharField(max_length=256, label='Collection Title (Filing)', widget=forms.TextInput(attrs={'size':'100'},))
     publishing_institution = forms.ChoiceField()
@@ -27,6 +29,16 @@ class CollectionRecordAddForm(forms.Form):
     scopecontent = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}), label='Scope and Content of Collection')
     bioghist = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}), label='Biography/Administrative History', required=False)
     online_items_url = forms.URLField(label='Online Items URL', widget=forms.TextInput(attrs={'size':'110'},), required=False)
+
+    def clean_ark(self):
+        ark = self.cleaned_data['ark']
+        if not( ark == '' or ark == self.fields['ark'].initial):
+            #not blank or initial value, validate the ark
+            try:
+                ark, NAAN, name, qualifier = validate(ark)
+            except ARKInvalid, e:
+                raise forms.ValidationError(str(e))
+        return ark
 
 class CreatorPersonForm(forms.Form):
     term = 'CR'
