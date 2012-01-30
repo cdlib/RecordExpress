@@ -113,6 +113,10 @@ class CollectionRecord(models.Model):
     has_extended_metadata.short_description = 'XMetadata'
 
     @property
+    def has_supplemental_files(self):
+        return self.supplementalfile_set.count() > 0
+
+    @property
     def dir_supplemental_files(self):
         root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
         match = re.compile("ark:/(?P<NAAN>\d{5}|\d{9})/([a-zA-Z0-9=#\*\+@_\$/%-\.]+)$").match(self.ark)
@@ -275,6 +279,11 @@ class CollectionRecord(models.Model):
             controlaccess_xml = ''.join((controlaccess_xml, '<occupation role="subject">', escape(qdc.content), '</occupation>\n',))
         controlaccess_xml = ''.join((controlaccess_xml, '</controlaccess>\n',))
         ead_xml = ''.join((ead_xml, controlaccess_xml))
+        if self.supplementalfile_set.count():
+            ead_xml = ''.join((ead_xml, '<otherfindaid><list>\n'))
+            for supp_file in self.supplementalfile_set.all():
+                ead_xml = ''.join((ead_xml, supp_file.xml, '\n'))
+            ead_xml = ''.join((ead_xml, '</list></otherfindaid>\n'))
         ead_xml = ''.join((ead_xml, '</archdesc>\n</ead>\n',))
         return ead_xml
 
@@ -289,6 +298,18 @@ class SupplementalFile(models.Model):
     @property
     def file_path(self):
         return os.path.join(self.collection_record.dir_supplemental_files, self.filename)
+
+    @property
+    def url(self):
+        '''Calculate the url path to the file'''
+        return "http://www.oac.cdlib.org/"+self.collection_record.ark+'/files/'+self.filename
+
+    @property
+    def xml(self):
+        '''Return the EAD xml representation for the file
+        '''
+        xml_label = escape(self.label) if self.label else escape(self.filename)
+        return ''.join(('<item><extref href="', self.url, '">', escape(self.url), '</extref>', xml_label, '</item>'))
 
     class Meta:
         unique_together = (("filename", "collection_record"))

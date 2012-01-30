@@ -13,7 +13,7 @@ from collection_record.perm_backend import CollectionRecordPermissionBackend
 
 class CollectionRecordModelTest(TestCase):
     '''Test the CollectionRecord django model'''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
 
     def testModelExists(self):
         rec = CollectionRecord()
@@ -51,6 +51,18 @@ class CollectionRecordModelTest(TestCase):
             ET.fromstring(ead_xml)
         except:
             self.fail('ElementTree could not parse xml')
+
+    def testEAD_xml_with_files_output(self):
+        rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        ead_xml = rec.ead_xml
+        try:
+            ET.fromstring(ead_xml)
+        except:
+            self.fail('ElementTree could not parse xml')
+        self.failUnless('</archdesc>' in ead_xml)
+        self.failUnless('<otherfindaid>' in ead_xml)
+        self.failUnless('</extref>' in ead_xml)
+        self.failUnless('index-nosoup.html' in ead_xml)
 
     def testEAD_file_save(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
