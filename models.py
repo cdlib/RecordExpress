@@ -40,6 +40,11 @@ else:
         class Meta:
             proxy = True
 
+def dir_pairtree_for_ark(ark):
+    '''Get our OAC pairtree like path for a given ark'''
+    match = re.compile("ark:/(?P<NAAN>\d{5}|\d{9})/([a-zA-Z0-9=#\*\+@_\$/%-\.]+)$").match(ark)
+    return os.path.join(match.group('NAAN'), ark[-2:], match.group(2), )
+
 
 class CollectionRecord(models.Model):
     ark = models.CharField(max_length=255, primary_key=True)
@@ -121,8 +126,8 @@ class CollectionRecord(models.Model):
     @property
     def dir_supplemental_files(self):
         root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
-        match = re.compile("ark:/(?P<NAAN>\d{5}|\d{9})/([a-zA-Z0-9=#\*\+@_\$/%-\.]+)$").match(self.ark)
-        dir_supp_files = os.path.join(root_dir, match.group('NAAN'), self.ark[-2:], match.group(2), 'files')
+        j
+        dir_supp_files = os.path.join(root_dir, dir_pairtree_for_ark(self.ark), 'files')
         return dir_supp_files 
 
     #or should I just make a nice dictionary of subsetted values?
@@ -203,16 +208,17 @@ class SupplementalFile(models.Model):
         return os.path.join(self.collection_record.dir_supplemental_files, self.filename)
 
     @property
-    def url(self):
+    def URL(self):
         '''Calculate the url path to the file'''
-        return "http://www.oac.cdlib.org/"+self.collection_record.ark+'/files/'+self.filename
+        ark_dir = dir_pairtree_for_ark(self.collection_record.ark)
+        return "/data/"+ark_dir+'/files/'+self.filename
 
     @property
     def xml(self):
         '''Return the EAD xml representation for the file
         '''
         xml_label = escape(self.label) if self.label else escape(self.filename)
-        return ''.join(('<item><extref href="', self.url, '">', escape(self.url), '</extref>', xml_label, '</item>'))
+        return ''.join(('<item><extref href="', self.URL, '">', escape(self.URL), '</extref>', xml_label, '</item>'))
 
     class Meta:
         unique_together = (("filename", "collection_record"))

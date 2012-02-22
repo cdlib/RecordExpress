@@ -9,6 +9,7 @@ from django_webtest import WebTest
 from liveTestCase import TestCaseLiveServer
 from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
+from collection_record.models import SupplementalFile
 from collection_record.perm_backend import CollectionRecordPermissionBackend
 
 class CollectionRecordModelTest(TestCase):
@@ -376,3 +377,13 @@ class CollectionRecordPermissionsBackendTestCase(TestCase):
     def testNoObject(self):
         u = User.objects.get(pk=1)
         self.backend.has_perm(u, 'collection_record.change_collectionrecord')
+
+
+class SupplementalFileTestCase(TestCase):
+    '''Test the supplemental files'''
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', ]#'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
+
+    def testURL(self):
+        '''Check that the url is correct for a file'''
+        f = SupplementalFile.objects.get(pk=53)
+        print f.URL
