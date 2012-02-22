@@ -8,11 +8,13 @@ from django.contrib.contenttypes import generic
 from django.conf import settings
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
+from django.template.loader import get_template
+from django.template import Context
 
 from ISO_639_2b import ISO_639_2b
 from DublinCore.models import QualifiedDublinCoreElement
 
-EAD_ROOT_DIRECTORY = settings.EAD_ROOT_DIRECTORY  if hasattr(settings, 'EAD_ROOT_DIRECTORY') else os.path.join(os.environ.get('HOME', '/dsc'), 'data/in/oac-ead/prime2002')
+EAD_ROOT_DIR = settings.EAD_ROOT_DIR  if hasattr(settings, 'EAD_ROOT_DIR') else os.path.join(os.environ.get('HOME', '/dsc'), 'data/in/oac-ead/prime2002')
 
 NOT_OAC = True
 try:
@@ -76,10 +78,10 @@ class CollectionRecord(models.Model):
         return ('collectionrecord_edit', (), {'ark': self.ark, })
 
     @property
-    def ead_dir(self, directory_root=EAD_ROOT_DIRECTORY):
-        return  os.path.join(directory_root, self.publisher.cdlpath,)
+    def ead_dir(self, directory_root=EAD_ROOT_DIR):
+        return  os.path.join(directory_root, self.publisher.cdlpath)
 
-    def save_ead_file(self, directory_root=EAD_ROOT_DIRECTORY):
+    def save_ead_file(self, directory_root=EAD_ROOT_DIR):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
         fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
@@ -179,112 +181,13 @@ class CollectionRecord(models.Model):
         '''Return a unicode object that contains the EAD xml for the collection
         record
         '''
-        #should I add an xml output for all the various fields?
-        #could be a big map/template thingy?
-        #xml_head='''<?xml version="1.0" encoding="UTF-8"?>''' #Don't need this.
-        ead_head_xml = '''<!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "ead.dtd">
-<ead>
-<eadheader langencoding="iso639-2b" scriptencoding="iso15924" repositoryencoding="iso15511" countryencoding="iso3166-1" dateencoding="iso8601">
-'''
-###        collection_mapping = dict()
-###        for f in self._meta.fields:
-###            collection_mapping[f.name] = unicode(getattr(self, f.name))
-###        collection_mapping['publisher_marc'] = self.publisher.mainagency
-###        collection_mapping['publisher_name'] = self.publisher.name
-###        collection_mapping['publisher_ark'] = self.publisher.ark
-        ead_id_template_str = '''<eadid xmlns:cdlpath="http://www.cdlib.org/path/" countrycode="us" identifier=$ark mainagencycode=${publisher_marc} publicid=$local_identifier cdlpath:parent=${publisher_ark}'''
-        ead_id_template = Template(ead_id_template_str)
-        ead_id_xml = ead_id_template.substitute(
-                ark = quoteattr(self.ark),
-                publisher_marc = quoteattr(self.publisher.mainagency),
-                local_identifier = quoteattr(self.local_identifier),
-                publisher_ark = quoteattr(self.publisher.ark)
-        )
-        if self.publisher.parent_institution:
-            ead_id_xml = ''.join((ead_id_xml, ' cdlpath:grandparent=', quoteattr(self.publisher.parent_institution.ark)))
-        ead_id_xml = ''.join((ead_id_xml, ">", escape(self.local_identifier), "</eadid>"))
-        ead_filedesc_head_tmpl_str = '''
-<filedesc>
-<titlestmt>
-<titleproper>$title</titleproper>
-<titleproper type="filing">$title_filing</titleproper>
-<author>${publisher_name}</author>
-</titlestmt>
-<publicationstmt>
-<publisher>${publisher_name}</publisher>
-<date>$date_dacs</date>
-</publicationstmt>
-</filedesc>
-</eadheader>
-<archdesc level="collection">
-<did>
-<head>Descriptive Summary</head>
-<unittitle label="Title">$title</unittitle>
-<unitdate normal=$date_iso label="Dates"></unitdate>
-<unitid label="Collection Number" repositorycode=${publisher_marc} countrycode="US">$local_identifier</unitid>
-'''
-        ead_filedesc_head_template = Template(ead_filedesc_head_tmpl_str)
-        ead_filedesc_head_xml = ead_filedesc_head_template.substitute(
-                title = escape(self.title),
-                title_filing = escape(self.title_filing),
-                publisher_name = escape(self.publisher.name),
-                date_dacs = escape(self.date_dacs),
-                date_iso = quoteattr(self.date_iso),
-                publisher_marc = quoteattr(self.publisher.mainagency),
-                local_identifier = escape(self.local_identifier),
-        )
-        ead_xml = ''.join((ead_head_xml, ead_id_xml, ead_filedesc_head_xml))
-        origination_xml = '<origination label="Creator/Collector">\n'
-        for qdc in self.creator_person:
-            origination_xml = ''.join((origination_xml, '<persname>', escape(qdc.content), '</persname>\n',))
-        for qdc in self.creator_family:
-            origination_xml = ''.join((origination_xml, '<famname>', escape(qdc.content), '</famname>\n',))
-        for qdc in self.creator_organization:
-            origination_xml = ''.join((origination_xml, '<corpname>', escape(qdc.content), '</corpname>\n',))
-        origination_xml = ''.join((origination_xml, '</origination>\n',))
-        ead_xml = ''.join((ead_xml, origination_xml,))
-        ead_xml = ''.join((ead_xml, '<physdesc label="Extent"><extent>', self.extent, '</extent>\n',))
-        if self.online_items_url:
-            ead_xml = ''.join((ead_xml, '<extent type="dao">Online items available</extent>\n<dao role="http://oac.cdlib.org/arcrole/link/search/" href="', escape(self.online_items_url), '" title="Online items"/>\n',))
-        ead_xml = ''.join((ead_xml, '</physdesc>\n',))
-        ead_xml = ''.join((ead_xml, '<repository label="Repository">\n<corpname>', self.publisher.name, '</corpname>\n</repository>\n'))
-        ead_xml = ''.join((ead_xml, '<abstract label="Abstract">', self.abstract, '</abstract>\n',))
-        ead_xml = ''.join((ead_xml, '<langmaterial><language langcode="', self.language, '"/></langmaterial>\n',))
-        ead_xml = ''.join((ead_xml, '</did>\n', ))
-        ead_xml = ''.join((ead_xml, '<accessrestrict><head>Access</head><p>', self.accessrestrict, '</p></accessrestrict>\n',))
-        ead_xml = ''.join((ead_xml, '<userestrict><head>Publication Rights</head><p>', self.userestrict, '</p></userestrict>\n',))
-        ead_xml = ''.join((ead_xml, '<prefercite><head>Preferred Citation</head><p>', self.title, ' , ',  self.local_identifier, '.  ', self.publisher.name, '.</p></prefercite>\n',))
-        ead_xml = ''.join((ead_xml, '<acqinfo><head>Acquisition Information</head><p>', self.acqinfo, '</p></acqinfo>\n',))
-        if self.bioghist:
-            ead_xml = ''.join((ead_xml, '<bioghist><head>Biography/Administrative History</head><p>', self.bioghist, '</p></bioghist>',))
-        ead_xml = ''.join((ead_xml, '<scopecontent><head>Scope and Content of Collection</head><p>', self.scopecontent, '</p></scopecontent>',))
-        controlaccess_xml = '<controlaccess>\n<head>Indexing Terms</head>\n'
-        for qdc in self.subject_topic:
-            controlaccess_xml = ''.join((controlaccess_xml, '<subject>', escape(qdc.content), '</subject>\n',))
-        for qdc in self.subject_name_person:
-            controlaccess_xml = ''.join((controlaccess_xml, '<persname role="subject">', escape(qdc.content), '</persname>\n',))
-        for qdc in self.subject_name_family:
-            controlaccess_xml = ''.join((controlaccess_xml, '<famname role="subject">', escape(qdc.content), '</famname>\n',))
-        for qdc in self.subject_name_organization:
-            controlaccess_xml = ''.join((controlaccess_xml, '<corpname role="subject">', escape(qdc.content), '</corpname>\n',))
-        for qdc in self.coverage:
-            controlaccess_xml = ''.join((controlaccess_xml, '<geogname role="subject">', escape(qdc.content), '</geogname>\n',))
-        for qdc in self.type_format:
-            controlaccess_xml = ''.join((controlaccess_xml, '<genreform role="subject">', escape(qdc.content), '</genreform>\n',))
-        for qdc in self.subject_title:
-            controlaccess_xml = ''.join((controlaccess_xml, '<title role="subject">', escape(qdc.content), '</title>\n',))
-        for qdc in self.subject_function:
-            controlaccess_xml = ''.join((controlaccess_xml, '<function role="subject">', escape(qdc.content), '</function>\n',))
-        for qdc in self.subject_occupation:
-            controlaccess_xml = ''.join((controlaccess_xml, '<occupation role="subject">', escape(qdc.content), '</occupation>\n',))
-        controlaccess_xml = ''.join((controlaccess_xml, '</controlaccess>\n',))
-        ead_xml = ''.join((ead_xml, controlaccess_xml))
-        if self.supplementalfile_set.count():
-            ead_xml = ''.join((ead_xml, '<otherfindaid><list>\n'))
-            for supp_file in self.supplementalfile_set.all():
-                ead_xml = ''.join((ead_xml, supp_file.xml, '\n'))
-            ead_xml = ''.join((ead_xml, '</list></otherfindaid>\n'))
-        ead_xml = ''.join((ead_xml, '</archdesc>\n</ead>\n',))
+        ead_template = get_template('collection_record/collection_record/ead_template.xml')
+        ead_template_data = dict( 
+                    instance = self,
+                    publisher_marc = quoteattr(self.publisher.mainagency),
+                )
+        c = Context(ead_template_data)
+        ead_xml = ead_template.render(c)
         return ead_xml
 
 class SupplementalFile(models.Model):

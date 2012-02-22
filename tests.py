@@ -38,13 +38,14 @@ class CollectionRecordModelTest(TestCase):
         self.failUnless('<repository label="' in ead_xml)
         self.failUnless('<abstract label="Abstract">' in ead_xml)
         self.failUnless('<langmaterial><language langcode="' in ead_xml)
-        self.failUnless('<accessrestrict><head>Access</head><p>' in ead_xml)
-        self.failUnless('<userestrict><head>Publication Rights</head><p>' in ead_xml)
-        self.failUnless('<prefercite><head>Preferred Citation</head>' in ead_xml)
-        self.failUnless('<acqinfo><head>Acquisition Information</head>' in ead_xml)
-        self.failUnless('<bioghist><head>Biography/Administrative History</head>' in ead_xml)
-        self.failUnless('<scopecontent><head>Scope and Content of Collection</head>' in ead_xml)
-        self.failUnless('<controlaccess>' in ead_xml)
+        self.failUnless('<accessrestrict id="accessrestrict"><head>Access</head><p>' in ead_xml)
+        self.failUnless('<userestrict id="userestrict"><head>Publication Rights</head><p>' in ead_xml)
+        self.failUnless('<prefercite id="prefercite"><head>Preferred Citation</head>' in ead_xml)
+        self.failUnless('<acqinfo id="acqinfo"><head>Acquisition Information</head>' in ead_xml)
+        self.failUnless('<bioghist id="bioghist"><head>Biography/Administrative History</head>' in ead_xml)
+        self.failUnless('<scopecontent id="scopecontent"><head>Scope and Content of Collection</head>' in ead_xml)
+        self.failUnless('<controlaccess id="controlaccess">' in ead_xml)
+        self.failUnless('id="archdesc' in ead_xml)
         self.failUnless('</archdesc>' in ead_xml)
         self.failUnless('</ead>' in ead_xml)
         try:
@@ -55,12 +56,13 @@ class CollectionRecordModelTest(TestCase):
     def testEAD_xml_with_files_output(self):
         rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
         ead_xml = rec.ead_xml
+        print ead_xml
         try:
             ET.fromstring(ead_xml)
         except:
             self.fail('ElementTree could not parse xml')
         self.failUnless('</archdesc>' in ead_xml)
-        self.failUnless('<otherfindaid>' in ead_xml)
+        self.failUnless('<otherfindaid' in ead_xml)
         self.failUnless('</extref>' in ead_xml)
         self.failUnless('index-nosoup.html' in ead_xml)
 
