@@ -80,54 +80,46 @@ def add_collection_record(request):
                 ]
         valid_formsets = False not in [x.is_valid() for x in formset_list]  
         if form_main.is_valid() and valid_formsets:
-            if not request.POST.get('previewed', None):
-                #preview it
-                # create new unsaved obj from forms, include forms as hidden element?
-                preview = True
-                return render(request,'collection_record/collection_record/add_preview.html',
-                              locals(),
-                              )
-            else:
-                #save collection and send to view/edit page?
-                #check value of ark field in form. If it is blank or is still
-                #the intial value, get a new ark
-                # else validate ark or reject...
-                ark = form_main.cleaned_data['ark']
-                if ark == '' or ark == form_main.fields['ark'].initial:
-                    #mint an ark
-                    ark = EZIDMinter(1)[0]
-                collection_record = CollectionRecord()
-                collection_record.ark = ark
-                collection_record.title = form_main.cleaned_data['title']
-                collection_record.title_filing = form_main.cleaned_data['title_filing']
-                collection_record.publisher_id = form_main.cleaned_data['publishing_institution']
-                collection_record.date_dacs = form_main.cleaned_data['date_dacs']
-                collection_record.date_iso = form_main.cleaned_data['date_iso']
-                collection_record.local_identifier = form_main.cleaned_data['local_identifier']
-                collection_record.extent = form_main.cleaned_data['extent']
-                collection_record.abstract = form_main.cleaned_data['abstract']
-                collection_record.language = form_main.cleaned_data['language']
-                collection_record.accessrestrict = form_main.cleaned_data['accessrestrict']
-                collection_record.userestrict = form_main.cleaned_data['userestrict']
-                collection_record.acqinfo = form_main.cleaned_data['acqinfo']
-                collection_record.scopecontent = form_main.cleaned_data['scopecontent']
-                collection_record.bioghist = form_main.cleaned_data['bioghist']
-                collection_record.online_items_url = form_main.cleaned_data['online_items_url']
-                collection_record.full_clean()
-                collection_record.save()
-                # Now handle the DC elements forms, we have a valid
-                # collection record to associate the QDC with
-                for formset in formset_list:
-                    for form in formset:
-                        if form.is_valid():
-                            try:
-                                content = form.cleaned_data['content']
-                                qdce = QualifiedDublinCoreElement(term=form.term, qualifier=form.qualifier, content=content, content_object=collection_record)
-                                qdce.full_clean()
-                                qdce.save()
-                            except KeyError:
-                                pass
-                return redirect(collection_record)
+            #save collection and send to view/edit page?
+            #check value of ark field in form. If it is blank or is still
+            #the intial value, get a new ark
+            # else validate ark or reject...
+            ark = form_main.cleaned_data['ark']
+            if ark == '' or ark == form_main.fields['ark'].initial:
+                #mint an ark
+                ark = EZIDMinter(1)[0]
+            collection_record = CollectionRecord()
+            collection_record.ark = ark
+            collection_record.title = form_main.cleaned_data['title']
+            collection_record.title_filing = form_main.cleaned_data['title_filing']
+            collection_record.publisher_id = form_main.cleaned_data['publishing_institution']
+            collection_record.date_dacs = form_main.cleaned_data['date_dacs']
+            collection_record.date_iso = form_main.cleaned_data['date_iso']
+            collection_record.local_identifier = form_main.cleaned_data['local_identifier']
+            collection_record.extent = form_main.cleaned_data['extent']
+            collection_record.abstract = form_main.cleaned_data['abstract']
+            collection_record.language = form_main.cleaned_data['language']
+            collection_record.accessrestrict = form_main.cleaned_data['accessrestrict']
+            collection_record.userestrict = form_main.cleaned_data['userestrict']
+            collection_record.acqinfo = form_main.cleaned_data['acqinfo']
+            collection_record.scopecontent = form_main.cleaned_data['scopecontent']
+            collection_record.bioghist = form_main.cleaned_data['bioghist']
+            collection_record.online_items_url = form_main.cleaned_data['online_items_url']
+            collection_record.full_clean()
+            collection_record.save()
+            # Now handle the DC elements forms, we have a valid
+            # collection record to associate the QDC with
+            for formset in formset_list:
+                for form in formset:
+                    if form.is_valid():
+                        try:
+                            content = form.cleaned_data['content']
+                            qdce = QualifiedDublinCoreElement(term=form.term, qualifier=form.qualifier, content=content, content_object=collection_record)
+                            qdce.full_clean()
+                            qdce.save()
+                        except KeyError:
+                            pass
+            return redirect(collection_record)
     else:
         form_main  = CollectionRecordAddForm()
         form_main.fields['publishing_institution'].choices = choices_publishing_institution 

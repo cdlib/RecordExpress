@@ -82,7 +82,7 @@
             {% endfor %}
         </controlaccess>
         {% if instance.supplementalfile_set.count > 0 %}
-        <otherfindaid id="otherfindaid"><head>Other materials</head>
+        <otherfindaid id="otherfindaid">
             <list>
             {% for supp_file in instance.supplementalfile_set.all %}
             {{ supp_file.xml|safe }}

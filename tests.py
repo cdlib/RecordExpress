@@ -57,7 +57,6 @@ class CollectionRecordModelTest(TestCase):
     def testEAD_xml_with_files_output(self):
         rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
         ead_xml = rec.ead_xml
-        print ead_xml
         try:
             ET.fromstring(ead_xml)
         except:
@@ -229,8 +228,6 @@ class NewCollectionRecordViewTestCase(WebTest):
         form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
         response = form.submit(user='oactestuser')
-        self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
-        response = response.form.submit(user='oactestuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
@@ -265,8 +262,6 @@ class NewCollectionRecordViewTestCase(WebTest):
         form['person-0-content'] = 'mark redar'
         form['family-0-content'] = 'redar'
         response = form.submit(user='oactestuser')
-        self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
-        response = response.form.submit(user='oactestuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
@@ -317,8 +312,6 @@ class NewCollectionRecordViewTestCase(WebTest):
         testark = 'ark:/99999/fk45b0b4n'
         form['ark'] = testark
         response = form.submit(user='oactestuser')
-        self.assertTemplateUsed(response,'collection_record/collection_record/add_preview.html') 
-        response = response.form.submit(user='oactestuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
@@ -386,4 +379,3 @@ class SupplementalFileTestCase(TestCase):
     def testURL(self):
         '''Check that the url is correct for a file'''
         f = SupplementalFile.objects.get(pk=53)
-        print f.URL
