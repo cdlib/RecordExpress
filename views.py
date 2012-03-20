@@ -1,6 +1,7 @@
 import urllib
 import os
 import json
+import logging
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required, login_required
 from django.shortcuts import render
@@ -47,6 +48,7 @@ from collection_record.forms import SubjectOccupationForm
 from collection_record.forms import SupplementalFileForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
+logger = logging.getLogger(__name__)
 
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
@@ -227,6 +229,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
                     form.cleaned_data['qualifier'] = formset.qualifier
                 formset.save()
             formset_supp_files.save()
+            return redirect(collection_record)
         else:
             formset_errors = ''
             if not valid_formsets:
@@ -369,6 +372,32 @@ line-height:1.5;\
                     )
     atag.insert(0, 'Edit')
     body.insert(0, atag)
+####  the close doesn't work due to security restrictions
+    closetag = BeautifulSoup.Tag(soup, 'a',
+            attrs={'href':"javascript:self.close();",
+            #attrs={'href':"javascript:window.open('','_parent','');window.close();",
+            #attrs={'href':"javascript:window.opener='x';window.close();",
+###                'target':'_self',
+#            attrs={'type':'button',
+#            'value':'Close',
+#            'onclick':'self.close();',
+                'style':"""\
+float:right;\
+background-color:#C2492C;\
+color:white;\
+border-radius:10px;\
+font-size:30px;\
+margin:5px;\
+text-decoration:none;\
+padding:7px;\
+font-family:inherit;\
+vertical-align:baseline;\
+line-height:1.5;\
+""",
+            } 
+                    )
+    closetag.insert(0, 'Close')
+    body.insert(0, closetag)
     return HttpResponse(soup.prettify()) # works
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
@@ -378,6 +407,7 @@ line-height:1.5;\
 def add_supplemental_file(request, ark):
     '''Handle files uploaded by puploader
     '''
+    logger.error("++++++ FILE DEST: IN add_supplemental_file +++++++++++")
     if request.method != 'POST':
         return HttpResponseBadRequest()
     #first save file to disk, if successful do rest
@@ -392,6 +422,8 @@ def add_supplemental_file(request, ark):
     if not os.path.isdir(dir_collection_files):
         os.makedirs(dir_collection_files)
     with open(os.path.join(dir_collection_files, str(file_obj.filename)), 'wb') as dest:
+        print "++++++ FILE DEST: ", dest
+        logger.error("++++++ FILE DEST: %s", dest)
         for chunk in request.FILES['file'].chunks():
             dest.write(chunk)
     file_obj.full_clean()
@@ -404,4 +436,3 @@ def add_supplemental_file(request, ark):
                             )
                         )
     return HttpResponse(resp_json)
-

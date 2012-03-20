@@ -97,6 +97,7 @@ class CollectionRecord(models.Model):
         '''On save if ark is not set, get a new one from EZID.
         Also, if someone is trying to change the ARK, don't let them
         '''
+        print "++++++++++++++++++ HERE +++++++++++++"
         if self.pk:# existing object
             try:
                 db_self = CollectionRecord.objects.get(pk=self.pk)
@@ -126,7 +127,6 @@ class CollectionRecord(models.Model):
     @property
     def dir_supplemental_files(self):
         root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
-        j
         dir_supp_files = os.path.join(root_dir, dir_pairtree_for_ark(self.ark), 'files')
         return dir_supp_files 
 
