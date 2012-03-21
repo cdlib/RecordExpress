@@ -57,8 +57,8 @@
 {%comment%}
 <script type="text/javascript" src="/media/js/core.js"></script>
 <script type="text/javascript" src="/media/js/calendar.js"></script>
-{%endcomment%}
 <script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
+{%endcomment%}
 
 {%block uploader_head%}
 <link rel="stylesheet" href="/site_media/js/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"/>
@@ -380,7 +380,7 @@ $(function() {
     */
     config = {
        //runtimes : 'silverlight,', //html4 & browserplus do not support X-CSRFToken header
-       runtimes : 'gears,html5,silverlight,flash,', //html4 & browserplus do not support X-CSRFToken header
+       runtimes : 'gears,html5,silverlight,flash,html4', //html4 & browserplus do not support X-CSRFToken header
        url : '{% url collection_record.views.add_supplemental_file ark=collection_record.ark %}',
        browse_button : 'pickfile',
        container : 'uploader',
@@ -420,8 +420,12 @@ $(function() {
        }
    });
    */
+   uploader.bind('Init', function(up, params) {
+        $('#filelist').html("<div>Current runtime: " + params.runtime + "</div>");
+        $("#pickfile").text('Select a file to upload');
+   }); 
+
    uploader.init();
-   $("#pickfile").text('Select a file to upload');
 
    uploader.bind('FilesAdded', function(up, files) {
         $.each(files, function(i, file) {
@@ -461,7 +465,7 @@ $(function() {
     uploader.bind('FileUploaded', function(up, file, data) {
 
             //cheesy but works...
-            //location.reload();
+            location.reload();
             /*
             //should update the formset for assoc files
             //look at total num forms and get the empty-form

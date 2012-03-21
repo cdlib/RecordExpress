@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
+from django.contrib.csrf.middleware import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
@@ -47,6 +48,8 @@ from collection_record.forms import SubjectFunctionForm
 from collection_record.forms import SubjectOccupationForm
 from collection_record.forms import SupplementalFileForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
+
+from util.csrf_check import csrf_check
 
 logger = logging.getLogger(__name__)
 
@@ -143,9 +146,9 @@ def add_collection_record(request):
 
 def _url_xtf_preview(ark):
     import os
-    URL_XTF_EAD_VIEW = 'http://' + os.environ['FINDAID_HOSTNAME']+'/view?docId=ead-preview&doc.view=entire_text&source=http://' + os.environ['BACK_SERVER'] + '/djsite/collection-record/'
+    URL_XTF_EAD_VIEW = ''.join(('http://', os.environ['FINDAID_HOSTNAME'], ':', os.environ['FRONT_PORT'], '/view?docId=ead-preview&doc.view=entire_text&source=http://', os.environ['BACK_SERVER'], '/djsite/collection-record/'))
     URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
-    return URL_XTF_EAD_VIEW + ark + URL_XTF_EAD_VIEW_SUFFIX
+    return ''.join((URL_XTF_EAD_VIEW, ark, URL_XTF_EAD_VIEW_SUFFIX))
 
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
@@ -402,12 +405,15 @@ line-height:1.5;\
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
 
-#TODO: csrf protect//login
 @login_required
+@csrf_exempt
 def add_supplemental_file(request, ark):
     '''Handle files uploaded by puploader
     '''
-    logger.error("++++++ FILE DEST: IN add_supplemental_file +++++++++++")
+    #passed, reason = csrf_check(request, use_referer=False)
+    #logger.debug("++++++ PASSED:%s REASON: %s", str(passed), reason)
+    #if not passed:
+    #    return HttpResponseForbidden(reason)
     if request.method != 'POST':
         return HttpResponseBadRequest()
     #first save file to disk, if successful do rest
@@ -422,8 +428,7 @@ def add_supplemental_file(request, ark):
     if not os.path.isdir(dir_collection_files):
         os.makedirs(dir_collection_files)
     with open(os.path.join(dir_collection_files, str(file_obj.filename)), 'wb') as dest:
-        print "++++++ FILE DEST: ", dest
-        logger.error("++++++ FILE DEST: %s", dest)
+        logger.debug("++++++ FILE DEST: %s", dest)
         for chunk in request.FILES['file'].chunks():
             dest.write(chunk)
     file_obj.full_clean()
