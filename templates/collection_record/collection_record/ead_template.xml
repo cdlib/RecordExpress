@@ -45,7 +45,7 @@
         </did>
         <accessrestrict id="accessrestrict"><head>Access</head><p>{{instance.accessrestrict}}</p></accessrestrict>
         <userestrict id="userestrict"><head>Publication Rights</head><p>{{instance.userestrict}}</p></userestrict>
-        <prefercite id="prefercite"><head>Preferred Citation</head><p>{{instance.title}} , {{instance.local_identifier}}.  {{instance.publisher.name}}</p></prefercite>
+        <prefercite id="prefercite"><head>Preferred Citation</head><p>{{instance.title}}.  {{instance.publisher.name}}</p></prefercite>
         <acqinfo id="acqinfo"><head>Acquisition Information</head><p>{{instance.acqinfo}}</p></acqinfo>
         {% if instance.bioghist %}
         <bioghist id="bioghist"><head>Biography/Administrative History</head><p>{{instance.bioghist}}</p></bioghist>
