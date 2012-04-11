@@ -68,8 +68,7 @@ class CollectionRecord(models.Model):
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
 
     class Meta:
-        unique_together = (("title_filing", "publisher"), ("local_identifier",
-            "publisher"))
+        unique_together = (("title_filing", "publisher"),)
 
     def __unicode__(self):
         return mark_safe(unicode(self.ark + ' : ' + self.title_filing))

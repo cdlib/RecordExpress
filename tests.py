@@ -251,6 +251,53 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.assertContains(response, 'Test Title')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
 
+    def testDuplicateLocalID(self):
+        '''Test that duplicate local IDs can be entered. Some insts use a 
+        boilerplate identical string for all their collections.
+        '''
+        url = reverse('collection_record_add')
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        form = response.form
+        #fill out basic info only,required fields only
+        form['title'] = 'Test Title'
+        form['title_filing'] = 'Test Filing Title'
+        form['date_dacs'] = 'circa 1980'
+        form['date_iso'] = '1980'
+        form['local_identifier'] = 'LOCALID-test'
+        form['extent'] = 'loads of boxes'
+        form['abstract'] = 'a nice test collection'
+        form['accessrestrict'] = 'public domain'
+        form['userestrict'] = 'go craxy'
+        form['acqinfo'] = 'by mark'
+        form['scopecontent'] = 'test content'
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(302, response.status_code)
+        response = response.follow()
+        self.failUnlessEqual(200, response.status_code)
+        self.assertTrue('ark:' in response.request.url)
+        self.assertContains(response, 'ark:')
+        url = reverse('collection_record_add')
+        response = self.app.get(url, user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        form = response.form
+        #fill out basic info only,required fields only
+        form['title'] = 'Test Title'
+        form['title_filing'] = 'NO DUP Test Filing Title'
+        form['date_dacs'] = 'circa 1980'
+        form['date_iso'] = '1980'
+        form['local_identifier'] = 'LOCALID-test'
+        form['extent'] = 'loads of boxes'
+        form['abstract'] = 'a nice test collection'
+        form['accessrestrict'] = 'public domain'
+        form['userestrict'] = 'go craxy'
+        form['acqinfo'] = 'by mark'
+        form['scopecontent'] = 'test content'
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(302, response.status_code)
+        response = response.follow()
+        self.failUnlessEqual(200, response.status_code)
+
     def testNewWithDCView(self):
         url = reverse('collection_record_add')
         response = self.app.get(url, user='oactestuser')
