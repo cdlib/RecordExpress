@@ -97,7 +97,6 @@ class CollectionRecord(models.Model):
         '''On save if ark is not set, get a new one from EZID.
         Also, if someone is trying to change the ARK, don't let them
         '''
-        print "++++++++++++++++++ HERE +++++++++++++"
         if self.pk:# existing object
             try:
                 db_self = CollectionRecord.objects.get(pk=self.pk)
