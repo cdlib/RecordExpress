@@ -4,6 +4,7 @@ import json
 import logging
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required, login_required
+from django.views.decorators.cache import never_cache
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
@@ -47,12 +48,14 @@ from collection_record.forms import SubjectTitleForm
 from collection_record.forms import SubjectFunctionForm
 from collection_record.forms import SubjectOccupationForm
 from collection_record.forms import SupplementalFileForm
+from collection_record.forms import SupplementalFileUploadForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
 from util.csrf_check import csrf_check
 
 logger = logging.getLogger(__name__)
 
+@never_cache
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
@@ -150,6 +153,20 @@ def _url_xtf_preview(ark):
     URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
     return ''.join((URL_XTF_EAD_VIEW, ark, URL_XTF_EAD_VIEW_SUFFIX))
 
+def handle_uploaded_file(collection_record, f, label=''):
+    db_file_obj = SupplementalFile()
+    db_file_obj.filename = f.name
+    db_file_obj.collection_record = collection_record
+    dir_collection_files = collection_record.dir_supplemental_files
+    if not os.path.isdir(dir_collection_files):
+        os.makedirs(dir_collection_files)
+    with open(db_file_obj.file_path, 'wb') as foo:
+        for chunk in f.chunks():
+            foo.write(chunk)
+    db_file_obj.label = label
+    db_file_obj.save()
+
+@never_cache
 @login_required
 #@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def edit_collection_record(request, ark, *args, **kwargs):
@@ -163,87 +180,93 @@ def edit_collection_record(request, ark, *args, **kwargs):
     supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)
     choices_publishing_institution = [ (i.id, i.name) for i in get_publishing_institutions_for_user(request.user) ]
     if request.method == 'POST':
-        form_main = CollectionRecordForm(request.POST, instance=collection_record)
-        form_main.fields['publisher'].choices = choices_publishing_institution 
-        #formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
-        formset_person = dcformset_factory(request.POST, instance=collection_record, prefix='person')
-        formset_person.qualifier = 'person'
-        formset_person.term = 'CR'
-        formset_person.content_label = 'Personal Name'
-        formset_family = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_family, prefix='family')
-        formset_family.qualifier = 'family'
-        formset_family.term = 'CR'
-        formset_family.content_label = 'Family Name'
-        formset_organization =dcformset_factory(request.POST, instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
-        formset_organization.qualifier = 'organization'
-        formset_organization.term = 'CR'
-        formset_organization.content_label = 'Organization Name'
-        formset_topic = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
-        formset_topic.qualifier = 'topic'
-        formset_topic.term = 'SUB'
-        formset_topic.content_label = 'Topical Term'
-        formset_subject_person_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
-        formset_subject_person_name.qualifier = 'name_person'
-        formset_subject_person_name.term = 'SUB'
-        formset_subject_person_name.content_label = 'Subject Personal Name'
-        formset_subject_family_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
-        formset_subject_family_name.qualifier = 'name_family'
-        formset_subject_family_name.term = 'SUB'
-        formset_subject_family_name.content_label = 'Subject Family Name'
-        formset_subject_organization_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
-        formset_subject_organization_name.qualifier = 'name_organization'
-        formset_subject_organization_name.term = 'SUB'
-        formset_subject_organization_name.content_label = 'Subject Organization Name'
-        formset_geog = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.coverage, prefix='geog')
-        formset_geog.qualifier = 'geo'
-        formset_geog.term = 'CVR'
-        formset_geog.content_label = 'Geographical Location'
-        formset_genre = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.type_format, prefix='genre')
-        formset_genre.qualifier = 'genre'
-        formset_genre.term = 'TYP'
-        formset_genre.content_label = 'Form/Genre Term'
-        formset_subject_title = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
-        formset_subject_title.qualifier = SubjectTitleForm.qualifier
-        formset_subject_title.term = SubjectTitleForm.term
-        formset_subject_title.content_label = SubjectTitleForm.content_label
-        formset_subject_function = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
-        formset_subject_function.qualifier = 'function'
-        formset_subject_function.term = 'SUB'
-        formset_subject_function.content_label = 'Function Term'
-        formset_subject_occupation = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
-        formset_subject_occupation.qualifier = 'occupation'
-        formset_subject_occupation.term = 'SUB'
-        formset_subject_occupation.content_label = 'Occupation Term'
-        formset_supp_files = supp_files_formset_factory(request.POST, instance=collection_record)
-        f=formset_supp_files.empty_form
-        f.is_empty = True
-        formset_supp_files.forms.append(f)
-        formset_list = [ formset_person, formset_family, formset_organization,
-                formset_topic, formset_subject_person_name,
-                formset_subject_family_name, formset_subject_organization_name,
-                formset_geog, formset_genre, formset_subject_title,
-                formset_subject_function, formset_subject_occupation
-                ]
-        valid_formsets = False not in [x.is_valid() for x in formset_list]  
-        if form_main.is_valid() and valid_formsets and formset_supp_files.is_valid():
-            form_main.save()
-            for formset in formset_list:
-                for form in formset:
-                    form.cleaned_data['qualifier'] = formset.qualifier
-                formset.save()
-            formset_supp_files.save()
-            return redirect(collection_record)
-        else:
-            formset_errors = ''
-            if not valid_formsets:
+        #test if upload file?
+        upload_form = SupplementalFileUploadForm(request.POST, request.FILES)
+        if upload_form.is_valid():
+            handle_uploaded_file(collection_record, request.FILES['file'], label= upload_form.cleaned_data['label'])
+        else: #main form submitted (could check the submit value too)
+            form_main = CollectionRecordForm(request.POST, instance=collection_record)
+            form_main.fields['publisher'].choices = choices_publishing_institution 
+            formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
+            formset_person.qualifier = 'person'
+            formset_person.term = 'CR'
+            formset_person.content_label = 'Personal Name'
+            formset_family = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_family, prefix='family')
+            formset_family.qualifier = 'family'
+            formset_family.term = 'CR'
+            formset_family.content_label = 'Family Name'
+            formset_organization =dcformset_factory(request.POST, instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
+            formset_organization.qualifier = 'organization'
+            formset_organization.term = 'CR'
+            formset_organization.content_label = 'Organization Name'
+            formset_topic = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_topic, prefix='topic')
+            formset_topic.qualifier = 'topic'
+            formset_topic.term = 'SUB'
+            formset_topic.content_label = 'Topical Term'
+            formset_subject_person_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_person, prefix='subject_person_name')
+            formset_subject_person_name.qualifier = 'name_person'
+            formset_subject_person_name.term = 'SUB'
+            formset_subject_person_name.content_label = 'Subject Personal Name'
+            formset_subject_family_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_family, prefix='subject_family_name')
+            formset_subject_family_name.qualifier = 'name_family'
+            formset_subject_family_name.term = 'SUB'
+            formset_subject_family_name.content_label = 'Subject Family Name'
+            formset_subject_organization_name = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_name_organization, prefix='subject_organization_name')
+            formset_subject_organization_name.qualifier = 'name_organization'
+            formset_subject_organization_name.term = 'SUB'
+            formset_subject_organization_name.content_label = 'Subject Organization Name'
+            formset_geog = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.coverage, prefix='geog')
+            formset_geog.qualifier = 'geo'
+            formset_geog.term = 'CVR'
+            formset_geog.content_label = 'Geographical Location'
+            formset_genre = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.type_format, prefix='genre')
+            formset_genre.qualifier = 'genre'
+            formset_genre.term = 'TYP'
+            formset_genre.content_label = 'Form/Genre Term'
+            formset_subject_title = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_title, prefix='subject_title')
+            formset_subject_title.qualifier = SubjectTitleForm.qualifier
+            formset_subject_title.term = SubjectTitleForm.term
+            formset_subject_title.content_label = SubjectTitleForm.content_label
+            formset_subject_function = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_function, prefix='subject_function')
+            formset_subject_function.qualifier = 'function'
+            formset_subject_function.term = 'SUB'
+            formset_subject_function.content_label = 'Function Term'
+            formset_subject_occupation = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.subject_occupation, prefix='subject_occupation')
+            formset_subject_occupation.qualifier = 'occupation'
+            formset_subject_occupation.term = 'SUB'
+            formset_subject_occupation.content_label = 'Occupation Term'
+            formset_supp_files = supp_files_formset_factory(request.POST, instance=collection_record)
+            f=formset_supp_files.empty_form
+            f.is_empty = True
+            formset_supp_files.forms.append(f)
+            formset_list = [ formset_person, formset_family, formset_organization,
+                    formset_topic, formset_subject_person_name,
+                    formset_subject_family_name, formset_subject_organization_name,
+                    formset_geog, formset_genre, formset_subject_title,
+                    formset_subject_function, formset_subject_occupation
+                    ]
+            valid_formsets = False not in [x.is_valid() for x in formset_list]  
+            if form_main.is_valid() and valid_formsets and formset_supp_files.is_valid():
+                form_main.save()
+                #logger.debug('POST: %s' % (unicode(request.POST,)))
                 for formset in formset_list:
-                    formset_errors = ''.join((formset_errors, unicode(formset.errors)))
-            if not formset_supp_files.is_valid():
-                    formset_errors = ''.join((formset_errors, unicode(formset_supp_files.errors)))
-            return render(request, 'collection_record/collection_record/edit.html',
-                locals(),
-            )
+                    for form in formset:
+                        form.cleaned_data['qualifier'] = formset.qualifier
+                    formset.save()
+                formset_supp_files.save()
+                return redirect(collection_record)
+            else:
+                formset_errors = ''
+                if not valid_formsets:
+                    for formset in formset_list:
+                        formset_errors = ''.join((formset_errors, unicode(formset.errors)))
+                if not formset_supp_files.is_valid():
+                        formset_errors = ''.join((formset_errors, unicode(formset_supp_files.errors)))
+                return render(request, 'collection_record/collection_record/edit.html',
+                    locals(),
+                )
     #NOT POST and post valid update
+    upload_form = SupplementalFileUploadForm()
     form_main = CollectionRecordForm(instance=collection_record)
     form_main.fields['publisher'].choices = choices_publishing_institution 
     formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
@@ -317,6 +340,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
             locals(),
             )
 
+@never_cache
 #@login_required
 def view_collection_record_xml(request, ark, *args, **kwargs):
     '''XML view of collection record'''
@@ -327,6 +351,7 @@ def view_collection_record_xml(request, ark, *args, **kwargs):
     #response['Last-Modified'] = http_date(time.mktime(arkobject.dc_last_modified.timetuple()))
     return response
 
+@never_cache
 @login_required
 def view_all_collection_records(request,):# *args, **kwargs):
     '''Formatted html of all collection records that are supplemental with
@@ -347,6 +372,7 @@ def view_all_collection_records(request,):# *args, **kwargs):
             locals(),
             )
 
+@never_cache
 @login_required
 def view_collection_record_oac_preview(request, ark, *args, **kwargs):
     '''Proxy the xtf preview page'''

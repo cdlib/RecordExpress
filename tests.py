@@ -142,7 +142,7 @@ class CollectionRecordEditTestCase(WebTest):
         url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
-        form = response.form
+        form = response.forms['main_form']
         #fill out basic info only,required fields only
         form['title'] = 'Test Title'
         form['title_filing'] = 'Test Filing Title'
@@ -156,10 +156,11 @@ class CollectionRecordEditTestCase(WebTest):
         form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
         response = form.submit(user='oactestuser')
-        self.failUnlessEqual(200, response.status_code)
-        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
-        self.assertNotContains(response, 'errorlist')
-        form = response.form
+        self.failUnlessEqual(302, response.status_code)
+        response.follow()
+        self.assertTemplateUsed(response,'collection_record/collection_record/ead_template.xml') 
+        response = self.app.get(url, user='oactestuser')
+        form = response.forms['main_form']
         form['title'] = ''
         response = form.submit(user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
@@ -173,12 +174,20 @@ class CollectionRecordEditTestCase(WebTest):
         url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
-        form = response.form
+        form = response.forms['main_form']
         newPerson = 'Mark Redar Test'
         form['person-0-content'] = newPerson
         response = form.submit(user='oactestuser')
-        self.failUnlessEqual(200, response.status_code)
+        self.failUnlessEqual(302, response.status_code)
+        #self.assertRedirects(response, rec.get_absolute_url())
+        response.follow(user='oactestuser')
+        self.assertTemplateUsed(response,'collection_record/collection_record/ead_template.xml') 
+        #NOTE: Currently can't test the updated "view" of the object because
+        # of the xtf interaction, it goes to live back server
+        response = self.app.get(url, user='oactestuser')
+        self.assertTrue(newPerson in response)
         self.assertContains(response, newPerson)
+        response = self.app.get(url, user='oactestuser')
         form['person-0-content'] = ''
         response = form.submit(user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
@@ -246,6 +255,7 @@ class NewCollectionRecordViewTestCase(WebTest):
         url = reverse('collection_record_add')
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
+        self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
         form = response.form
         #fill out basic info only,required fields only
         form['title'] = 'Test 2 Title'

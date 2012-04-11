@@ -60,9 +60,6 @@
 <script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
 {%endcomment%}
 
-{%block uploader_head%}
-<link rel="stylesheet" href="/site_media/js/plupload/jquery.plupload.queue/css/jquery.plupload.queue.css"/>
-{%endblock uploader_head%}
 {%endblock extrahead %}
 
 {%block bodycontent%}
@@ -72,9 +69,9 @@
         {%block bodytitle%}<h1>Edit Collection Record : {{ collection_record.ark }}</h1>{%endblock bodytitle%}
     </div>
     <div class="area span-24">
-<form action="" method="POST">
-    {%csrf_token%}
+        <form action="" method="POST" id="main_form" name="main_form">
     <fieldset>
+        {%csrf_token%}
         {% if form_main.errors or formset_errors %}<h3 class="orangetext errorbox">Please fix the errors below -- {{form_main.errors}}</h3>{%endif%}
         {% block submit_top %}
         <input style="float:right" name="submit" type="submit" value="Update record"/>
@@ -296,12 +293,6 @@
                 {{form.filename}}
             </div>
             {% endfor %}
-            {%block uploader%}
-            <div class="span-15 first">
-                <div id="filelist"></div>
-                <div id="uploader"><button id="pickfile" >Your browser doesn't support our javascript uploader</button></div>
-            </div>
-            {%endblock uploader%}
         </fieldset>
         {%endblock supplemental_files%}
         {%block submit_bottom%}
@@ -309,9 +300,19 @@
         {%endblock submit_bottom%}
         </form>
     </div>
+    {%block upload_form %}
+    <div class="area span-24">
+        <fieldset>
+        <form id="upload_form" action="" method="POST" enctype="multipart/form-data">
+            {%csrf_token%}
+            {{upload_form}}
+        <input style="float:right" name="submit" type="submit" value="Upload file"/>
+        </form>
+        </fieldset>
+    </div>
+    {%endblock upload_form %}
 </div>
 <script type="text/javascript" src="/site_media/js/jquery-1.7.min.js"></script>
-{%comment%}<script type="text/javascript" src="/site_media/js/jquery-1.7.js"></script>{%endcomment%}
 <script type="text/javascript" src="/site_media/js/jquery.formset.js"></script>
 <script type="text/javascript">
     $(function() {
@@ -365,142 +366,5 @@
         });
     });
 </script>
-{%block uploader_footer%}
-<script type="text/javascript" src="/site_media/js/plupload/plupload.full.js"></script>
-<script type="text/javascript" src="/site_media/js/plupload/jquery.ui.plupload/jquery.ui.plupload.js"></script>
-<script type="text/javascript" src="/site_media/js/plupload/jquery.plupload.queue/jquery.plupload.queue.js"></script>
-<script type="text/javascript">
-$(function() {
-    //create a django formset object to ease use?
-        /*
-    $('#supplemental_files div').formset({
-        formCssClass: 'dynamic-fieldset-form',
-        prefix: "supp_files"
-    });
-    */
-    config = {
-       //runtimes : 'silverlight,', //html4 & browserplus do not support X-CSRFToken header
-       runtimes : 'gears,html5,silverlight,flash,html4', //html4 & browserplus do not support X-CSRFToken header
-       url : '{% url collection_record.views.add_supplemental_file ark=collection_record.ark %}',
-       browse_button : 'pickfile',
-       container : 'uploader',
-       max_file_size : '10mb',
-       chunk_size: '1mb',
-       unique_names : false,
-       multipart: true,
-       headers : {'X-Requested-With' : 'XMLHttpRequest',
-       'X-CSRFToken' : '{{csrf_token}}',
-       'Referer' : window.location.toString()},
-       flash_swf_url : '/site_media/js/plupload/plupload.flash.swf',
-       silverlight_xap_url : '/site_media/js/plupload/plupload.silverlight.xap'
-   };
-    var uploader = new plupload.Uploader(config);
-   $("#uploader").uploader = uploader;
-
-   /*
-   $('form').submit(function(e) {
-       var uploader = $('#uploader').pluploadQueue();
-
-       // Validate number of uploaded files
-       if (uploader.total.uploaded == 0) {
-           // Files in queue upload them first
-           if (uploader.files.length > 0) {
-               // When all files are uploaded submit form
-               uploader.bind('UploadProgress', function() {
-                   if (uploader.total.uploaded == uploader.files.length)
-                       $('form').submit();
-               });
-
-               uploader.start();
-           } else {
-               alert('You must at least upload one file.');
-           }
-
-           e.preventDefault();
-       }
-   });
-   */
-   uploader.bind('Init', function(up, params) {
-        $('#filelist').html("<div>Current runtime: " + params.runtime + "</div>");
-        $("#pickfile").text('Select a file to upload');
-   }); 
-
-   uploader.init();
-
-   uploader.bind('FilesAdded', function(up, files) {
-        $.each(files, function(i, file) {
-            $('#filelist').append(
-                '<div id="' + file.id + '">' +
-                file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
-            '</div>');
-        });
-
-        up.refresh(); // Reposition Flash/Silverlight
-        up.start();
-    });
-
-    uploader.bind('UploadProgress', function(up, file) {
-        $('#' + file.id + " b").html(file.percent + "%");
-    });
-
-    uploader.bind('Error', function(up, err) {
-            alert('ERROR during file upload');
-        $('#filelist').append("<div>Error: " + err.code +
-            ", Message: " + err.message +
-            (err.file ? ", File: " + err.file.name : "") +
-            "</div>"
-        );
- 
-        up.refresh(); // Reposition Flash/Silverlight
-    });
-
-    updateElementIndex = function(elem, prefix, ndx) {
-        var idRegex = new RegExp(prefix + '-(\\d+|__prefix__)-'),
-             replacement = prefix + '-' + ndx + '-';
-        if (elem.attr("for")) elem.attr("for", elem.attr("for").replace(idRegex, replacement));
-        if (elem.attr('id')) elem.attr('id', elem.attr('id').replace(idRegex, replacement));
-        if (elem.attr('name')) elem.attr('name', elem.attr('name').replace(idRegex, replacement));
-    },
-
-    uploader.bind('FileUploaded', function(up, file, data) {
-
-            //cheesy but works...
-            location.reload();
-            /*
-            //should update the formset for assoc files
-            //look at total num forms and get the empty-form
-            //update total num and sub id (which is cur tot. num)
-            var tot_num = $('#id_supplementalfile_set-TOTAL_FORMS').val(); 
-            //do it the regex way
-            var empty_form = $('.empty-form', $('#supplemental_files'));
-
-            var new_form = empty_form.clone();
-            new_form.removeClass('empty-form');
-            new_form.addClass('dynamic-fieldset-form');
-            //regex here
-            var data_obj = jQuery.parseJSON(data.response);
-            $('#id_supplementalfile_set-__prefix__-id', new_form).val(data_obj.pk);
-            updateElementIndex($('#id_supplementalfile_set-__prefix__-id', new_form), '', tot_num);
-            updateElementIndex($('#id_supplementalfile_set-__prefix__-label', new_form), '', tot_num);
-            updateElementIndex($('#id_supplementalfile_set-__prefix__-DELETE', new_form), '', tot_num);
-            $('#id_supplementalfile_set-__prefix__-filename', new_form).val(file.name);
-            updateElementIndex($('#id_supplementalfile_set-__prefix__-filename', new_form), '', tot_num);
-            $('#file-name', new_form).text(file.name);
-            $('#supplemental_files').append(new_form);
-            $('#id_supplementalfile_set-TOTAL_FORMS').val(tot_num+1); 
-
-/*            $('#supplemental_files').append(
-                '<div id="' + file.id + '_supp">' +
-                file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
-            '</div>');
-            $('#' + file.id + " b").remove();//.html("100%");
-            $('#' + file.id ).remove();//.html("100%");
-
-            */
-    });
-
-});
-</script>
-{%endblock uploader_footer%}
 {%block pagescripts %}{%endblock pagescripts %}
 {%endblock bodycontent%}

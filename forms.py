@@ -123,3 +123,7 @@ class SupplementalFileForm(forms.ModelForm):
         widgets = {
                 'filename': forms.HiddenInput,
                 }
+
+class SupplementalFileUploadForm(forms.Form):
+    label = forms.CharField(max_length=512)
+    file  = forms.FileField()
