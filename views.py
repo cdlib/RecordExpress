@@ -15,6 +15,7 @@ from django.contrib.csrf.middleware import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
+from django.core.urlresolvers import reverse as django_url_reverse
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 import BeautifulSoup
 from DSC_EZID_minter import main as EZIDMinter
@@ -403,13 +404,7 @@ line-height:1.5;\
     body.insert(0, atag)
 ####  the close doesn't work due to security restrictions
     closetag = BeautifulSoup.Tag(soup, 'a',
-            attrs={'href':"javascript:self.close();",
-            #attrs={'href':"javascript:window.open('','_parent','');window.close();",
-            #attrs={'href':"javascript:window.opener='x';window.close();",
-###                'target':'_self',
-#            attrs={'type':'button',
-#            'value':'Close',
-#            'onclick':'self.close();',
+            attrs={'href':django_url_reverse('collection_record_view_all'),
                 'style':"""\
 float:right;\
 background-color:#C2492C;\

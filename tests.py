@@ -1,6 +1,7 @@
 import os
 from urllib import quote
 import xml.etree.ElementTree as ET
+from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.db.models.base import ValidationError
@@ -129,7 +130,7 @@ class CollectionRecordEditTestCase(WebTest):
         response = self.app.get(url)
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
-        self.assertRedirects(response, '/accounts/login/?next='+quote(url))
+        self.assertTrue(settings.LOGIN_URL+'?next='+quote(url), response.headers['location'])
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'itle')
@@ -203,6 +204,44 @@ class NewCollectionRecordViewTestCase(WebTest):
         '''Override the "databases" config file to use the test shoulder'''
         os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
 
+    def parseARK(self, url_string):
+        '''Parse the ark from the string'''
+        ark_from_url = url_string[url_string.index('ark'):]
+        ark_from_url = ark_from_url.rstrip('/')
+        return ark_from_url
+
+    def createNewMinimalCR(self):
+        '''A helper function to create a new Collection Record with
+        a known set of data
+        '''
+        url = reverse('collection_record_add')
+        response = self.app.get(url, user='oactestuser')
+        form = response.form
+        #fill out basic info only,required fields only
+        form['title'] = 'Test Title'
+        form['title_filing'] = 'Test Filing Title'
+        form['date_dacs'] = 'circa 1980'
+        form['date_iso'] = '1980'
+        form['local_identifier'] = 'LOCALID-test'
+        form['extent'] = 'loads of boxes'
+        form['abstract'] = 'a nice test collection'
+        form['accessrestrict'] = 'public domain'
+        #form['userestrict'] = 'go craxy'
+        #form['acqinfo'] = 'by mark'
+        form['scopecontent'] = 'test content'
+        response = form.submit(user='oactestuser')
+        self.failUnlessEqual(302, response.status_code)
+        response = response.follow()
+        self.failUnlessEqual(200, response.status_code)
+        self.assertTrue('ark:' in response.request.url)
+        #can't test without a live server, xtf needs to talk to
+        ark_from_url = self.parseARK(response.request.url)
+        cr=CollectionRecord.objects.get(ark=ark_from_url)
+        response = self.app.get(cr.get_edit_url(), user='oactestuser')
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'ark:')
+        self.assertContains(response, 'Test Title')
+
     def testNewView(self):
         '''Test the view for creating new collection records.
         View needs to be login protected.
@@ -211,7 +250,7 @@ class NewCollectionRecordViewTestCase(WebTest):
         response = self.app.get(url)
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
-        self.assertRedirects(response, '/accounts/login/?next='+quote(url))
+        self.assertTrue(settings.LOGIN_URL+'?next='+quote(url), response.headers['location'])
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'itle')
@@ -223,33 +262,7 @@ class NewCollectionRecordViewTestCase(WebTest):
         response = form.submit(user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
-        form = response.form
-        #fill out basic info only,required fields only
-        form['title'] = 'Test Title'
-        form['title_filing'] = 'Test Filing Title'
-        form['date_dacs'] = 'circa 1980'
-        form['date_iso'] = '1980'
-        form['local_identifier'] = 'LOCALID-test'
-        form['extent'] = 'loads of boxes'
-        form['abstract'] = 'a nice test collection'
-        form['accessrestrict'] = 'public domain'
-        form['userestrict'] = 'go craxy'
-        form['acqinfo'] = 'by mark'
-        form['scopecontent'] = 'test content'
-        response = form.submit(user='oactestuser')
-        self.failUnlessEqual(302, response.status_code)
-        response = response.follow()
-        self.failUnlessEqual(200, response.status_code)
-        self.assertTrue('ark:' in response.request.url)
-        self.assertContains(response, 'ark:')
-        ark_from_url = response.request.url[response.request.url.index('ark:'):]
-        ark_from_url = ark_from_url.rstrip('/')
-        cr=CollectionRecord.objects.get(ark=ark_from_url)
-        response = self.app.get(cr.get_edit_url(), user='oactestuser')
-        self.failUnlessEqual(200, response.status_code)
-        self.assertContains(response, 'ark:')
-        self.assertContains(response, 'Test Title')
-        self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+        self.createNewMinimalCR()
 
     def testDuplicateLocalID(self):
         '''Test that duplicate local IDs can be entered. Some insts use a 
