@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.formsets import formset_factory
+from django.forms import ValidationError
 
 from ARK_validator import validate, ARKInvalid
 
@@ -127,3 +128,16 @@ class SupplementalFileForm(forms.ModelForm):
 class SupplementalFileUploadForm(forms.Form):
     label = forms.CharField(max_length=512)
     file  = forms.FileField()
+
+    def clean_file(self):
+        '''Verify that it is a pdf being uploaded. How tricky should I get here?
+        '''
+        f = self.cleaned_data['file']
+        if f.content_type != 'application/pdf':
+            msg = "Only pdf files allowed for upload"
+            self._errors["file"] = self.error_class([msg])
+            raise ValidationError(msg)
+        #TODO: add a check of actual file contents
+        #probably easiest using pyPdf.PdfFileReader
+        #maybe best to do this in the handle function
+        return f

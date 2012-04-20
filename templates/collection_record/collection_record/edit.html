@@ -73,6 +73,7 @@
     <fieldset>
         {%csrf_token%}
         {% if form_main.errors or formset_errors %}<h3 class="orangetext errorbox">Please fix the errors below -- {{form_main.errors}}</h3>{%endif%}
+        {% if upload_form.errors %}<h3 class="orangetext errorbox">File upload failed. Please see errors in the <a href="#upload_form">upload file section</a></h3>{%endif%}
         {% block submit_top %}
         <input style="float:right" name="submit" type="submit" value="Update record"/>
         {% endblock submit_top %}
@@ -303,6 +304,7 @@
     {%block upload_form %}
     <div class="area span-24">
         <fieldset>
+        <h4>Upload a Supplemental File</h4>
         <form id="upload_form" action="" method="POST" enctype="multipart/form-data">
             {%csrf_token%}
             {{upload_form}}

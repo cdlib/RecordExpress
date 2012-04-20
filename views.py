@@ -180,11 +180,14 @@ def edit_collection_record(request, ark, *args, **kwargs):
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
     supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)
     choices_publishing_institution = [ (i.id, i.name) for i in get_publishing_institutions_for_user(request.user) ]
+    upload_form = None
     if request.method == 'POST':
         #test if upload file?
-        upload_form = SupplementalFileUploadForm(request.POST, request.FILES)
-        if upload_form.is_valid():
-            handle_uploaded_file(collection_record, request.FILES['file'], label= upload_form.cleaned_data['label'])
+        if 'label' in request.POST and request.FILES is not None:
+            #file upload
+            upload_form = SupplementalFileUploadForm(request.POST, request.FILES)
+            if upload_form.is_valid():
+                handle_uploaded_file(collection_record, request.FILES['file'], label= upload_form.cleaned_data['label'])
         else: #main form submitted (could check the submit value too)
             form_main = CollectionRecordForm(request.POST, instance=collection_record)
             form_main.fields['publisher'].choices = choices_publishing_institution 
@@ -267,7 +270,8 @@ def edit_collection_record(request, ark, *args, **kwargs):
                     locals(),
                 )
     #NOT POST and post valid update
-    upload_form = SupplementalFileUploadForm()
+    if upload_form is None:
+        upload_form = SupplementalFileUploadForm()
     form_main = CollectionRecordForm(instance=collection_record)
     form_main.fields['publisher'].choices = choices_publishing_institution 
     formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
