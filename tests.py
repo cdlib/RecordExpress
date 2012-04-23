@@ -71,6 +71,14 @@ class CollectionRecordModelTest(TestCase):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         rec.save_ead_file(directory_root=os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'tests/data'))
 
+    def testXMLURL(self):
+        '''test that the xml url function exists & returns something.
+        '''
+        rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        url = rec.get_xml_url
+        self.failUnless(url is not None)
+
+
 class CollectionRecordFormTestCase(TestCase):
     '''Test the form for creating new collection records. Is this form different
     from the existing record form?
@@ -103,6 +111,21 @@ class CollectionRecordViewAllTestCase(TestCase):
         self.assertContains(response, '5')
         self.assertContains(response, 'fk42r40zx')
         
+    def testLinksOnCollectionRecordListPage(self):
+        '''Check that some links do exist on the collection record list page
+        '''
+        url = reverse('collection_record_view_all', args=None)
+        ret = self.client.login(username='oactestuser',password='oactestuser')
+        response = self.client.get(url)
+        self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'fk4vh5x06')
+        url_add = reverse('collection_record_add', args=None)
+        self.assertContains(response, url_add)
+        rec = CollectionRecord.objects.get(pk='ark:/99999/fk4vh5x06')
+        url_rec = rec.get_absolute_url()
+        self.assertContains(response, url_rec)
+        url_xml = rec.get_xml_url()
+        self.assertContains(response, url_xml)
 
 #TODO:this is going to require a live test server for xtf to talk to
 ###class CollectionRecordXMLViewTestCase(WebTest):
@@ -117,6 +140,7 @@ class CollectionRecordViewAllTestCase(TestCase):
 ###        self.failUnlessEqual(200, response.status_code)
 ###        self.assertContains(response, '<ead>')
 ###        self.assertContains(response, 'Banc')
+
 
 class CollectionRecordEditTestCase(WebTest):
     '''Test the edit page for the collection records. Should be able to modify

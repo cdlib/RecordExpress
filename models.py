@@ -81,6 +81,10 @@ class CollectionRecord(models.Model):
     def get_edit_url(self):
         return ('collectionrecord_edit', (), {'ark': self.ark, })
 
+    @models.permalink
+    def get_xml_url(self):
+        return ('collectionrecord_view_xml', (), {'ark': self.ark, })
+
     @property
     def ead_dir(self, directory_root=EAD_ROOT_DIR):
         return  os.path.join(directory_root, self.publisher.cdlpath)

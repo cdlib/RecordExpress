@@ -7,7 +7,9 @@
           <h2>Collection Records in system: {{object_list|length}}</h2>
           <ul>
           {%for obj in object_list %}
-          <li><a href="{{obj.get_absolute_url|safe}}">{{obj.title}}</a></li>
+          <li>
+          <span class="span-18"><a href="{{obj.get_absolute_url|safe}}">{{obj.title}}</a></span>
+          <span class="last span-1"><a href="{{obj.get_xml_url|safe}}">[xml]</a></span></li>
           {%endfor%}
       </ul>
       </div>
