@@ -19,7 +19,7 @@
              <head>Descriptive Summary</head>
              <unittitle label="Title">{{instance.title}}</unittitle>
              <unitdate normal="{{instance.date_iso}}" label="Dates"></unitdate>
-             <unitid label="Collection Number" repositorycode="{{instance.publisher_marc}}" countrycode="US">{{instance.local_identifier}}</unitid>
+             <unitid label="Collection Number" repositorycode="{{instance.publisher.mainagency}}" countrycode="US">{{instance.local_identifier}}</unitid>
              <origination label="Creator/Collector">
                  {% for qdc in instance.creator_person %}
                  <persname>{{qdc.content}}</persname>

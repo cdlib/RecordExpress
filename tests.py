@@ -50,6 +50,7 @@ class CollectionRecordModelTest(TestCase):
         self.failUnless('id="archdesc' in ead_xml)
         self.failUnless('</archdesc>' in ead_xml)
         self.failUnless('</ead>' in ead_xml)
+        self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         try:
             ET.fromstring(ead_xml)
         except:
