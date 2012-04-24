@@ -387,7 +387,8 @@ def view_collection_record_oac_preview(request, ark, *args, **kwargs):
     html = foo.read()
     soup = BeautifulSoup.BeautifulSoup(html)
     body = soup.find('body')
-    atag = BeautifulSoup.Tag(soup, 'a',
+    if request.user.has_perm('collection_record.change_collectionrecord', collection_record):
+        atag = BeautifulSoup.Tag(soup, 'a',
             attrs={'href':collection_record.get_edit_url(),
                 'style':"""\
 float:right;\
@@ -404,8 +405,8 @@ line-height:1.5;\
 """,
             } 
                     )
-    atag.insert(0, 'Edit')
-    body.insert(0, atag)
+        atag.insert(0, 'Edit')
+        body.insert(0, atag)
 ####  the close doesn't work due to security restrictions
     closetag = BeautifulSoup.Tag(soup, 'a',
             attrs={'href':django_url_reverse('collection_record_view_all'),

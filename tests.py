@@ -446,6 +446,26 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
         self.assertContains(response, 'First Test Title')
         self.assertContains(response, 'localid')
         self.assertContains(response, 'Bancroft')
+        self.assertContains(response, rec.get_edit_url())
+
+    def testOACViewNotOwner(self):
+        '''Check that the "Edit" button link doesn't appear in the preview
+        for people who can't edit the findaid
+        '''
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        url = rec.get_absolute_url()
+        response = self.client.get(url)
+        self.failUnlessEqual(302, response.status_code)
+        ret = self.client.login(username='oactest',password='oactest')
+        self.failUnless(ret)
+        response = self.client.get(url)
+        self.failUnlessEqual(200, response.status_code)
+        #Need a live serverfor this to work....
+        self.assertContains(response, 'First Test Title')
+        self.assertContains(response, 'localid')
+        self.assertContains(response, 'Bancroft')
+        self.assertNotContains(response, rec.get_edit_url())
+
 
 class CollectionRecordPermissionsBackendTestCase(TestCase):
     '''test the permission backend for the Collection record app
