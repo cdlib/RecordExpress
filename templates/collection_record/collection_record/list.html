@@ -5,13 +5,10 @@
 <div class='container' id="collection_record">
       <div class="area span-24">
           <h2>Collection Records in system: {{object_list|length}}</h2>
-          <ul>
           {%for obj in object_list %}
-          <li>
           <span class="span-18"><a href="{{obj.get_absolute_url|safe}}">{{obj.title}}</a></span>
-          <span class="last span-1"><a href="{{obj.get_xml_url|safe}}">[xml]</a></span></li>
+          <span class="last span-1"><a href="{{obj.get_xml_url|safe}}">[xml]</a></span>
           {%endfor%}
-      </ul>
       </div>
       <strong><a href="{% url collection_record.views.add_collection_record %}">Add a collection record.</a></strong>
   </div>
