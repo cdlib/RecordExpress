@@ -53,13 +53,6 @@
     line-height:1.5;
 }
 </style>
-
-{%comment%}
-<script type="text/javascript" src="/media/js/core.js"></script>
-<script type="text/javascript" src="/media/js/calendar.js"></script>
-<script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>
-{%endcomment%}
-
 {%endblock extrahead %}
 
 {%block bodycontent%}
@@ -80,11 +73,11 @@
         <h3>Basic Information</h3>
         <h5 class="orangetext">* indicates required field</h5>
         {%for field in form_main%}
-        <div class="span-23{%if field.errors%} errorbox {%endif%}">
+        <div class="span-22{%if field.errors%} errorbox {%endif%}">
         <span class="span-5"><label>
             {{field.label}}{%if field.field.required %}<span class="orangetext">*</span>{%endif%}</label>
         </span>
-        <span class="span-18 last">{{field}}&nbsp;{{field.help_text}}
+        <span class="span-17 last">{{field}}&nbsp;{{field.help_text}}
             {%for err in field.errors %}
                 <span class="errorlist">{{err}}</span>
                 {% endfor %}
