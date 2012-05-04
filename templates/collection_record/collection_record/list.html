@@ -4,7 +4,10 @@
 {% block bodycontent %}
 <div class='container' id="collection_record">
       <div class="area span-24">
+          <span class="span-20">
           <h2>Collection Records in system: {{object_list|length}}</h2>
+      </span>
+          <span class="span-3 last">{%include "collection_record/help_link.html"%}</span>
           {%for obj in object_list %}
           <span class="span-18"><a href="{{obj.get_absolute_url|safe}}">{{obj.title}}</a></span>
           <span class="last span-1"><a href="{{obj.get_xml_url|safe}}">[xml]</a></span>

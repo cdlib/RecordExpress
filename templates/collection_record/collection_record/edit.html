@@ -8,6 +8,7 @@
         {%block bodytitle%}<h1>Edit Collection Record : {{ collection_record.ark }}</h1>{%endblock bodytitle%}
     </div>
     <div class="area span-24">
+        <span class="last" style="float:right">{%include "collection_record/help_link.html"%}</span>
         <form action="" method="POST" id="main_form" name="main_form">
     <fieldset>
         {%csrf_token%}
