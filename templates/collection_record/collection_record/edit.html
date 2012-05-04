@@ -8,9 +8,12 @@
         {%block bodytitle%}<h1>Edit Collection Record : {{ collection_record.ark }}</h1>{%endblock bodytitle%}
     </div>
     <div class="area span-24">
+        <div class="span-24">
         <span class="last" style="float:right">{%include "collection_record/help_link.html"%}</span>
-        <form action="" method="POST" id="main_form" name="main_form">
+    </div>
+    <div class="span-24">
     <fieldset>
+        <form action="" method="POST" id="main_form" name="main_form">
         {%csrf_token%}
         {% if form_main.errors or formset_errors %}<h3 class="orangetext errorbox">Please fix the errors below -- {{form_main.errors}}</h3>{%endif%}
         {% if upload_form.errors %}<h3 class="orangetext errorbox">File upload failed. Please see errors in the <a href="#upload_form">upload file section</a></h3>{%endif%}
@@ -242,7 +245,7 @@
         </form>
     </div>
     {%block upload_form %}
-    <div class="area span-24">
+    <div class="span-24">
         <fieldset>
         <h4>Upload a Supplemental File</h4>
         <form id="upload_form" action="" method="POST" enctype="multipart/form-data">
@@ -251,6 +254,7 @@
         <input style="float:right" name="submit" type="submit" value="Upload file"/>
         </form>
         </fieldset>
+    </div>
     </div>
     {%endblock upload_form %}
 </div>
