@@ -13,7 +13,9 @@
           <span class="last span-1"><a href="{{obj.get_xml_url|safe}}">[xml]</a></span>
           {%endfor%}
       </div>
+      <div class="span-24">
       <strong><a href="{% url collection_record.views.add_collection_record %}">Add a collection record.</a></strong>
+  </div>
   </div>
 {% endblock bodycontent %}
 
