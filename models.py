@@ -3,6 +3,7 @@ import os
 import re
 from xml.sax.saxutils import quoteattr
 from xml.sax.saxutils import escape
+import codecs
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.conf import settings
@@ -93,7 +94,7 @@ class CollectionRecord(models.Model):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
         fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
-        with open(fname, 'w') as foo:
+        with codecs.open(fname, 'w', 'utf-8') as foo:
             foo.write(self.ead_xml)
 
     def save(self, *args, **kwargs):

@@ -41,7 +41,7 @@ class CollectionRecordAddForm(forms.Form):
             try:
                 ark, NAAN, name, qualifier = validate(ark)
             except ARKInvalid, e:
-                raise forms.ValidationError(str(e))
+                raise forms.ValidationError(unicode(e))
         return ark
 
 class CreatorPersonForm(forms.Form):

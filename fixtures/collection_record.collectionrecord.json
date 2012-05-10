@@ -11,7 +11,7 @@
       "abstract": "a nice abstract",
       "title": "First Test Title",
       "updated_at": "2011-12-19 17:27:55",
-      "bioghist": "Bioghist test",
+      "bioghist": "Bioghist test with some unicode “help” ‘me’ ",
       "accessrestrict": "public domain",
       "language": "eng",
       "local_identifier": "localid",

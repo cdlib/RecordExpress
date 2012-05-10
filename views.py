@@ -437,7 +437,7 @@ def add_supplemental_file(request, ark):
     '''Handle files uploaded by puploader
     '''
     #passed, reason = csrf_check(request, use_referer=False)
-    #logger.debug("++++++ PASSED:%s REASON: %s", str(passed), reason)
+    #logger.debug("++++++ PASSED:%s REASON: %s", unicode(passed), reason)
     #if not passed:
     #    return HttpResponseForbidden(reason)
     if request.method != 'POST':
@@ -453,7 +453,7 @@ def add_supplemental_file(request, ark):
     dir_collection_files = collection_record.dir_supplemental_files
     if not os.path.isdir(dir_collection_files):
         os.makedirs(dir_collection_files)
-    with open(os.path.join(dir_collection_files, str(file_obj.filename)), 'wb') as dest:
+    with open(os.path.join(dir_collection_files, unicode(file_obj.filename)), 'wb') as dest:
         logger.debug("++++++ FILE DEST: %s", dest)
         for chunk in request.FILES['file'].chunks():
             dest.write(chunk)
@@ -462,8 +462,8 @@ def add_supplemental_file(request, ark):
 
     resp_json = json.dumps(dict(response="success",
                                 ark=ark,
-                                pk=str(file_obj.pk),
-                                #file=str(file_obj),
+                                pk=unicode(file_obj.pk),
+                                #file=unicode(file_obj),
                             )
                         )
     return HttpResponse(resp_json)
