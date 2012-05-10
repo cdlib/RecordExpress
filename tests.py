@@ -52,8 +52,10 @@ class CollectionRecordModelTest(TestCase):
         self.failUnless('</ead>' in ead_xml)
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         try:
-            ET.fromstring(ead_xml)
+            ET.XML(ead_xml.encode('utf-8'))
         except:
+            import sys
+            print sys.exc_info()
             self.fail('ElementTree could not parse xml')
 
     def testEAD_xml_with_files_output(self):
