@@ -86,16 +86,46 @@ class CollectionRecord(models.Model):
     def get_xml_url(self):
         return ('collectionrecord_view_xml', (), {'ark': self.ark, })
 
-    @property
-    def ead_dir(self, directory_root=EAD_ROOT_DIR):
-        return  os.path.join(directory_root, self.publisher.cdlpath)
 
-    def save_ead_file(self, directory_root=EAD_ROOT_DIR):
+    def _get_dir_root(self):
+        if hasattr(self, '_dir_root'):
+            return self._dir_root
+        else:
+            return EAD_ROOT_DIR
+    def _set_dir_root(self, value):
+        self._dir_root = value
+    dir_root = property(_get_dir_root, _set_dir_root)
+
+    @property
+    def ead_dir(self):
+        return  os.path.join(self.dir_root, self.publisher.cdlpath)
+
+    @property
+    def ead_filename(self):
+        return os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
+
+    def delete(self, **kwargs):
+        '''Delete the file first then the DB object'''
+        if os.path.isfile(self.ead_filename):
+            os.remove(self.ead_filename)
+        super(CollectionRecord, self).delete(**kwargs)
+
+    def save_ead_file(self):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
-        fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
-        with codecs.open(fname, 'w', 'utf-8') as foo:
+        fname = self.ead_filename
+        foo =  codecs.open(fname, 'w', 'utf-8')
+        try:
             foo.write(self.ead_xml)
+            foo.close()
+        except:
+            foo.close()
+            #cleanup if necessary
+            try:
+                if os.path.isfile(self.ead_filename):
+                    os.remove(fname) #TODO: TEST THIS
+            except:
+                print "!!!! PROBLEM REMOVING %s. Check that its gons !!!" % (fname, )
 
     def save(self, *args, **kwargs):
         '''On save if ark is not set, get a new one from EZID.
@@ -233,7 +263,8 @@ class SupplementalFile(models.Model):
 
     def delete(self, **kwargs):
         '''Delete the file first then the DB object'''
-        os.remove(self.file_path)
+        if os.path.isfile(self.file_path):
+            os.remove(self.file_path)
         super(SupplementalFile, self).delete(**kwargs)
 
     def unicode(self):

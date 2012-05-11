@@ -1,6 +1,7 @@
 import os
 from urllib import quote
 import xml.etree.ElementTree as ET
+from shutil import rmtree
 from django.conf import settings
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -16,6 +17,11 @@ from collection_record.perm_backend import CollectionRecordPermissionBackend
 class CollectionRecordModelTest(TestCase):
     '''Test the CollectionRecord django model'''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
+
+    def tearDown(self):
+        dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
+        if os.path.isdir(dir_root):
+            rmtree(dir_root)
 
     def testModelExists(self):
         rec = CollectionRecord()
@@ -72,7 +78,13 @@ class CollectionRecordModelTest(TestCase):
 
     def testEAD_file_save(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
-        rec.save_ead_file(directory_root=os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'tests/data'))
+        dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
+        rec.dir_root = dir_root
+        if not os.path.isdir(rec.ead_dir):
+            os.makedirs(rec.ead_dir)
+        rec.save_ead_file()
+        if not os.path.exists(rec.ead_filename):
+            self.fail('Did not create EAD file %s' %(rec.ead_filename,))
 
     def testXMLURL(self):
         '''test that the xml url function exists & returns something.
@@ -80,6 +92,21 @@ class CollectionRecordModelTest(TestCase):
         rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
         url = rec.get_xml_url
         self.failUnless(url is not None)
+
+    def testEAD_file_remove_on_delete(self):
+        '''Test that the EAD xml file is removed when the Collection Record is 
+        deleted
+        '''
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
+        rec.dir_root = dir_root
+        if not os.path.isdir(rec.ead_dir):
+            os.makedirs(rec.ead_dir)
+        rec.save_ead_file()
+        ead_fname = rec.ead_filename
+        rec.delete()
+        if os.path.exists(ead_fname):
+            self.fail('Did not delete ead file %s' % (ead_fname,))
 
 
 class CollectionRecordFormTestCase(TestCase):
