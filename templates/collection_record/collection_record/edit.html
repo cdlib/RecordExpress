@@ -12,8 +12,8 @@
         <span class="last" style="float:right">{%include "collection_record/help_link.html"%}</span>
     </div>
     <div class="span-24">
-    <fieldset>
         <form action="" method="POST" id="main_form" name="main_form">
+    <fieldset>
         {%csrf_token%}
         {% if form_main.errors or formset_errors %}<h3 class="orangetext errorbox">Please fix the errors below -- {{form_main.errors}}</h3>{%endif%}
         {% if upload_form.errors %}<h3 class="orangetext errorbox">File upload failed. Please see errors in the <a href="#upload_form">upload file section</a></h3>{%endif%}
