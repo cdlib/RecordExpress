@@ -47,75 +47,75 @@ class CollectionRecordAddForm(forms.Form):
 class CreatorPersonForm(forms.Form):
     term = 'CR'
     qualifier = 'person'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Personal Name')
+    content = forms.CharField(widget=forms.Textarea, label='Personal Name')
 CreatorPersonFormset = formset_factory(CreatorPersonForm, extra=1)
 
 class CreatorFamilyForm(forms.Form):
     term = 'CR'
     qualifier = 'family'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Family Name')
+    content = forms.CharField(widget=forms.Textarea, label='Family Name')
 CreatorFamilyFormset = formset_factory(CreatorFamilyForm, extra=1)
 
 class CreatorOrganizationForm(forms.Form):
     term = 'CR'
     qualifier = 'organization'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Organization Name')
+    content = forms.CharField(widget=forms.Textarea, label='Organization Name')
 CreatorOrganizationFormset = formset_factory(CreatorOrganizationForm, extra=1)
 
 class SubjectTopicForm(forms.Form):
     term = 'SUB'
     qualifier = 'topic'
     content_label = 'Topical Term'
-    content = forms.CharField(max_length=40, label=content_label, widget=forms.TextInput(attrs={'size':'60',})) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
+    content = forms.CharField(label=content_label, widget=forms.Textarea) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
 SubjectTopicFormset = formset_factory(SubjectTopicForm, extra=1)
 
 class SubjectPersonNameForm(forms.Form):
     term = 'SUB'
     qualifier = 'name_person'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Personal Name')
+    content = forms.CharField(widget=forms.Textarea, label='Personal Name')
 SubjectPersonNameFormset = formset_factory(SubjectPersonNameForm, extra=1)
 
 class SubjectFamilyNameForm(forms.Form):
     term = 'SUB'
     qualifier = 'name_family'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Family Name')
+    content = forms.CharField(widget=forms.Textarea, label='Family Name')
 SubjectFamilyNameFormset = formset_factory(SubjectFamilyNameForm, extra=1)
 
 class SubjectOrganizationNameForm(forms.Form):
     term = 'SUB'
     qualifier = 'name_organization'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Organization Name')
+    content = forms.CharField(widget=forms.Textarea, label='Organization Name')
 SubjectOrganizationNameFormset = formset_factory(SubjectOrganizationNameForm, extra=1)
 
 class GeographicForm(forms.Form):
     term = 'CVR'
     qualifier = 'geo'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Geographical Location')
+    content = forms.CharField(widget=forms.Textarea, label='Geographical Location')
 GeographicFormset = formset_factory(GeographicForm, extra=1)
 
 class GenreForm(forms.Form):
     term = 'TYP'
     qualifier = 'genre'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Form/Genre Term')
+    content = forms.CharField(widget=forms.Textarea, label='Form/Genre Term')
 GenreFormset = formset_factory(GenreForm, extra=1)
 
 class SubjectTitleForm(forms.Form):
     term = 'SUB'
     qualifier = 'title'
     content_label = 'Title'
-    content = forms.CharField(max_length=40, label=content_label, widget=forms.TextInput(attrs={'size':'60',})) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
+    content = forms.CharField( label=content_label, widget=forms.Textarea) #widget=forms.Textarea(attrs={'rows':3, 'cols':'60',})) 
 SubjectTitleFormset = formset_factory(SubjectTitleForm, extra=1)
 
 class SubjectFunctionForm(forms.Form):
     term = 'SUB'
     qualifier = 'function'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Function Term')
+    content = forms.CharField(widget=forms.Textarea, label='Function Term')
 SubjectFunctionFormset = formset_factory(SubjectFunctionForm, extra=1)
 
 class SubjectOccupationForm(forms.Form):
     term = 'SUB'
     qualifier = 'occupation'
-    content = forms.CharField(widget=forms.TextInput(attrs={'size':'60',}), label='Occupation')
+    content = forms.CharField(widget=forms.Textarea, label='Occupation')
 SubjectOccupationFormset = formset_factory(SubjectOccupationForm, extra=1)
 
 class SupplementalFileForm(forms.ModelForm):
