@@ -225,6 +225,7 @@ class CollectionRecordEditTestCase(WebTest):
         self.assertContains(response, 'itle')
         self.assertContains(response, '<option value="eng" selected="selected">English</option>')
         self.assertContains(response, 'access')
+        self.assertContains(response, 'logout')
 
     def testEditAttr(self):
         '''Edit a directly associated value of the Record'''
@@ -232,6 +233,7 @@ class CollectionRecordEditTestCase(WebTest):
         url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'logout')
         form = response.forms['main_form']
         #fill out basic info only,required fields only
         form['title'] = 'Test Title'
@@ -250,6 +252,7 @@ class CollectionRecordEditTestCase(WebTest):
         response.follow()
         self.assertTemplateUsed(response,'collection_record/collection_record/ead_template.xml') 
         response = self.app.get(url, user='oactestuser')
+        self.assertContains(response, 'logout')
         form = response.forms['main_form']
         form['title'] = ''
         response = form.submit(user='oactestuser')
@@ -264,6 +267,7 @@ class CollectionRecordEditTestCase(WebTest):
         url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
+        self.assertContains(response, 'logout')
         form = response.forms['main_form']
         newPerson = 'Mark Redar Test'
         form['person-0-content'] = newPerson
@@ -277,6 +281,7 @@ class CollectionRecordEditTestCase(WebTest):
         response = self.app.get(url, user='oactestuser')
         self.assertTrue(newPerson in response)
         self.assertContains(response, newPerson)
+        self.assertContains(response, 'logout')
         response = self.app.get(url, user='oactestuser')
         form['person-0-content'] = ''
         response = form.submit(user='oactestuser')
@@ -512,6 +517,7 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
         self.assertContains(response, 'localid')
         self.assertContains(response, 'Bancroft')
         self.assertContains(response, rec.get_edit_url())
+        self.assertContains(response, 'logout')
 
     def testOACViewNotOwner(self):
         '''Check that the "Edit" button link doesn't appear in the preview
@@ -530,6 +536,7 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
         self.assertContains(response, 'localid')
         self.assertContains(response, 'Bancroft')
         self.assertNotContains(response, rec.get_edit_url())
+        self.assertContains(response, 'logout')
 
 
 class CollectionRecordPermissionsBackendTestCase(TestCase):

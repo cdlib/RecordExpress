@@ -388,7 +388,7 @@ def view_collection_record_oac_preview(request, ark, *args, **kwargs):
     soup = BeautifulSoup.BeautifulSoup(html)
     body = soup.find('body')
     if request.user.has_perm('collection_record.change_collectionrecord', collection_record):
-        atag = BeautifulSoup.Tag(soup, 'a',
+        edittag = BeautifulSoup.Tag(soup, 'a',
             attrs={'href':collection_record.get_edit_url(),
                 'style':"""\
 float:right;\
@@ -405,8 +405,8 @@ line-height:1.5;\
 """,
             } 
                     )
-        atag.insert(0, 'Edit')
-        body.insert(0, atag)
+        edittag.insert(0, 'Edit')
+        body.insert(0, edittag)
 ####  the close doesn't work due to security restrictions
     closetag = BeautifulSoup.Tag(soup, 'a',
             attrs={'href':django_url_reverse('collection_record_view_all'),
@@ -427,6 +427,25 @@ line-height:1.5;\
                     )
     closetag.insert(0, 'Close')
     body.insert(0, closetag)
+    logouttag = BeautifulSoup.Tag(soup, 'a',
+            attrs={'href':django_url_reverse('contrib_admin:logout'),
+                'style':"""\
+float:right;\
+background-color:#C2492C;\
+color:white;\
+border-radius:10px;\
+font-size:30px;\
+margin:5px;\
+text-decoration:none;\
+padding:7px;\
+font-family:inherit;\
+vertical-align:baseline;\
+line-height:1.5;\
+""",
+            } 
+                    )
+    logouttag.insert(0, 'Logout')
+    body.insert(0, logouttag)
     return HttpResponse(soup.prettify()) # works
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
