@@ -58,11 +58,46 @@ class CollectionRecordModelTest(TestCase):
         self.failUnless('</ead>' in ead_xml)
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         try:
-            ET.XML(ead_xml.encode('utf-8'))
+            etree = ET.XML(ead_xml.encode('utf-8'))
         except:
             import sys
             print sys.exc_info()
             self.fail('ElementTree could not parse xml')
+        archdesc = etree.find('archdesc')
+        did = archdesc.find('did')
+        unitdate = did.find('unitdate')
+        self.failIf(unitdate.text is None)
+
+    def testEAD_iso_date(self):
+        '''Check that the unitdate "normal" attribute only shows up for 
+        records with date_iso
+        '''
+        rec = CollectionRecord.objects.get(pk="ark:/99999/fk4vh5x06")
+        ead_xml = rec.ead_xml
+        try:
+            etree = ET.XML(ead_xml.encode('utf-8'))
+        except:
+            import sys
+            print sys.exc_info()
+            self.fail('ElementTree could not parse xml')
+        archdesc = etree.find('archdesc')
+        did = archdesc.find('did')
+        unitdate = did.find('unitdate')
+        self.failIf(unitdate.text is None)
+        self.failIf('normal' in unitdate.attrib)
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        ead_xml = rec.ead_xml
+        try:
+            etree = ET.XML(ead_xml.encode('utf-8'))
+        except:
+            import sys
+            print sys.exc_info()
+            self.fail('ElementTree could not parse xml')
+        archdesc = etree.find('archdesc')
+        did = archdesc.find('did')
+        unitdate = did.find('unitdate')
+        self.failIf(unitdate.text is None)
+        self.failUnless('normal' in unitdate.attrib)
 
     def testEAD_xml_with_files_output(self):
         rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")

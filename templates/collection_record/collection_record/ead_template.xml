@@ -19,7 +19,7 @@
          <did id="did">
              <head>Descriptive Summary</head>
              <unittitle label="Title">{{instance.title}}</unittitle>
-             <unitdate normal="{{instance.date_iso}}" label="Dates"></unitdate>
+             <unitdate {%if instance.date_iso%}normal="{{instance.date_iso}}"{%endif%} label="Dates">{{instance.date_dacs}}</unitdate>
              <unitid label="Collection Number" repositorycode="{{instance.publisher.mainagency}}" countrycode="US">{{instance.local_identifier}}</unitid>
              <origination label="Creator/Collector">
                  {% for qdc in instance.creator_person %}
