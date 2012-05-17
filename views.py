@@ -255,7 +255,8 @@ def edit_collection_record(request, ark, *args, **kwargs):
                 #logger.debug('POST: %s' % (unicode(request.POST,)))
                 for formset in formset_list:
                     for form in formset:
-                        form.cleaned_data['qualifier'] = formset.qualifier
+                        if form.is_valid():#DELTEs may not be valid
+                            form.cleaned_data['qualifier'] = formset.qualifier
                     formset.save()
                 formset_supp_files.save()
                 return redirect(collection_record)
