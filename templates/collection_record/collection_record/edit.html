@@ -25,7 +25,7 @@
         {%block publisherinfo %}
         <div class="span-22"><span class="span-5"><label>Publishing Institution</label></span>
             <span class="span-10">{{collection_record.publisher.name}}</span>
-            <span class="span-7 last">Contact OAC support if you need to change the institution.</span>
+            {%comment%}<span class="span-7 last">Contact OAC support if you need to change the institution.</span>{%endcomment%}
         </div>
         {%endblock publisherinfo %}
         {%for field in form_main%}
