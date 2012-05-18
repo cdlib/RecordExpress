@@ -22,6 +22,12 @@
         {% endblock submit_top %}
         <h3>Basic Information</h3>
         <h5 class="orangetext">* indicates required field</h5>
+        {%block publisherinfo %}
+        <div class="span-22"><span class="span-5"><label>Publishing Institution</label></span>
+            <span class="span-10">{{collection_record.publisher.name}}</span>
+            <span class="span-7 last">Contact OAC support if you need to change the institution.</span>
+        </div>
+        {%endblock publisherinfo %}
         {%for field in form_main%}
         <div class="span-22{%if field.errors%} errorbox {%endif%}">
         <span class="span-5"><label>

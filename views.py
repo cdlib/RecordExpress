@@ -190,7 +190,6 @@ def edit_collection_record(request, ark, *args, **kwargs):
                 handle_uploaded_file(collection_record, request.FILES['file'], label= upload_form.cleaned_data['label'])
         else: #main form submitted (could check the submit value too)
             form_main = CollectionRecordForm(request.POST, instance=collection_record)
-            form_main.fields['publisher'].choices = choices_publishing_institution 
             formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
             formset_person.qualifier = 'person'
             formset_person.term = 'CR'
@@ -274,7 +273,6 @@ def edit_collection_record(request, ark, *args, **kwargs):
     if upload_form is None:
         upload_form = SupplementalFileUploadForm()
     form_main = CollectionRecordForm(instance=collection_record)
-    form_main.fields['publisher'].choices = choices_publishing_institution 
     formset_person = dcformset_factory(instance=collection_record, queryset=collection_record.creator_person, prefix='person')
     formset_family = dcformset_factory(instance=collection_record, queryset=collection_record.creator_family, prefix='family')
     formset_organization = dcformset_factory(instance=collection_record, queryset= collection_record.creator_organization, prefix='organization')
