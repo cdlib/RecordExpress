@@ -59,7 +59,8 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         '''
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         ead_xml = rec.ead_xml
-        self.failUnless(ead_xml.index('<ead>') >= 62)
+        self.failUnless(ead_xml.index('<?xml') == 0)
+        self.failUnless('<ead>' in ead_xml)
         self.failUnless('ark:/13030/c8s180ts' in ead_xml)
         self.failUnless('persname' in ead_xml)
         self.failUnless('<physdesc label="Extent">' in ead_xml)
@@ -77,6 +78,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('</archdesc>' in ead_xml)
         self.failUnless('</ead>' in ead_xml)
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
+        self.failIf('<!DOCTYPE' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:

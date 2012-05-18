@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "ead.dtd">
+{%comment%}<!-- breaks PDF Gen::--><!DOCTYPE ead PUBLIC "+//ISBN 1-931666-00-8//DTD ead.dtd (Encoded Archival Description (EAD) Version 2002)//EN" "ead.dtd">{%endcomment%}
 <ead>
      <eadheader langencoding="iso639-2b" scriptencoding="iso15924" repositoryencoding="iso15511" countryencoding="iso3166-1" dateencoding="iso8601">
          <eadid xmlns:cdlpath="http://www.cdlib.org/path/" countrycode="us" identifier="{{instance.ark}}" mainagencycode="{{instance.publisher.mainagency}}" publicid="{{instance.local_identifier}}" cdlpath:parent="{{instance.publisher.ark}}" {% if publisher.parent_institution %} cdlpath:grandparent="{{instance.publisher.parent_institution.ark}}"{% endif %}>{{instance.local_identifier}}</eadid>
