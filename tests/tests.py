@@ -14,14 +14,34 @@ from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
 from collection_record.perm_backend import CollectionRecordPermissionBackend
 
-class CollectionRecordModelTest(TestCase):
+class CollectionRecordTestDirSetupMixin(object):
+    '''Mixin to add override of output directory for EAD files'''
+    dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
+
+    def setUp(self):
+        '''Override the "databases" config file to use the test shoulder'''
+        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
+        os.environ['EAD_ROOT_DIR'] = CollectionRecordTestDirSetupMixin.dir_root
+        if not os.path.isdir(CollectionRecordTestDirSetupMixin.dir_root):
+            os.makedirs(CollectionRecordTestDirSetupMixin.dir_root)
+        super(CollectionRecordTestDirSetupMixin, self).setUp()
+
+    def tearDown(self):
+        if os.path.isdir(CollectionRecordTestDirSetupMixin.dir_root):
+            rmtree(CollectionRecordTestDirSetupMixin.dir_root)
+        super(CollectionRecordTestDirSetupMixin, self).tearDown()
+
+
+
+class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the CollectionRecord django model'''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
 
-    def tearDown(self):
-        dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
-        if os.path.isdir(dir_root):
-            rmtree(dir_root)
+#####    def setUp(self):
+#####        super(CollectionRecordModelTest, self).setUp()
+#####
+#####    def tearDown(self):
+#####        super(CollectionRecordModelTest, self).tearDown()
 
     def testModelExists(self):
         rec = CollectionRecord()
@@ -144,7 +164,7 @@ class CollectionRecordModelTest(TestCase):
             self.fail('Did not delete ead file %s' % (ead_fname,))
 
 
-class CollectionRecordFormTestCase(TestCase):
+class CollectionRecordFormTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the form for creating new collection records. Is this form different
     from the existing record form?
     '''
@@ -152,11 +172,14 @@ class CollectionRecordFormTestCase(TestCase):
         f = CollectionRecordForm()
      
 
-class CollectionRecordViewAllTestCase(TestCase):
+class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the view of all collection records for a a user
     '''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
 
+#####    def setUp(self):
+#####        super(CollectionRecordViewAllTestCase, self).setUp()
+#####
     def testViewAllCollectionRecords(self):
         '''Verify that the user can see their institution's collection records
         and not others.
@@ -193,9 +216,12 @@ class CollectionRecordViewAllTestCase(TestCase):
         self.assertContains(response, url_xml)
 
 #TODO:this is going to require a live test server for xtf to talk to
-###class CollectionRecordXMLViewTestCase(WebTest):
+###class CollectionRecordXMLViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
 ###    '''Test views of the CollectionRecord'''
 ###    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+###    def setUp(self):
+###        super(CollectionRecordXMLViewTestCase, self).setUp()
+###
 ###
 ###    def testXMLView(self):
 ###        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
@@ -207,11 +233,17 @@ class CollectionRecordViewAllTestCase(TestCase):
 ###        self.assertContains(response, 'Banc')
 
 
-class CollectionRecordEditTestCase(WebTest):
+class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest):
     '''Test the edit page for the collection records. Should be able to modify
     all data (main & assoc. DCs) and delete and add DC stored data
     '''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+
+    def setUp(self):
+        super(CollectionRecordEditTestCase, self).setUp()
+        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        if not os.path.isdir(rec.ead_dir):
+            os.makedirs(rec.ead_dir)
 
     def testEditPageAuth(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
@@ -230,6 +262,8 @@ class CollectionRecordEditTestCase(WebTest):
     def testEditAttr(self):
         '''Edit a directly associated value of the Record'''
         rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        if not os.path.isdir(rec.ead_dir):
+            os.makedirs(rec.ead_dir)
         url = rec.get_edit_url()
         response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
@@ -292,11 +326,15 @@ class CollectionRecordEditTestCase(WebTest):
         '''Test the deletion of a term'''
         pass
 
-class NewCollectionRecordViewTestCase(WebTest):
+class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
     fixtures = ['sites.json', 'auth.json', 'oac.institution.json', 'oac.groupprofile.json']
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
         os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
+        testuser_default_inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, 'csl')
+        if not os.path.isdir(testuser_default_inst_dir):
+            os.makedirs(testuser_default_inst_dir)
+        super(NewCollectionRecordViewTestCase, self).setUp()
 
     def parseARK(self, url_string):
         '''Parse the ark from the string'''
@@ -489,7 +527,7 @@ class NewCollectionRecordViewTestCase(WebTest):
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
 
 
-class CollectionRecordOACViewTestCase(TestCaseLiveServer):
+class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, TestCaseLiveServer):
     '''Test the annotated view from the xtf. We add a couple of elements (edit button)
     There needs to be a working DSC OAC xtf running on the host specified in 
     the env var FINDAID_HOSTNAME
@@ -499,9 +537,11 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
         # Start a test server and tell selenium where to find it.
         os.environ['BACK_SERVER'] = 'localhost:8080'
         self.start_test_server('localhost', 8080)
+        super(CollectionRecordOACViewTestCase, self).setUp()
 
     def tearDown(self):
         self.stop_test_server()
+        super(CollectionRecordOACViewTestCase, self).tearDown()
 
     def testOACView(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
@@ -539,13 +579,14 @@ class CollectionRecordOACViewTestCase(TestCaseLiveServer):
         self.assertContains(response, 'logout')
 
 
-class CollectionRecordPermissionsBackendTestCase(TestCase):
+class CollectionRecordPermissionsBackendTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''test the permission backend for the Collection record app
     '''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'auth.json', ]
 
     def setUp(self):
         self.backend = CollectionRecordPermissionBackend()
+        super(CollectionRecordPermissionsBackendTestCase, self).setUp()
 
     def testUserNotAuthenticated(self):
         '''Test when the user object has not been authenticated
@@ -558,7 +599,7 @@ class CollectionRecordPermissionsBackendTestCase(TestCase):
         self.backend.has_perm(u, 'collection_record.change_collectionrecord')
 
 
-class SupplementalFileTestCase(TestCase):
+class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the supplemental files'''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', ]#'oac.institution.json', 'oac.groupprofile.json']#['sites.json', 'auth.json', 
 

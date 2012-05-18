@@ -15,8 +15,7 @@ from django.template import Context
 from ISO_639_2b import ISO_639_2b
 from DublinCore.models import QualifiedDublinCoreElement
 
-EAD_ROOT_DIR = settings.EAD_ROOT_DIR  if hasattr(settings, 'EAD_ROOT_DIR') else os.path.join(os.environ.get('HOME', '/dsc'), 'data/in/oac-ead/prime2002')
-
+#allow override by environment var
 NOT_OAC = True
 try:
     from oac.models import Institution
@@ -91,7 +90,18 @@ class CollectionRecord(models.Model):
         if hasattr(self, '_dir_root'):
             return self._dir_root
         else:
+            EAD_ROOT_DIR=None
+            if os.environ.has_key('EAD_ROOT_DIR'):
+                EAD_ROOT_DIR = os.environ.get('EAD_ROOT_DIR')
+            else:
+                try:
+                    EAD_ROOT_DIR = settings.EAD_ROOT_DIR
+                except AttributeError:
+                    pass
+                if not EAD_ROOT_DIR:
+                    EAD_ROOT_DIR = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/in/oac-ead/prime2002')
             return EAD_ROOT_DIR
+
     def _set_dir_root(self, value):
         self._dir_root = value
     dir_root = property(_get_dir_root, _set_dir_root)
