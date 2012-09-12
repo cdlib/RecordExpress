@@ -14,6 +14,7 @@ from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
 from collection_record.perm_backend import CollectionRecordPermissionBackend
+from collection_record.perm_backend import get_publishing_institutions_for_user
 
 class CollectionRecordTestDirSetupMixin(object):
     '''Mixin to add override of output directory for EAD files'''
@@ -37,12 +38,6 @@ class CollectionRecordTestDirSetupMixin(object):
 class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the CollectionRecord django model'''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json', 'oac.city.json', 'oac.county.json', 'auth.json', ]
-
-#####    def setUp(self):
-#####        super(CollectionRecordModelTest, self).setUp()
-#####
-#####    def tearDown(self):
-#####        super(CollectionRecordModelTest, self).tearDown()
 
     def testModelExists(self):
         rec = CollectionRecord()
@@ -339,9 +334,12 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
         os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
-        testuser_default_inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, 'csl')
-        if not os.path.isdir(testuser_default_inst_dir):
-            os.makedirs(testuser_default_inst_dir)
+        #testuser_default_inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, 'csl')
+        #create test user dirs, will be there on prod
+        testuser = User.objects.get(username='oactestuser')
+        for i in get_publishing_institutions_for_user(testuser):
+            inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, i.cdlpath)
+            os.makedirs(inst_dir)
         super(NewCollectionRecordViewTestCase, self).setUp()
 
     def parseARK(self, url_string):
