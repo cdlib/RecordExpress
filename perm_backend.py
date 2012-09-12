@@ -14,6 +14,7 @@ if NOT_OAC:
         '''
         supports_object_permissions = True
         supports_anonymous_user = True
+        supports_inactive_user = False
 
         def authenticate(self, username, password):
             return None
@@ -40,6 +41,7 @@ else:
         '''
         supports_object_permissions = True
         supports_anonymous_user = True
+        supports_inactive_user = False
 
         def authenticate(self, username, password):
             return None
