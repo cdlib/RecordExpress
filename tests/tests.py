@@ -265,10 +265,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         if not os.path.isdir(rec.ead_dir):
             os.makedirs(rec.ead_dir)
         url = rec.get_edit_url()
-        print "======URL", url
-        #import time;time.sleep(1000)
-        #response = self.app.get(url, user='oactestuser')
-        response = self.app.get(url, user='oactestsuperuser')
+        response = self.app.get(url, user='oactestuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'logout')
         form = response.forms['main_form']
