@@ -4,6 +4,7 @@ import re
 from xml.sax.saxutils import quoteattr
 from xml.sax.saxutils import escape
 import codecs
+import subprocess
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.conf import settings
@@ -115,7 +116,23 @@ class CollectionRecord(models.Model):
         return os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
 
     def delete(self, **kwargs):
-        '''Delete the file first then the DB object'''
+        '''Run holdMets.pl on the ark, then
+        delete the file first then the DB object'''
+        root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
+        dir_ead = os.path.join(root_dir, dir_pairtree_for_ark(self.ark))
+        HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
+        holdMets_path = os.path.join( HOME_DIR,
+                                'branches/production/voro/batch-bin/holdMETS.pl')
+        #setup log file
+        log_path = os.path.join(HOME_DIR, 'log/holdMets/', self.ark.replace(':','').replace('/', '-'))
+        with open(log_path, 'w') as logfile: 
+            logfile.write('Running:'+holdMets_path+' '+self.ark)
+            returncode = subprocess.call((holdMets_path, self.ark),
+                            stdout=logfile,
+                            stderr=subprocess.STDOUT
+                            )
+            if returncode != 0:
+                raise Exception('Error with holdMets removal process. Check log:'+log_path)
         if os.path.isfile(self.ead_filename):
             os.remove(self.ead_filename)
         super(CollectionRecord, self).delete(**kwargs)
