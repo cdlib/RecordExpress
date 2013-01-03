@@ -2,6 +2,8 @@ import urllib
 import os
 import json
 import logging
+import subprocess
+
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required, login_required
 from django.views.decorators.cache import never_cache
@@ -164,6 +166,7 @@ def handle_uploaded_file(collection_record, f, label=''):
     with open(db_file_obj.file_path, 'wb') as foo:
         for chunk in f.chunks():
             foo.write(chunk)
+    rip_to_text(db_file_obj.file_path)
     db_file_obj.label = label
     db_file_obj.save()
 
@@ -449,6 +452,17 @@ line-height:1.5;\
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
 
+def rip_to_text(foo):
+    '''Rip pdf to text, place next to pdf file'''
+    pdftotext_command = "/cdlcommon/products/xpdf-3.02/bin/pdftotext"
+    args = [ pdftotext_command, foo ]
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    p.wait()
+    if p.returncode:
+        stdout = p.stdout.read()
+        stderr = p.stderr.read()
+        logging.error("Problem ripping %s to text: %s" % (dest, stderr))
+
 @login_required
 @csrf_exempt
 def add_supplemental_file(request, ark):
@@ -475,6 +489,7 @@ def add_supplemental_file(request, ark):
         logger.debug("++++++ FILE DEST: %s", dest)
         for chunk in request.FILES['file'].chunks():
             dest.write(chunk)
+    rip_to_text(dest)
     file_obj.full_clean()
     file_obj.save()
 

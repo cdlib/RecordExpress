@@ -292,6 +292,10 @@ class SupplementalFile(models.Model):
         '''Delete the file first then the DB object'''
         if os.path.isfile(self.file_path):
             os.remove(self.file_path)
+        (fpath, ext) = os.path.splitext(self.file_path)
+        text_file = os.path.join(fpath, '.txt')
+        if os.path.isfile(text_file):
+            os.remove(text_file)
         super(SupplementalFile, self).delete(**kwargs)
 
     def unicode(self):
