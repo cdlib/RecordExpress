@@ -127,7 +127,7 @@ class SupplementalFileForm(forms.ModelForm):
 
 class SupplementalFileUploadForm(forms.Form):
     label = forms.CharField(max_length=512)
-    file  = forms.FileField()
+    file  = forms.FileField(widget=forms.FileInput(attrs={'accept':'application/pdf'}))
 
     def clean_file(self):
         '''Verify that it is a pdf being uploaded. How tricky should I get here?
