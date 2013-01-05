@@ -1,7 +1,8 @@
 import os
 from urllib import quote
 import xml.etree.ElementTree as ET
-from shutil import rmtree
+import shutil
+import glob
 from django.conf import settings
 from django.test import TestCase
 from django.test import LiveServerTestCase
@@ -16,6 +17,8 @@ from collection_record.models import SupplementalFile
 from collection_record.perm_backend import CollectionRecordPermissionBackend
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
+debug_print = lambda x: sys.stdout.write(x+'\n\n') if os.environ.get('DEBUG', False) else lambda x: x
+
 class CollectionRecordTestDirSetupMixin(object):
     '''Mixin to add override of output directory for EAD files'''
     dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
@@ -26,13 +29,14 @@ class CollectionRecordTestDirSetupMixin(object):
         os.environ['EAD_ROOT_DIR'] = CollectionRecordTestDirSetupMixin.dir_root
         if not os.path.isdir(CollectionRecordTestDirSetupMixin.dir_root):
             os.makedirs(CollectionRecordTestDirSetupMixin.dir_root)
+        debug_print( "TEST DIR ROOT==========>" + CollectionRecordTestDirSetupMixin.dir_root)
         super(CollectionRecordTestDirSetupMixin, self).setUp()
 
     def tearDown(self):
+        debug_print("DELETING TEST DIR------------>" + CollectionRecordTestDirSetupMixin.dir_root)
         if os.path.isdir(CollectionRecordTestDirSetupMixin.dir_root):
-            rmtree(CollectionRecordTestDirSetupMixin.dir_root)
+            shutil.rmtree(CollectionRecordTestDirSetupMixin.dir_root)
         super(CollectionRecordTestDirSetupMixin, self).tearDown()
-
 
 
 class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
@@ -127,7 +131,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('</archdesc>' in ead_xml)
         self.failUnless('<otherfindaid' in ead_xml)
         self.failUnless('</extref>' in ead_xml)
-        self.failUnless('index-nosoup.html' in ead_xml)
+        self.failUnless('test-2.pdf' in ead_xml)
 
     def testEAD_file_save(self):
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
@@ -610,6 +614,31 @@ class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the supplemental files'''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json', 'oac.city.json', 'oac.county.json', 'sites.json', 'auth.json',]
 
+    def setUp(self):
+        super(SupplementalFileTestCase, self).setUp()
+        cr = CollectionRecord.objects.get(ark='ark:/99999/fk46h4rq4') 
+        debug_print( "SUPP DIR" + cr.dir_supplemental_files)
+        if not os.path.isdir(cr.dir_supplemental_files):
+            os.makedirs(cr.dir_supplemental_files)
+        fixtures_dir = os.path.abspath(os.path.join(os.path.split(__file__)[0], '../', 'fixtures'))
+        pdf_test_files = glob.glob(os.path.join(fixtures_dir, '*.pdf'))
+        debug_print("PDF TEST FILES:::" + str(pdf_test_files))
+        for f in pdf_test_files:
+            shutil.copy(f, cr.dir_supplemental_files)
+
     def testURL(self):
         '''Check that the url is correct for a file'''
-        f = SupplementalFile.objects.get(pk=53)
+        sf = SupplementalFile.objects.get(pk=53)
+    
+    def testTextFilePath(self):
+        '''Check that the name of the txt file is correct'''
+        sf = SupplementalFile.objects.get(pk=53)
+        self.assertTrue(sf.txt_file_path[-3:] == 'txt')
+
+    def testFileHandle(self):
+        sf = SupplementalFile.objects.get(pk=53)
+        sf.get_filehandle( mode='rb')
+
+    def testRipToText(self):
+        sf = SupplementalFile.objects.get(pk=53)
+        sf.rip_to_text()

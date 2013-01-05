@@ -7,7 +7,7 @@
       "created_at": "2012-01-26 00:03:28",
       "label": "",
       "updated_at": "2012-01-26 00:03:28",
-      "filename": "index.html"
+      "filename": "test1.pdf"
     }
   },
   {
@@ -18,7 +18,7 @@
       "created_at": "2012-01-26 00:39:16",
       "label": "",
       "updated_at": "2012-01-26 00:39:16",
-      "filename": "index-nosoup.html"
+      "filename": "test-2.pdf"
     }
   },
   {
@@ -29,7 +29,7 @@
       "created_at": "2012-01-26 00:40:14",
       "label": "",
       "updated_at": "2012-01-26 00:40:14",
-      "filename": "out.html"
+      "filename": "test 3.pdf"
     }
   }
 ]

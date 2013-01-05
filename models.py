@@ -1,4 +1,5 @@
 from string import Template
+import logging
 import os
 import re
 from xml.sax.saxutils import quoteattr
@@ -15,6 +16,8 @@ from django.template import Context
 
 from ISO_639_2b import ISO_639_2b
 from DublinCore.models import QualifiedDublinCoreElement
+
+logger = logging.getLogger(__name__)
 
 #allow override by environment var
 NOT_OAC = True
@@ -186,9 +189,7 @@ class CollectionRecord(models.Model):
 
     @property
     def dir_supplemental_files(self):
-        root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
-        dir_supp_files = os.path.join(root_dir, dir_pairtree_for_ark(self.ark), 'files')
-        return dir_supp_files 
+        return os.path.join(self.dir_root, dir_pairtree_for_ark(self.ark), 'files')
 
     #or should I just make a nice dictionary of subsetted values?
     #Need to define corresponding accessors (& setters?) for the various
@@ -268,6 +269,11 @@ class SupplementalFile(models.Model):
         return os.path.join(self.collection_record.dir_supplemental_files, self.filename)
 
     @property
+    def txt_file_path(self):
+        '''Return path to the ripped txt file'''
+        return  ''.join((unicode(self.file_path)[:-4], '.txt'))
+
+    @property
     def URL(self):
         '''Calculate the url path to the file'''
         ark_dir = dir_pairtree_for_ark(self.collection_record.ark)
@@ -287,15 +293,42 @@ class SupplementalFile(models.Model):
         super(SupplementalFile, self).clean()
         if not self.filename:
             raise ValidationError("Use the editing application to add files....")
+        (name, ext) = os.path.splitext(self.filename)
+        if ext != '.pdf':
+            raise ValidationError("Only PDF files can be uploaded as supplemental documents")
+        self.filename = self.filename
 
+    def get_filehandle(self, mode):
+        '''Return an open filehandle to the underlying file system object'''
+        if not mode:
+            mode = 'wb'
+        if not os.path.isdir(self.collection_record.dir_supplemental_files):
+            os.makedirs(self.collection_record.dir_supplemental_files)
+        return  open(os.path.join(self.collection_record.dir_supplemental_files, unicode(self.filename)), mode)
+
+    def rip_to_text(self):
+        '''Rip pdf to text, place next to pdf file'''
+        pdftotext_command = "/cdlcommon/products/xpdf-3.02/bin/pdftotext"
+        cmd_line = ''.join((pdftotext_command, ' "', str(self.file_path), '"'))
+        import shlex
+        args2=shlex.split(cmd_line)
+        args = [ pdftotext_command, ''.join(('"', self.file_path, '"')) ]
+        args = [ pdftotext_command, self.file_path ]
+        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+        p.wait()
+        if p.returncode:
+            stdout = p.stdout.read()
+            stderr = p.stderr.read()
+            logger.error("Problem ripping %s to text: %s" % (self.file_path, stderr))
+            raise Exception("Problem ripping %s to text: %s" % (self.file_path, stderr))
+    
     def delete(self, **kwargs):
         '''Delete the file first then the DB object'''
         if os.path.isfile(self.file_path):
             os.remove(self.file_path)
         (fpath, ext) = os.path.splitext(self.file_path)
-        text_file = os.path.join(fpath, '.txt')
-        if os.path.isfile(text_file):
-            os.remove(text_file)
+        if os.path.isfile(self.txt_file_path):
+            os.remove(self.txt_file_path)
         super(SupplementalFile, self).delete(**kwargs)
 
     def unicode(self):

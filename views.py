@@ -157,18 +157,15 @@ def _url_xtf_preview(ark):
     return ''.join((URL_XTF_EAD_VIEW, ark, URL_XTF_EAD_VIEW_SUFFIX))
 
 def handle_uploaded_file(collection_record, f, label=''):
-    db_file_obj = SupplementalFile()
-    db_file_obj.filename = f.name
-    db_file_obj.collection_record = collection_record
-    dir_collection_files = collection_record.dir_supplemental_files
-    if not os.path.isdir(dir_collection_files):
-        os.makedirs(dir_collection_files)
-    with open(db_file_obj.file_path, 'wb') as foo:
+    supp_file = SupplementalFile()
+    supp_file.filename = f.name
+    supp_file.collection_record = collection_record
+    supp_file.label = label
+    with supp_file.get_filehandle(mode='wb') as supp_file_obj:
         for chunk in f.chunks():
-            foo.write(chunk)
-    rip_to_text(db_file_obj.file_path)
-    db_file_obj.label = label
-    db_file_obj.save()
+            supp_file_obj.write(chunk)
+    supp_file.rip_to_text()
+    supp_file.save()
 
 @never_cache
 @login_required
@@ -452,17 +449,6 @@ line-height:1.5;\
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
 
-def rip_to_text(foo):
-    '''Rip pdf to text, place next to pdf file'''
-    pdftotext_command = "/cdlcommon/products/xpdf-3.02/bin/pdftotext"
-    args = [ pdftotext_command, foo ]
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
-    p.wait()
-    if p.returncode:
-        stdout = p.stdout.read()
-        stderr = p.stderr.read()
-        logging.error("Problem ripping %s to text: %s" % (dest, stderr))
-
 @login_required
 @csrf_exempt
 def add_supplemental_file(request, ark):
@@ -477,26 +463,22 @@ def add_supplemental_file(request, ark):
     #first save file to disk, if successful do rest
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     # new SupplementalFile object here with file as request.FILES[??]
-    file_obj = SupplementalFile()
-    file_obj.collection_record = collection_record
-    file_obj.filename = request.POST['name']
-    #file_obj.
+    supp_file = SupplementalFile()
+    supp_file.collection_record = collection_record
+    supp_file.filename = request.POST['name']
+    #supp_file.
     #TODO: send the institution # or ark as a parameter
     dir_collection_files = collection_record.dir_supplemental_files
-    if not os.path.isdir(dir_collection_files):
-        os.makedirs(dir_collection_files)
-    with open(os.path.join(dir_collection_files, unicode(file_obj.filename)), 'wb') as dest:
-        logger.debug("++++++ FILE DEST: %s", dest)
+    with supp_file.get_filehandle(mode='wb') as supp_file_obj:
         for chunk in request.FILES['file'].chunks():
-            dest.write(chunk)
-    rip_to_text(dest)
-    file_obj.full_clean()
-    file_obj.save()
+            supp_file_obj.write(chunk)
+    supp_file.rip_to_text()
+    supp_file.full_clean()
+    supp_file.save()
 
     resp_json = json.dumps(dict(response="success",
                                 ark=ark,
-                                pk=unicode(file_obj.pk),
-                                #file=unicode(file_obj),
+                                pk=unicode(supp_file.pk),
                             )
                         )
     return HttpResponse(resp_json)
