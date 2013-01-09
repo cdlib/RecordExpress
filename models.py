@@ -6,6 +6,7 @@ from xml.sax.saxutils import quoteattr
 from xml.sax.saxutils import escape
 import codecs
 import subprocess
+import shlex
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.conf import settings
@@ -110,6 +111,26 @@ class CollectionRecord(models.Model):
         self._dir_root = value
     dir_root = property(_get_dir_root, _set_dir_root)
 
+    def _get_xtf_dir_root(self):
+        if hasattr(self, '_xtf_dir_root'):
+            return self._xtf_dir_root
+        else:
+            XTF_DATA=None
+            if os.environ.has_key('XTF_DATA'):
+                XTF_DATA = os.environ.get('XTF_DATA')
+            else:
+                try:
+                    XTF_DATA = settings.XTF_ROOT_DIR
+                except AttributeError:
+                    pass
+                if not XTF_DATA:
+                    XTF_DATA = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/xtf/data')
+            return XTF_DATA
+
+    def _set_xtf_dir_root(self, value):
+        self._xtf_dir_root = value
+    xtf_dir_root = property(_get_xtf_dir_root, _set_xtf_dir_root)
+
     @property
     def ead_dir(self):
         return  os.path.join(self.dir_root, self.publisher.cdlpath)
@@ -121,8 +142,6 @@ class CollectionRecord(models.Model):
     def delete(self, **kwargs):
         '''Run holdMets.pl on the ark, then
         delete the file first then the DB object'''
-        root_dir = os.environ.get('XTF_DATA', '/dsc/data/xtf/data')
-        dir_ead = os.path.join(root_dir, dir_pairtree_for_ark(self.ark))
         HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
         holdMets_path = os.path.join( HOME_DIR,
                                 'branches/production/voro/batch-bin/holdMETS.pl')
@@ -155,7 +174,7 @@ class CollectionRecord(models.Model):
                 if os.path.isfile(self.ead_filename):
                     os.remove(fname) #TODO: TEST THIS
             except:
-                print "!!!! PROBLEM REMOVING %s. Check that its gons !!!" % (fname, )
+                print "!!!! PROBLEM REMOVING %s. Check that its gone !!!" % (fname, )
 
     def save(self, *args, **kwargs):
         '''On save if ark is not set, get a new one from EZID.
@@ -189,7 +208,7 @@ class CollectionRecord(models.Model):
 
     @property
     def dir_supplemental_files(self):
-        return os.path.join(self.dir_root, dir_pairtree_for_ark(self.ark), 'files')
+        return os.path.join(self.xtf_dir_root, dir_pairtree_for_ark(self.ark), 'files')
 
     #or should I just make a nice dictionary of subsetted values?
     #Need to define corresponding accessors (& setters?) for the various
@@ -309,11 +328,8 @@ class SupplementalFile(models.Model):
     def rip_to_text(self):
         '''Rip pdf to text, place next to pdf file'''
         pdftotext_command = "/cdlcommon/products/xpdf-3.02/bin/pdftotext"
-        cmd_line = ''.join((pdftotext_command, ' "', str(self.file_path), '"'))
-        import shlex
-        args2=shlex.split(cmd_line)
-        args = [ pdftotext_command, ''.join(('"', self.file_path, '"')) ]
-        args = [ pdftotext_command, self.file_path ]
+        cmd_line = ''.join((pdftotext_command, ' -enc UTF-8 -eol unix -nopgbrk "', str(self.file_path), '"'))
+        args = shlex.split(cmd_line)
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
         p.wait()
         if p.returncode:
