@@ -303,7 +303,7 @@ class SupplementalFile(models.Model):
         '''Return the EAD xml representation for the file
         '''
         xml_label = escape(self.label) if self.label else escape(self.filename)
-        return ''.join(('<item><extref href="', quoteattr(self.URL), '">', xml_label, '</extref></item>'))
+        return ''.join(('<item><extref href=', quoteattr(self.URL), '>', xml_label, '</extref></item>'))
 
     class Meta:
         unique_together = (("filename", "collection_record"))
