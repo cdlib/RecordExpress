@@ -166,6 +166,7 @@ def handle_uploaded_file(collection_record, f, label=''):
             supp_file_obj.write(chunk)
     supp_file.rip_to_text()
     supp_file.save()
+    return supp_file
 
 @never_cache
 @login_required
@@ -187,7 +188,7 @@ def edit_collection_record(request, ark, *args, **kwargs):
             #file upload
             upload_form = SupplementalFileUploadForm(request.POST, request.FILES)
             if upload_form.is_valid():
-                handle_uploaded_file(collection_record, request.FILES['file'], label= upload_form.cleaned_data['label'])
+                supp_file = handle_uploaded_file(collection_record, request.FILES['file'], label= upload_form.cleaned_data['label'])
         else: #main form submitted (could check the submit value too)
             form_main = CollectionRecordForm(request.POST, instance=collection_record)
             formset_person = dcformset_factory(request.POST, instance=collection_record, queryset=collection_record.creator_person, prefix='person')
@@ -448,37 +449,3 @@ line-height:1.5;\
     return HttpResponse(soup.prettify()) # works
     #return HttpResponse(unicode(soup)) #does weird stuff to comments at end
     #return HttpResponse(soup.render_contents(indentLevel=2))# bad for unicode encoding?
-
-@login_required
-@csrf_exempt
-def add_supplemental_file(request, ark):
-    '''Handle files uploaded by puploader
-    '''
-    #passed, reason = csrf_check(request, use_referer=False)
-    #logger.debug("++++++ PASSED:%s REASON: %s", unicode(passed), reason)
-    #if not passed:
-    #    return HttpResponseForbidden(reason)
-    if request.method != 'POST':
-        return HttpResponseBadRequest()
-    #first save file to disk, if successful do rest
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    # new SupplementalFile object here with file as request.FILES[??]
-    supp_file = SupplementalFile()
-    supp_file.collection_record = collection_record
-    supp_file.filename = request.POST['name']
-    #supp_file.
-    #TODO: send the institution # or ark as a parameter
-    dir_collection_files = collection_record.dir_supplemental_files
-    with supp_file.get_filehandle(mode='wb') as supp_file_obj:
-        for chunk in request.FILES['file'].chunks():
-            supp_file_obj.write(chunk)
-    supp_file.rip_to_text()
-    supp_file.full_clean()
-    supp_file.save()
-
-    resp_json = json.dumps(dict(response="success",
-                                ark=ark,
-                                pk=unicode(supp_file.pk),
-                            )
-                        )
-    return HttpResponse(resp_json)
