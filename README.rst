@@ -11,8 +11,9 @@ I want to refactor into a direct EAD model of the data. This will cause numerous
 It currently also has a number of dependencies on OAC data and software.
 
 TODO:
-Test project bundled with package.
-Make tests pass on clean install. 
-Detail the mapping of QDC to EAD elements.
-How to make the "preview" work when not on an OAC box?
-Refactor to remove DjangoDublinCore and use direct foreign key metadata fields.
+
+1. Test project bundled with package.
+2. Make tests pass on clean install. 
+3. Detail the mapping of QDC to EAD elements.
+4. How to make the "preview" work when not on an OAC box?
+5. Refactor to remove DjangoDublinCore and use direct foreign key metadata fields.
