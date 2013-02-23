@@ -34,7 +34,7 @@ if NOT_OAC:
         '''
         name = models.CharField(max_length=255)
         mainagency = models.CharField(max_length=255,)
-        ark = models.CharField(max_length=255, unique=true)
+        ark = models.CharField(max_length=255, unique=True)
         cdlpath = models.CharField(max_length=255, blank=True)
 
 
