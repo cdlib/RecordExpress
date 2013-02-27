@@ -1,7 +1,7 @@
 from django.contrib import admin
 import django.forms as forms
 from django.contrib.contenttypes import generic
-from DublinCore.models import QualifiedDublinCoreElement
+from dublincore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
 

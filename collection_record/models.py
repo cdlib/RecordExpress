@@ -16,7 +16,7 @@ from django.template.loader import get_template
 from django.template import Context
 
 from ISO_639_2b import ISO_639_2b
-from DublinCore.models import QualifiedDublinCoreElement
+from dublincore.models import QualifiedDublinCoreElement
 
 logger = logging.getLogger(__name__)
 
