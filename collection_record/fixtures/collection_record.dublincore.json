@@ -1,7 +1,7 @@
 [
   {
     "pk": 776,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "CR",
       "qualifier": "person",
@@ -17,7 +17,7 @@
   },
   {
     "pk": 777,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "CR",
       "qualifier": "family",
@@ -33,7 +33,7 @@
   },
   {
     "pk": 778,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "topic",
@@ -49,7 +49,7 @@
   },
   {
     "pk": 779,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "name_person",
@@ -65,7 +65,7 @@
   },
   {
     "pk": 780,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "name_organization",
@@ -81,7 +81,7 @@
   },
   {
     "pk": 782,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "occupation",
@@ -97,7 +97,7 @@
   },
   {
     "pk": 783,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "function",
@@ -113,7 +113,7 @@
   },
   {
     "pk": 781,
-    "model": "DublinCore.qualifieddublincoreelement",
+    "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "TYP",
       "qualifier": "genre",

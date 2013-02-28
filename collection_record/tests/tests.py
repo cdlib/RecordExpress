@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 from django.db.models.base import ValidationError
 from django.contrib.auth.models import User
 from django_webtest import WebTest
-from liveTestCase import TestCaseLiveServer
 from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
