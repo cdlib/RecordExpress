@@ -267,6 +267,9 @@ class CollectionRecord(models.Model):
         record
         '''
         ead_template = get_template('collection_record/collection_record/ead_template.xml')
+        if self.publisher.parent_institution:
+            #DACS 14.13
+            self.publisher.name =  "{0}. {1}".format(self.publisher.parent_institution.name, self.publisher.name)
         ead_template_data = dict( 
                     instance = self,
                     publisher_marc = quoteattr(self.publisher.mainagency),

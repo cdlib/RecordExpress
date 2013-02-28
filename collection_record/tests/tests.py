@@ -78,6 +78,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('</ead>' in ead_xml)
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         self.failIf('<!DOCTYPE' in ead_xml)
+        self.failUnless('UC Berkeley' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:
@@ -86,6 +87,10 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
             self.fail('ElementTree could not parse xml')
         archdesc = etree.find('archdesc')
         did = archdesc.find('did')
+        corpname = did.find('repository/corpname')
+        self.failUnless(corpname.text.strip() == 'UC Berkeley. Bancroft Library')
+        prefercite_p = archdesc.find('prefercite/p')
+        self.failUnless('UC Berkeley. Bancroft Library' in prefercite_p.text)
         unitdate = did.find('unitdate')
         self.failIf(unitdate.text is None)
 
