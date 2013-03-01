@@ -4,6 +4,7 @@ from django.contrib.contenttypes import generic
 from dublincore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
+from collection_record.models import PublishingInstitution
 
 class QDCElementInlineForm(forms.ModelForm):
     class Meta:
@@ -35,5 +36,14 @@ class CollectionRecordAdmin(admin.ModelAdmin):
     inlines = (QDCElementInline, SupplementalFileInline)
     save_on_top = True
     actions = [publish_to_oac]
+
+OAC = False
+try:
+    from oac.models import Institution
+    OAC = True
+except ImportError:
+    pass
+if not OAC:
+    admin.site.register(PublishingInstitution)
 
 admin.site.register(CollectionRecord, CollectionRecordAdmin)

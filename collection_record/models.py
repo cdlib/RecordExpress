@@ -21,14 +21,13 @@ from dublincore.models import QualifiedDublinCoreElement
 logger = logging.getLogger(__name__)
 
 #allow override by environment var
-NOT_OAC = True
+OAC = False
 try:
     from oac.models import Institution
-    NOT_OAC = False
+    OAC = True
 except ImportError:
     pass
-
-if NOT_OAC:
+if not OAC:
     class PublishingInstitution(models.Model):
         '''Publisher if you're not oac
         '''
@@ -36,8 +35,6 @@ if NOT_OAC:
         mainagency = models.CharField(max_length=255,)
         ark = models.CharField(max_length=255, unique=True)
         cdlpath = models.CharField(max_length=255, blank=True)
-
-
 else:
     class PublishingInstitution(Institution):
         '''Proxy for the Institution, to make it look like a Publisher?
