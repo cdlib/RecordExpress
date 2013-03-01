@@ -1,1 +1,1 @@
-python manage.py test -v1 dublincore collection_record
+python manage.py test -v2 dublincore collection_record
