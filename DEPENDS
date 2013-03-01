@@ -9,6 +9,8 @@ can we make a public interface where you submit an EAD xml doc and get rendered 
 
 The ones below should be factored out:
 
+IN OAC THESE ALL STAY:
+
 csrf_check from util
 ARK_validator
 config_reader
