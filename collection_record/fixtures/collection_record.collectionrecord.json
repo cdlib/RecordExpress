@@ -4,7 +4,7 @@
     "model": "collection_record.collectionrecord",
     "fields": {
       "online_items_url": "",
-      "publisher": 34,
+      "publisher": 1,
       "extent": "big",
       "date_iso": "1900",
       "date_dacs": "circa 1900",
@@ -28,7 +28,7 @@
     "model": "collection_record.collectionrecord",
     "fields": {
       "online_items_url": "",
-      "publisher": 34,
+      "publisher": 1,
       "extent": "small",
       "date_iso": "",
       "date_dacs": "1901",
@@ -52,7 +52,7 @@
     "model": "collection_record.collectionrecord",
     "fields": {
       "online_items_url": "",
-      "publisher": 119,
+      "publisher": 1,
       "extent": "big",
       "date_iso": "1901",
       "date_dacs": "1901",
@@ -76,7 +76,7 @@
     "model": "collection_record.collectionrecord",
     "fields": {
       "online_items_url": "",
-      "publisher": 119,
+      "publisher": 1,
       "extent": "xtent",
       "date_iso": "2111",
       "date_dacs": "2111",
@@ -100,7 +100,7 @@
     "model": "collection_record.collectionrecord",
     "fields": {
       "online_items_url": "",
-      "publisher": 119,
+      "publisher": 1,
       "extent": "x",
       "date_iso": "2111",
       "date_dacs": "2111",

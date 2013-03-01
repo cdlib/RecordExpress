@@ -1,0 +1,12 @@
+[
+  {
+    "pk": 1, 
+    "model": "collection_record.publishinginstitution", 
+    "fields": {
+      "cdlpath": "cdl", 
+      "ark": "ark:/13030/tf5580116c", 
+      "mainagency": "caolucdl", 
+      "name": "CDL"
+    }
+  }
+]
