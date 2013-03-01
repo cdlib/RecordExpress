@@ -224,7 +224,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
 #TODO:this is going to require a live test server for xtf to talk to
 ###class CollectionRecordXMLViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
 ###    '''Test views of the CollectionRecord'''
-###    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_recordapublishinginstitution.json', 'collection_record.auth.user.json']
+###    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 ###    def setUp(self):
 ###        super(CollectionRecordXMLViewTestCase, self).setUp()
 ###
@@ -243,7 +243,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     '''Test the edit page for the collection records. Should be able to modify
     all data (main & assoc. DCs) and delete and add DC stored data
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_recordapublishinginstitution.json', 'collection_record.auth.user.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     csrf_checks = False
 
@@ -335,7 +335,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         pass
 
 class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
-    fixtures = ['collection_recordapublishinginstitution.json', 'collection_record.auth.user.json']
+    fixtures = ['collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
         os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
@@ -543,7 +543,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
     There needs to be a working DSC OAC xtf running on the host specified in 
     the env var FINDAID_HOSTNAME
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_recordapublishinginstitution.json', 'collection_record.auth.user.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def setUp(self):
         # Start a test server and tell selenium where to find it.
@@ -597,7 +597,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
 class CollectionRecordPermissionsBackendTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''test the permission backend for the Collection record app
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_recordapublishinginstitution.json', 'collection_record.auth.user.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def setUp(self):
         self.backend = CollectionRecordPermissionBackend()
@@ -616,7 +616,7 @@ class CollectionRecordPermissionsBackendTestCase(CollectionRecordTestDirSetupMix
 
 class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the supplemental files'''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'collection_recordapublishinginstitution.json', 'collection_record.auth.user.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def setUp(self):
         super(SupplementalFileTestCase, self).setUp()
