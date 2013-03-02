@@ -10,7 +10,6 @@ from django.core.urlresolvers import reverse
 from django.db.models.base import ValidationError
 from django.contrib.auth.models import User
 from django_webtest import WebTest
-from liveTestCase import TestCaseLiveServer
 from collection_record.forms import CollectionRecordForm
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
@@ -41,7 +40,7 @@ class CollectionRecordTestDirSetupMixin(object):
 
 class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the CollectionRecord django model'''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json', 'oac.city.json', 'oac.county.json', 'auth.json', ]
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def testModelExists(self):
         rec = CollectionRecord()
@@ -79,6 +78,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('</ead>' in ead_xml)
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         self.failIf('<!DOCTYPE' in ead_xml)
+        self.failUnless('UC Berkeley' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:
@@ -87,6 +87,10 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
             self.fail('ElementTree could not parse xml')
         archdesc = etree.find('archdesc')
         did = archdesc.find('did')
+        corpname = did.find('repository/corpname')
+        self.failUnless(corpname.text.strip() == 'UC Berkeley. Bancroft Library')
+        prefercite_p = archdesc.find('prefercite/p')
+        self.failUnless('UC Berkeley. Bancroft Library' in prefercite_p.text)
         unitdate = did.find('unitdate')
         self.failIf(unitdate.text is None)
 
@@ -177,7 +181,7 @@ class CollectionRecordFormTestCase(CollectionRecordTestDirSetupMixin, TestCase):
 class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the view of all collection records for a a user
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', 'oac.city.json', 'oac.county.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
 #####    def setUp(self):
 #####        super(CollectionRecordViewAllTestCase, self).setUp()
@@ -187,13 +191,13 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
         and not others.
         '''
         url = reverse('collection_record_view_all', args=None)
-        ret = self.client.login(username='oactestuser',password='oactestuser')
+        ret = self.client.login(username='testuser',password='testuser')
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'Collection')
         self.assertContains(response, '0')
         self.assertContains(response, 'fk4vh5x06')
-        ret = self.client.login(username='oactestsuperuser', password='oactestsuperuser')
+        ret = self.client.login(username='admin', password='admin')
         self.failUnless(ret)
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
@@ -205,7 +209,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
         '''Check that some links do exist on the collection record list page
         '''
         url = reverse('collection_record_view_all', args=None)
-        ret = self.client.login(username='oactestuser',password='oactestuser')
+        ret = self.client.login(username='testuser',password='testuser')
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'fk4vh5x06')
@@ -220,7 +224,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
 #TODO:this is going to require a live test server for xtf to talk to
 ###class CollectionRecordXMLViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
 ###    '''Test views of the CollectionRecord'''
-###    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', ]
+###    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 ###    def setUp(self):
 ###        super(CollectionRecordXMLViewTestCase, self).setUp()
 ###
@@ -228,7 +232,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
 ###    def testXMLView(self):
 ###        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
 ###        url = rec.get_absolute_url() + '/xml/'
-###        ret = self.client.login(username='oactestuser',password='oactestuser')
+###        ret = self.client.login(username='testuser',password='testuser')
 ###        response = self.client.get(url)
 ###        self.failUnlessEqual(200, response.status_code)
 ###        self.assertContains(response, '<ead>')
@@ -239,7 +243,8 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     '''Test the edit page for the collection records. Should be able to modify
     all data (main & assoc. DCs) and delete and add DC stored data
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', 'oac.city.json', 'oac.county.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
+#    fixtures = ['collectionrecord.json', 'dublincore.json', 'publishinginstitution.json', 'auth.user.json']
 
     csrf_checks = False
 
@@ -256,7 +261,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
         self.assertTrue(settings.LOGIN_URL+'?next='+quote(url), response.headers['location'])
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'itle')
         self.assertContains(response, '<option value="eng" selected="selected">English</option>')
@@ -269,7 +274,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         if not os.path.isdir(rec.ead_dir):
             os.makedirs(rec.ead_dir)
         url = rec.get_edit_url()
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'logout')
         form = response.forms['main_form']
@@ -285,15 +290,15 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         form['userestrict'] = 'go craxy'
         form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response.follow()
         self.assertTemplateUsed(response,'collection_record/collection_record/ead_template.xml') 
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.assertContains(response, 'logout')
         form = response.forms['main_form']
         form['title'] = ''
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
         self.assertContains(response, 'errorlist')
@@ -301,28 +306,30 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     def testEditDCTerm(self):
         '''Test the editing of a term stored in an associated DC object
         '''
+        u = User.objects.get(username="testuser")
+        print "TU=======>", u
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         url = rec.get_edit_url()
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'logout')
         form = response.forms['main_form']
         newPerson = 'Mark Redar Test'
         form['person-0-content'] = newPerson
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         #self.assertRedirects(response, rec.get_absolute_url())
-        response.follow(user='oactestuser')
+        response.follow(user='testuser')
         self.assertTemplateUsed(response,'collection_record/collection_record/ead_template.xml') 
         #NOTE: Currently can't test the updated "view" of the object because
         # of the xtf interaction, it goes to live back server
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.assertTrue(newPerson in response)
         self.assertContains(response, newPerson)
         self.assertContains(response, 'logout')
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         form['person-0-content'] = ''
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'errorlist')
 
@@ -331,13 +338,13 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         pass
 
 class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
-    fixtures = ['sites.json', 'auth.json', 'oac.institution.json', 'oac.groupprofile.json', 'oac.city.json', 'oac.county.json']
+    fixtures = ['collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
         os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
         #testuser_default_inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, 'csl')
         #create test user dirs, will be there on prod
-        testuser = User.objects.get(username='oactestuser')
+        testuser = User.objects.get(username='testuser')
         for i in get_publishing_institutions_for_user(testuser):
             inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, i.cdlpath)
             os.makedirs(inst_dir)
@@ -354,7 +361,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         a known set of data
         '''
         url = reverse('collection_record_add')
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         form = response.form
         #fill out basic info only,required fields only
         form['title'] = 'Test Title'
@@ -368,7 +375,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         #form['userestrict'] = 'go craxy'
         #form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
@@ -376,7 +383,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         #can't test without a live server, xtf needs to talk to
         ark_from_url = self.parseARK(response.request.url)
         cr=CollectionRecord.objects.get(ark=ark_from_url)
-        response = self.app.get(cr.get_edit_url(), user='oactestuser')
+        response = self.app.get(cr.get_edit_url(), user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test Title')
@@ -390,7 +397,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
         self.assertTrue(settings.LOGIN_URL+'?next='+quote(url), response.headers['location'])
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'itle')
         self.assertContains(response, '<option value="eng" selected="selected">English</option>')
@@ -398,7 +405,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.assertContains(response, 'person')
         self.assertContains(response, 'family')
         form = response.form
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
         self.createNewMinimalCR()
@@ -408,7 +415,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         boilerplate identical string for all their collections.
         '''
         url = reverse('collection_record_add')
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         form = response.form
         #fill out basic info only,required fields only
@@ -423,14 +430,14 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         form['userestrict'] = 'go craxy'
         form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
         self.assertTrue('ark:' in response.request.url)
         self.assertContains(response, 'ark:')
         url = reverse('collection_record_add')
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         form = response.form
         #fill out basic info only,required fields only
@@ -445,14 +452,14 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         form['userestrict'] = 'go craxy'
         form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
 
     def testNewWithDCView(self):
         url = reverse('collection_record_add')
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
         form = response.form
@@ -470,7 +477,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         form['scopecontent'] = 'test content'
         form['person-0-content'] = 'mark redar'
         form['family-0-content'] = 'redar'
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
@@ -478,7 +485,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         ark_from_url = response.request.url[response.request.url.index('ark:'):]
         ark_from_url = ark_from_url.rstrip('/')
         cr=CollectionRecord.objects.get(ark=ark_from_url)
-        response = self.app.get(cr.get_edit_url(), user='oactestuser')
+        response = self.app.get(cr.get_edit_url(), user='testuser')
         self.assertContains(response, 'ark:')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
@@ -490,7 +497,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         '''Test the collection editor basic function when you've got an ARK already
         '''
         url = reverse('collection_record_add')
-        response = self.app.get(url, user='oactestuser')
+        response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'itle')
         self.assertContains(response, '<option value="eng" selected="selected">English</option>')
@@ -498,7 +505,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.assertContains(response, 'person')
         self.assertContains(response, 'family')
         form = response.form
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
         form = response.form
@@ -515,19 +522,19 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         form['userestrict'] = 'go craxy'
         form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.assertTemplateUsed(response,'collection_record/collection_record/add.html') 
         form=response.form
         testark = 'ark:/99999/fk45b0b4n'
         form['ark'] = testark
-        response = form.submit(user='oactestuser')
+        response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
         self.assertTrue('ark:' in response.request.url)
         self.assertContains(response, 'ark:')
         cr=CollectionRecord.objects.get(ark=testark)
-        response = self.app.get(cr.get_edit_url(), user='oactestuser')
+        response = self.app.get(cr.get_edit_url(), user='testuser')
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test Title')
@@ -539,7 +546,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
     There needs to be a working DSC OAC xtf running on the host specified in 
     the env var FINDAID_HOSTNAME
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'sites.json', 'auth.json', 'oac.city.json', 'oac.county.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def setUp(self):
         # Start a test server and tell selenium where to find it.
@@ -558,7 +565,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
         url = self.live_server_url+url
         response = self.client.get(url)
         self.failUnlessEqual(302, response.status_code)
-        ret = self.client.login(username='oactestuser',password='oactestuser')
+        ret = self.client.login(username='testuser',password='testuser')
         self.failUnless(ret)
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
@@ -578,7 +585,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
         url = self.live_server_url+url
         response = self.client.get(url)
         self.failUnlessEqual(302, response.status_code)
-        ret = self.client.login(username='oactest',password='oactest')
+        ret = self.client.login(username='testuser',password='testuser')
         self.failUnless(ret)
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
@@ -593,7 +600,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
 class CollectionRecordPermissionsBackendTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''test the permission backend for the Collection record app
     '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'oac.institution.json', 'oac.groupprofile.json', 'auth.json', 'oac.city.json', 'oac.county.json']
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def setUp(self):
         self.backend = CollectionRecordPermissionBackend()
@@ -612,7 +619,7 @@ class CollectionRecordPermissionsBackendTestCase(CollectionRecordTestDirSetupMix
 
 class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     '''Test the supplemental files'''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json', 'oac.city.json', 'oac.county.json', 'sites.json', 'auth.json',]
+    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
 
     def setUp(self):
         super(SupplementalFileTestCase, self).setUp()

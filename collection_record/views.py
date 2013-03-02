@@ -13,7 +13,6 @@ from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
@@ -54,13 +53,10 @@ from collection_record.forms import SupplementalFileForm
 from collection_record.forms import SupplementalFileUploadForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
-from util.csrf_check import csrf_check
-
 logger = logging.getLogger(__name__)
 
 @never_cache
 @login_required
-#@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
     '''Add a collection record. Must be a logged in user supplemental with a 
     publishing institution.
@@ -170,13 +166,13 @@ def handle_uploaded_file(collection_record, f, label=''):
 
 @never_cache
 @login_required
-#@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def edit_collection_record(request, ark, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
-        return  HttpResponseForbidden('<h1>Permission Denied</h1>')
+    print "+++++++++++++++", request.user,' : ',  request.user.get_all_permissions()
+    #if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
+    #    return  HttpResponseForbidden('<h1>Permission Denied</h1>')
     url_preview = _url_xtf_preview(collection_record.ark)
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
     supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)

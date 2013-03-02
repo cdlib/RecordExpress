@@ -1,0 +1,22 @@
+django
+dublincore
+
+blueprint css in static, need to change from old site_media
+need to put 404 files in collection_record/static/css?
+
+BeautifulSoup -- used for adding edit close buttons to OAC view
+can we make a public interface where you submit an EAD xml doc and get rendered html back?
+
+The ones below should be factored out:
+
+csrf_check from util
+ARK_validator
+config_reader
+EZID
+plac - needed for DSC_ark_minter from EZID
+
+webtest -- look at this proj for how to declare dependencies
+django-webtest
+
+liveTestCase == use new django one
+

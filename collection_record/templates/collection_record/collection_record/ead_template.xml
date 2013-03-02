@@ -39,7 +39,9 @@
              <dao role="http://oac.cdlib.org/arcrole/link/search" href="{{instance.online_items_url}}" title="Online items"/>
              {% endif %}
              <repository label="Repository">
-                 <corpname>{{instance.publisher.name}}</corpname>
+                 <corpname>
+                    {{ instance.publisher.name }}
+                 </corpname>
              </repository>
              <abstract label="Abstract">{{instance.abstract}}</abstract>
              <langmaterial><language langcode="{{instance.language}}"/></langmaterial>

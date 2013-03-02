@@ -21,14 +21,13 @@ from dublincore.models import QualifiedDublinCoreElement
 logger = logging.getLogger(__name__)
 
 #allow override by environment var
-NOT_OAC = True
+OAC = False
 try:
     from oac.models import Institution
-    NOT_OAC = False
+    OAC = True
 except ImportError:
     pass
-
-if NOT_OAC:
+if not OAC:
     class PublishingInstitution(models.Model):
         '''Publisher if you're not oac
         '''
@@ -36,8 +35,6 @@ if NOT_OAC:
         mainagency = models.CharField(max_length=255,)
         ark = models.CharField(max_length=255, unique=True)
         cdlpath = models.CharField(max_length=255, blank=True)
-
-
 else:
     class PublishingInstitution(Institution):
         '''Proxy for the Institution, to make it look like a Publisher?
@@ -267,6 +264,9 @@ class CollectionRecord(models.Model):
         record
         '''
         ead_template = get_template('collection_record/collection_record/ead_template.xml')
+        if self.publisher.parent_institution:
+            #DACS 14.13
+            self.publisher.name =  "{0}. {1}".format(self.publisher.parent_institution.name, self.publisher.name)
         ead_template_data = dict( 
                     instance = self,
                     publisher_marc = quoteattr(self.publisher.mainagency),

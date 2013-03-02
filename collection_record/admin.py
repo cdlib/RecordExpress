@@ -4,6 +4,7 @@ from django.contrib.contenttypes import generic
 from dublincore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
+from collection_record.models import PublishingInstitution
 
 class QDCElementInlineForm(forms.ModelForm):
     class Meta:
@@ -30,10 +31,22 @@ class CollectionRecordAdmin(admin.ModelAdmin):
     #readonly_fields = ('ark', ) #Had to remove to allow adding through admin
     # still guarded in the CollectionRecord.save() method
     search_fields = ('ark', 'title', 'title_filing', 'abstract')
-    list_display = ('ark', 'title_filing' , 'publisher', 'has_extended_metadata', 'has_supplemental_files', 'updated_at', 'created_at', )
+    list_display = ('pk', 'ark', 'title_filing' , 'publisher', 'has_extended_metadata', 'has_supplemental_files', 'updated_at', 'created_at', )
     #list_filter = ('QDCElements',)
     inlines = (QDCElementInline, SupplementalFileInline)
     save_on_top = True
     actions = [publish_to_oac]
+
+class PublishingInstitutionAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'mainagency')
+
+OAC = False
+try:
+    from oac.models import Institution
+    OAC = True
+except ImportError:
+    pass
+if not OAC:
+    admin.site.register(PublishingInstitution, PublishingInstitutionAdmin)
 
 admin.site.register(CollectionRecord, CollectionRecordAdmin)
