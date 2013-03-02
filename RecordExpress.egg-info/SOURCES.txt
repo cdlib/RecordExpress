@@ -1,0 +1,13 @@
+setup.py
+RecordExpress.egg-info/PKG-INFO
+RecordExpress.egg-info/SOURCES.txt
+RecordExpress.egg-info/dependency_links.txt
+RecordExpress.egg-info/top_level.txt
+collection_record/ISO_639_2b.py
+collection_record/__init__.py
+collection_record/admin.py
+collection_record/forms.py
+collection_record/models.py
+collection_record/perm_backend.py
+collection_record/urls.py
+collection_record/views.py
