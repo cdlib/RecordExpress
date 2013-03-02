@@ -13,7 +13,6 @@ from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
@@ -53,8 +52,6 @@ from collection_record.forms import SubjectOccupationForm
 from collection_record.forms import SupplementalFileForm
 from collection_record.forms import SupplementalFileUploadForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
-
-from util.csrf_check import csrf_check
 
 logger = logging.getLogger(__name__)
 
