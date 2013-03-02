@@ -1,13 +1,13 @@
-
-NOT_OAC = True
+OAC = False
 try:
     from oac.models import Institution
     from oac.models import get_institutions_for_user
-    NOT_OAC = False
+    OAC = True
 except ImportError:
+    from collection_record.models import PublishingInstitution
     pass
 
-if NOT_OAC:
+if not OAC:
     class CollectionRecordPermissionBackend(object):
         '''Reject all requests if not in OAC.
         3rd Party user will need to implement an appropriate backend object
@@ -20,18 +20,19 @@ if NOT_OAC:
             return None
 
         def has_perm(self, user_obj, perm, obj=None):
-            if not user_obj.is_authenticated():
-                return False
+            if user_obj.is_superuser:
+                return True
             if obj is None:
                 return False
-            if not user_obj.is_superuser:
+            if user_obj.is_authenticated():
                 return True
-            return False
+            return True #allow all users to edit all
 
     def get_publishing_institutions_for_user(user):
         '''Return the publishing institutions for the given user
         '''
-        return None
+        #TODO: Do we want user_profile with linked insts?
+        return PublishingInstitution.objects.all()
 
 else:
     class CollectionRecordPermissionBackend(object):

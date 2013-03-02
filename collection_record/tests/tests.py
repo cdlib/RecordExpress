@@ -244,6 +244,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     all data (main & assoc. DCs) and delete and add DC stored data
     '''
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
+#    fixtures = ['collectionrecord.json', 'dublincore.json', 'publishinginstitution.json', 'auth.user.json']
 
     csrf_checks = False
 
@@ -305,6 +306,8 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     def testEditDCTerm(self):
         '''Test the editing of a term stored in an associated DC object
         '''
+        u = User.objects.get(username="testuser")
+        print "TU=======>", u
         rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
         url = rec.get_edit_url()
         response = self.app.get(url, user='testuser')

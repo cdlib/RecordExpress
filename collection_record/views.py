@@ -57,7 +57,6 @@ logger = logging.getLogger(__name__)
 
 @never_cache
 @login_required
-#@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
     '''Add a collection record. Must be a logged in user supplemental with a 
     publishing institution.
@@ -167,13 +166,13 @@ def handle_uploaded_file(collection_record, f, label=''):
 
 @never_cache
 @login_required
-#@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def edit_collection_record(request, ark, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
-        return  HttpResponseForbidden('<h1>Permission Denied</h1>')
+    print "+++++++++++++++", request.user,' : ',  request.user.get_all_permissions()
+    #if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
+    #    return  HttpResponseForbidden('<h1>Permission Denied</h1>')
     url_preview = _url_xtf_preview(collection_record.ark)
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
     supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)
