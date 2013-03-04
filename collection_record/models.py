@@ -14,19 +14,13 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template import Context
-
+from is_oac import is_OAC
 from ISO_639_2b import ISO_639_2b
 from dublincore.models import QualifiedDublinCoreElement
 
 logger = logging.getLogger(__name__)
 
-#allow override by environment var
-OAC = False
-try:
-    from oac.models import Institution
-    OAC = True
-except ImportError:
-    pass
+OAC = is_OAC()
 if not OAC:
     class PublishingInstitution(models.Model):
         '''Publisher if you're not oac
@@ -49,6 +43,7 @@ def dir_pairtree_for_ark(ark):
 
 
 class CollectionRecord(models.Model):
+    #TODO: change to "id", remove EZID minter and ARK_validator. Use 'pk' to access every where (or should i just make it pk)
     ark = models.CharField(max_length=255, primary_key=True)
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
     title = models.CharField('Collection Title', max_length=512,)

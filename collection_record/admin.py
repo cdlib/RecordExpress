@@ -40,12 +40,8 @@ class CollectionRecordAdmin(admin.ModelAdmin):
 class PublishingInstitutionAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'mainagency')
 
-OAC = False
-try:
-    from oac.models import Institution
-    OAC = True
-except ImportError:
-    pass
+from is_oac import is_OAC
+OAC = is_OAC()
 if not OAC:
     admin.site.register(PublishingInstitution, PublishingInstitutionAdmin)
 

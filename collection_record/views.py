@@ -19,7 +19,10 @@ from django.http import HttpResponseForbidden
 from django.core.urlresolvers import reverse as django_url_reverse
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 import BeautifulSoup
-from DSC_EZID_minter import main as EZIDMinter
+from is_oac import is_OAC
+OAC = is_OAC()
+if OAC:
+    from DSC_EZID_minter import main as EZIDMinter
 from dublincore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
