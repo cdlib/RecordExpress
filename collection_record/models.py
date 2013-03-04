@@ -29,6 +29,8 @@ if not OAC:
         mainagency = models.CharField(max_length=255,)
         ark = models.CharField(max_length=255, unique=True)
         cdlpath = models.CharField(max_length=255, blank=True)
+        def __unicode__(self):
+            return self.name
 else:
     class PublishingInstitution(Institution):
         '''Proxy for the Institution, to make it look like a Publisher?
