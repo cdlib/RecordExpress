@@ -92,16 +92,21 @@ class CollectionRecord(models.Model):
         if hasattr(self, '_dir_root'):
             return self._dir_root
         else:
-            EAD_ROOT_DIR=None
-            if os.environ.has_key('EAD_ROOT_DIR'):
-                EAD_ROOT_DIR = os.environ.get('EAD_ROOT_DIR')
-            else:
-                try:
-                    EAD_ROOT_DIR = settings.EAD_ROOT_DIR
-                except AttributeError:
-                    pass
-                if not EAD_ROOT_DIR:
-                    EAD_ROOT_DIR = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/in/oac-ead/prime2002')
+            EAD_ROOT_DIR='.'
+            if os.path.exists('~/.recordexpressrc'):
+                #TODO: get root from config
+                pass
+            if OAC:#OAC override
+                if os.environ.has_key('EAD_ROOT_DIR'):
+                    EAD_ROOT_DIR = os.environ.get('EAD_ROOT_DIR')
+                else:
+                    try:
+                        EAD_ROOT_DIR = settings.EAD_ROOT_DIR
+                    except AttributeError:
+                        pass
+                    if not EAD_ROOT_DIR:
+                        EAD_ROOT_DIR = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/in/oac-ead/prime2002')
+            self._dir_root = EAD_ROOT_DIR
             return EAD_ROOT_DIR
 
     def _set_dir_root(self, value):
@@ -139,19 +144,20 @@ class CollectionRecord(models.Model):
     def delete(self, **kwargs):
         '''Run holdMets.pl on the ark, then
         delete the file first then the DB object'''
-        HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
-        holdMets_path = os.path.join( HOME_DIR,
-                                'branches/production/voro/batch-bin/holdMETS.pl')
-        #setup log file
-        log_path = os.path.join(HOME_DIR, 'log/holdMets/', self.ark.replace(':','').replace('/', '-'))
-        with open(log_path, 'w') as logfile: 
-            logfile.write('Running:'+holdMets_path+' '+self.ark)
-            returncode = subprocess.call((holdMets_path, self.ark),
-                            stdout=logfile,
-                            stderr=subprocess.STDOUT
-                            )
-            if returncode != 0:
-                raise Exception('Error with holdMets removal process. Check log:'+log_path)
+        if OAC:
+            HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
+            holdMets_path = os.path.join( HOME_DIR,
+                                    'branches/production/voro/batch-bin/holdMETS.pl')
+            #setup log file
+            log_path = os.path.join(HOME_DIR, 'log/holdMets/', self.ark.replace(':','').replace('/', '-'))
+            with open(log_path, 'w') as logfile: 
+                logfile.write('Running:'+holdMets_path+' '+self.ark)
+                returncode = subprocess.call((holdMets_path, self.ark),
+                                stdout=logfile,
+                                stderr=subprocess.STDOUT
+                                )
+                if returncode != 0:
+                    raise Exception('Error with holdMets removal process. Check log:'+log_path)
         if os.path.isfile(self.ead_filename):
             os.remove(self.ead_filename)
         super(CollectionRecord, self).delete(**kwargs)
