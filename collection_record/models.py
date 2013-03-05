@@ -45,20 +45,14 @@ def dir_pairtree_for_ark(ark):
 
 
 class CollectionRecord(models.Model):
-    '''An abstract EAD record. Currently uses django-dublincore to store
-    collection details.
-    TODO: Explicit mapping of DC -> EAD tags
-    Replace django-dublincore with custom EAD one-to-many objects
-    Create export/import to from django-dublincore
-    '''
     #TODO: change to "id", remove EZID minter and ARK_validator. Use 'pk' to access every where (or should i just make it pk)
-    local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
+    ark = models.CharField(max_length=255, primary_key=True)
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
-    ark = models.CharField(max_length=255, unique=True)
     title = models.CharField('Collection Title', max_length=512,)
     title_filing = models.CharField('Collection Title (Filing)', max_length=255)#, unique=True)
     date_dacs = models.CharField('Collection Date', max_length=128,)
     date_iso = models.CharField('Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', max_length=128, blank=True)
+    local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     extent=models.CharField('Extent of Collection', max_length=255)
     abstract=models.TextField()
     language = models.CharField('Language of materials', max_length=3, choices=(ISO_639_2b), )
@@ -70,14 +64,10 @@ class CollectionRecord(models.Model):
     online_items_url = models.URLField('Online Items URL', null=True, blank=True, )
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    #TODO: replace with EAD specific
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
 
     class Meta:
-        unique_together = (
-                ("local_identifier", "publisher"),
-                ("title_filing", "publisher"),
-                )
+        unique_together = (("title_filing", "publisher"),)
 
     def __unicode__(self):
         return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
@@ -125,19 +115,15 @@ class CollectionRecord(models.Model):
             return self._xtf_dir_root
         else:
             XTF_DATA=None
-            try:
+            if os.environ.has_key('XTF_DATA'):
                 XTF_DATA = os.environ.get('XTF_DATA')
-            except KeyError:
-                pass
-            try:
-                XTF_DATA = settings.XTF_ROOT_DIR
-            except AttributeError:
-                pass
-            if not XTF_DATA:
+            else:
                 try:
-                    XTF_DATA = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/xtf/data')
-                except KeyError:
+                    XTF_DATA = settings.XTF_ROOT_DIR
+                except AttributeError:
                     pass
+                if not XTF_DATA:
+                    XTF_DATA = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/xtf/data')
             return XTF_DATA
 
     def _set_xtf_dir_root(self, value):
