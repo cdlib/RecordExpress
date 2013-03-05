@@ -24,7 +24,7 @@ class CollectionRecordTestDirSetupMixin(object):
 
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
-        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
+##        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
         os.environ['EAD_ROOT_DIR'] = CollectionRecordTestDirSetupMixin.dir_root
         if not os.path.isdir(CollectionRecordTestDirSetupMixin.dir_root):
             os.makedirs(CollectionRecordTestDirSetupMixin.dir_root)
@@ -341,7 +341,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
     fixtures = ['collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
     def setUp(self):
         '''Override the "databases" config file to use the test shoulder'''
-        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
+##        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
         #testuser_default_inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, 'csl')
         #create test user dirs, will be there on prod
         testuser = User.objects.get(username='testuser')
