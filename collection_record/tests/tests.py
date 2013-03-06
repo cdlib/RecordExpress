@@ -257,6 +257,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     def testEditPageAuth(self):
         rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_edit_url()
+        print "EDIT URL-->", url
         response = self.app.get(url)
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
@@ -648,4 +649,7 @@ class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
 
     def testRipToText(self):
         sf = SupplementalFile.objects.get(pk=53)
-        sf.rip_to_text()
+        from collection_record.is_oac import is_OAC
+        OAC = is_OAC()
+        if OAC:
+            sf.rip_to_text()

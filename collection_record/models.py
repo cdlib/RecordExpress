@@ -27,7 +27,7 @@ if not OAC:
         '''
         name = models.CharField(max_length=255)
         mainagency = models.CharField(max_length=255,)
-        ark = models.CharField(max_length=255, unique=True)
+        ark = models.CharField(max_length=255, unique=True, blank=True)
         cdlpath = models.CharField(max_length=255, blank=True)
         parent_institution = models.ForeignKey('self', null=True, blank=True, related_name='children')
         def __unicode__(self):
@@ -49,7 +49,7 @@ class CollectionRecord(models.Model):
     #TODO: remove EZID minter and ARK_validator.
     local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
-    ark = models.CharField(max_length=255, unique=True)
+    ark = models.CharField(max_length=255, unique=True, blank=True)
     title = models.CharField('Collection Title', max_length=512,)
     title_filing = models.CharField('Collection Title (Filing)', max_length=255)#, unique=True)
     date_dacs = models.CharField('Collection Date', max_length=128,)
@@ -78,15 +78,15 @@ class CollectionRecord(models.Model):
 
     @models.permalink
     def get_absolute_url(self):
-        return ('collectionrecord_view', (), {'ark': self.ark, })
+        return ('collectionrecord_view', (), {'pk': self.pk, })
 
     @models.permalink
     def get_edit_url(self):
-        return ('collectionrecord_edit', (), {'ark': self.ark, })
+        return ('collectionrecord_edit', (), {'pk': self.pk, })
 
     @models.permalink
     def get_xml_url(self):
-        return ('collectionrecord_view_xml', (), {'ark': self.ark, })
+        return ('collectionrecord_view_xml', (), {'pk': self.pk, })
 
 
     def _get_dir_root(self):
@@ -128,6 +128,8 @@ class CollectionRecord(models.Model):
                     pass
                 if not XTF_DATA:
                     XTF_DATA = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/xtf/data')
+            if not XTF_DATA:
+                XTF_DATA = '.'
             return XTF_DATA
 
     def _set_xtf_dir_root(self, value):
@@ -140,7 +142,11 @@ class CollectionRecord(models.Model):
 
     @property
     def ead_filename(self):
-        return os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
+        if OAC:
+            fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
+        else:
+            fname = os.path.join(self.ead_dir, self.title_filing.replace(' ', '_')+'.xml')
+        return fname
 
     def delete(self, **kwargs):
         '''Run holdMets.pl on the ark, then
@@ -166,7 +172,10 @@ class CollectionRecord(models.Model):
     def save_ead_file(self):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
+        if not os.path.exists(self.ead_dir):
+            os.makedirs(self.ead_dir)
         fname = self.ead_filename
+        print "DIR-->", self.ead_dir, " FNAME-->", self.ead_filename
         foo =  codecs.open(fname, 'w', 'utf-8')
         try:
             foo.write(self.ead_xml)
@@ -192,8 +201,9 @@ class CollectionRecord(models.Model):
                     raise ValueError('Can not change ARK for an collection')
             except CollectionRecord.DoesNotExist:
                 pass
-        if not self.ark:
-            raise ValueError('Collection Records must have an ARK')
+        if OAC:
+            if not self.ark:
+                raise ValueError('Collection Records must have an ARK')
         super(CollectionRecord, self).save(*args, **kwargs)
         #TODO: save the ead file?? can use a public bool to determine if saved 
         # to disk

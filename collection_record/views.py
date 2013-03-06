@@ -97,7 +97,10 @@ def add_collection_record(request):
             ark = form_main.cleaned_data['ark']
             if ark == '' or ark == form_main.fields['ark'].initial:
                 #mint an ark
-                ark = EZIDMinter(1)[0]
+                if OAC:
+                    ark = EZIDMinter(1)[0]
+                else:
+                    ark = ''
             collection_record = CollectionRecord()
             collection_record.ark = ark
             collection_record.title = form_main.cleaned_data['title']
@@ -149,7 +152,7 @@ def add_collection_record(request):
                               locals(),
                               )
 
-def _url_xtf_preview(ark):
+def _url_xtf_preview(pk):
     import os
     import socket
     if os.environ.has_key('BACK_SERVER'): #OAC
@@ -158,7 +161,7 @@ def _url_xtf_preview(ark):
         URL_THIS_SERVER = ''.join(('http://', socket.gethostbyname(socket.gethostname()), '/collection-record/'))
     URL_XTF_EAD_VIEW = ''.join(('http://', os.environ.get('FINDAID_HOSTNAME', 'www.oac.cdlib.org'), '/view?docId=ead-preview&doc.view=entire_text&source=', URL_THIS_SERVER))
     URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
-    return ''.join((URL_XTF_EAD_VIEW, ark, URL_XTF_EAD_VIEW_SUFFIX))
+    return ''.join((URL_XTF_EAD_VIEW, str(pk), URL_XTF_EAD_VIEW_SUFFIX))
 
 def handle_uploaded_file(collection_record, f, label=''):
     supp_file = SupplementalFile()
@@ -168,16 +171,20 @@ def handle_uploaded_file(collection_record, f, label=''):
     with supp_file.get_filehandle(mode='wb') as supp_file_obj:
         for chunk in f.chunks():
             supp_file_obj.write(chunk)
-    supp_file.rip_to_text()
+    if OAC:
+        supp_file.rip_to_text()
     supp_file.save()
     return supp_file
 
 @never_cache
 @login_required
-def edit_collection_record(request, ark, *args, **kwargs):
+def edit_collection_record(request, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    if 'pk' in kwargs:
+        collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
+    else:
+        collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
     #if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
     #    return  HttpResponseForbidden('<h1>Permission Denied</h1>')
     url_preview = _url_xtf_preview(collection_record.ark)
@@ -350,8 +357,12 @@ def edit_collection_record(request, ark, *args, **kwargs):
 
 @never_cache
 #@login_required
-def view_collection_record_xml(request, ark, *args, **kwargs):
+def view_collection_record_xml(request, *args, **kwargs):
     '''XML view of collection record'''
+    if 'pk' in kwargs:
+        collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
+    else:
+        collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
     xml = collection_record.ead_xml
     response = HttpResponse(xml)
@@ -382,10 +393,14 @@ def view_all_collection_records(request,):# *args, **kwargs):
 
 @never_cache
 @login_required
-def view_collection_record_oac_preview(request, ark, *args, **kwargs):
+def view_collection_record_oac_preview(request, *args, **kwargs):
     '''Proxy the xtf preview page'''
-    url = _url_xtf_preview(ark)
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    if 'pk' in kwargs:
+        collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
+    else:
+        collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
+    url = _url_xtf_preview(collection_record.pk)
+    collection_record = get_object_or_404(CollectionRecord, pk=collection_record.pk)
     foo = urllib.urlopen(url)
     html = foo.read()
     soup = BeautifulSoup.BeautifulSoup(html)
