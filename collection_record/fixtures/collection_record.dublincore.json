@@ -1,13 +1,13 @@
 [
   {
-    "pk": 776,
+    "pk": 1,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "CR",
       "qualifier": "person",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "Mark Redar",
       "content_type": [
         "collection_record",
@@ -16,14 +16,14 @@
     }
   },
   {
-    "pk": 777,
+    "pk": 2,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "CR",
       "qualifier": "family",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "Redar",
       "content_type": [
         "collection_record",
@@ -32,14 +32,14 @@
     }
   },
   {
-    "pk": 778,
+    "pk": 3,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "topic",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "test",
       "content_type": [
         "collection_record",
@@ -48,14 +48,14 @@
     }
   },
   {
-    "pk": 779,
+    "pk": 4,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "name_person",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "mark",
       "content_type": [
         "collection_record",
@@ -64,14 +64,14 @@
     }
   },
   {
-    "pk": 780,
+    "pk": 5,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "name_organization",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "CDL",
       "content_type": [
         "collection_record",
@@ -80,14 +80,14 @@
     }
   },
   {
-    "pk": 782,
+    "pk": 6,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
       "qualifier": "occupation",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "programmer",
       "content_type": [
         "collection_record",
@@ -96,7 +96,7 @@
     }
   },
   {
-    "pk": 783,
+    "pk": 7,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
@@ -112,14 +112,14 @@
     }
   },
   {
-    "pk": 781,
+    "pk": 8,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "TYP",
       "qualifier": "genre",
       "created_at": "2011-12-17 00:31:42",
       "updated_at": "2011-12-17 00:31:42",
-      "object_id": "ark:/13030/c8s180ts",
+      "object_id": "1",
       "content": "dynamic",
       "content_type": [
         "collection_record",
