@@ -129,7 +129,7 @@ class CollectionRecord(models.Model):
                 if not XTF_DATA:
                     XTF_DATA = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/xtf/data')
             if not XTF_DATA:
-                XTF_DATA = '.'
+                XTF_DATA = './data'
             return XTF_DATA
 
     def _set_xtf_dir_root(self, value):
@@ -175,7 +175,6 @@ class CollectionRecord(models.Model):
         if not os.path.exists(self.ead_dir):
             os.makedirs(self.ead_dir)
         fname = self.ead_filename
-        print "DIR-->", self.ead_dir, " FNAME-->", self.ead_filename
         foo =  codecs.open(fname, 'w', 'utf-8')
         try:
             foo.write(self.ead_xml)

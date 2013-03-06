@@ -257,7 +257,6 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
     def testEditPageAuth(self):
         rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_edit_url()
-        print "EDIT URL-->", url
         response = self.app.get(url)
         self.failUnlessEqual('302 FOUND', response.status)
         self.failUnlessEqual(302, response.status_code)
@@ -308,7 +307,6 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         '''Test the editing of a term stored in an associated DC object
         '''
         u = User.objects.get(username="testuser")
-        print "TU=======>", u
         rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_edit_url()
         response = self.app.get(url, user='testuser')
@@ -357,6 +355,10 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         ark_from_url = ark_from_url.rstrip('/')
         return ark_from_url
 
+    def parsePK(self, url_string):
+        pk_from_url = url_string.rstrip('/').rsplit('/',1)[1]
+        return pk_from_url
+
     def createNewMinimalCR(self):
         '''A helper function to create a new Collection Record with
         a known set of data
@@ -382,7 +384,8 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual(200, response.status_code)
         self.assertTrue('ark:' in response.request.url)
         #can't test without a live server, xtf needs to talk to
-        ark_from_url = self.parseARK(response.request.url)
+        pk_from_url = self.parsePK(response.request.url)
+        #ark_from_url = self.parseARK(response.request.url)
         cr=CollectionRecord.objects.get(ark=ark_from_url)
         response = self.app.get(cr.get_edit_url(), user='testuser')
         self.failUnlessEqual(200, response.status_code)
@@ -483,13 +486,11 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
         #goto edit page to confirm, need live server to test view
-        ark_from_url = response.request.url[response.request.url.index('ark:'):]
-        ark_from_url = ark_from_url.rstrip('/')
-        cr=CollectionRecord.objects.get(ark=ark_from_url)
+        pk_from_url = self.parsePK(response.request.url)
+        #ark_from_url = self.parseARK(response.request.url)
+        cr=CollectionRecord.objects.get(pk=pk_from_url)
         response = self.app.get(cr.get_edit_url(), user='testuser')
-        self.assertContains(response, 'ark:')
         self.failUnlessEqual(200, response.status_code)
-        self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test 2 Title')
         self.assertContains(response, 'redar')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
