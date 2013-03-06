@@ -151,7 +151,12 @@ def add_collection_record(request):
 
 def _url_xtf_preview(ark):
     import os
-    URL_XTF_EAD_VIEW = ''.join(('http://', os.environ['FINDAID_HOSTNAME'], ':', os.environ['FRONT_PORT'], '/view?docId=ead-preview&doc.view=entire_text&source=http://', os.environ['BACK_SERVER'], '/djsite/collection-record/'))
+    import socket
+    if os.environ.has_key('BACK_SERVER'): #OAC
+        URL_THIS_SERVER = ''.join(('http://', os.environ.get('BACK_SERVER'), '/djsite/collection-record/'))
+    else:
+        URL_THIS_SERVER = ''.join(('http://', socket.gethostbyname(socket.gethostname()), '/collection-record/'))
+    URL_XTF_EAD_VIEW = ''.join(('http://', os.environ.get('FINDAID_HOSTNAME', 'www.oac.cdlib.org'), '/view?docId=ead-preview&doc.view=entire_text&source=', URL_THIS_SERVER))
     URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
     return ''.join((URL_XTF_EAD_VIEW, ark, URL_XTF_EAD_VIEW_SUFFIX))
 
@@ -173,7 +178,6 @@ def edit_collection_record(request, ark, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
     collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    print "+++++++++++++++", request.user,' : ',  request.user.get_all_permissions()
     #if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
     #    return  HttpResponseForbidden('<h1>Permission Denied</h1>')
     url_preview = _url_xtf_preview(collection_record.ark)
@@ -427,7 +431,7 @@ line-height:1.5;\
     closetag.insert(0, 'Close')
     body.insert(0, closetag)
     logouttag = BeautifulSoup.Tag(soup, 'a',
-            attrs={'href':django_url_reverse('contrib_admin:logout'),
+            attrs={'href':django_url_reverse('admin:logout'),
                 'style':"""\
 float:right;\
 background-color:#C2492C;\
