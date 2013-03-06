@@ -45,14 +45,14 @@ def dir_pairtree_for_ark(ark):
 
 
 class CollectionRecord(models.Model):
-    #TODO: change to "id", remove EZID minter and ARK_validator. Use 'pk' to access every where (or should i just make it pk)
-    ark = models.CharField(max_length=255, primary_key=True)
+    #TODO: remove EZID minter and ARK_validator.
+    local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
+    ark = models.CharField(max_length=255, unique=True)
     title = models.CharField('Collection Title', max_length=512,)
     title_filing = models.CharField('Collection Title (Filing)', max_length=255)#, unique=True)
     date_dacs = models.CharField('Collection Date', max_length=128,)
     date_iso = models.CharField('Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', max_length=128, blank=True)
-    local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     extent=models.CharField('Extent of Collection', max_length=255)
     abstract=models.TextField()
     language = models.CharField('Language of materials', max_length=3, choices=(ISO_639_2b), )
@@ -67,7 +67,10 @@ class CollectionRecord(models.Model):
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
 
     class Meta:
-        unique_together = (("title_filing", "publisher"),)
+        unique_together = (
+                ("local_identifier", "publisher"),
+                ("title_filing", "publisher")
+                )
 
     def __unicode__(self):
         return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
