@@ -29,6 +29,7 @@ if not OAC:
         mainagency = models.CharField(max_length=255,)
         ark = models.CharField(max_length=255, unique=True)
         cdlpath = models.CharField(max_length=255, blank=True)
+        parent_institution = models.ForeignKey('self', null=True, blank=True, related_name='children')
         def __unicode__(self):
             return self.name
 else:
