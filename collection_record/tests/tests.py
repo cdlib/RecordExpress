@@ -56,11 +56,11 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         '''Test the ead string output for a CollectionRecord. Check unicode
         support
         '''
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         ead_xml = rec.ead_xml
         self.failUnless(ead_xml.index('<?xml') == 0)
         self.failUnless('<ead>' in ead_xml)
-        self.failUnless('ark:/13030/c8s180ts' in ead_xml)
+        self.failUnless('1' in ead_xml)
         self.failUnless('persname' in ead_xml)
         self.failUnless('<physdesc label="Extent">' in ead_xml)
         self.failUnless('<repository label="' in ead_xml)
@@ -98,7 +98,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         '''Check that the unitdate "normal" attribute only shows up for 
         records with date_iso
         '''
-        rec = CollectionRecord.objects.get(pk="ark:/99999/fk4vh5x06")
+        rec = CollectionRecord.objects.get(pk="2")
         ead_xml = rec.ead_xml
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
@@ -111,7 +111,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         unitdate = did.find('unitdate')
         self.failIf(unitdate.text is None)
         self.failIf('normal' in unitdate.attrib)
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         ead_xml = rec.ead_xml
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
@@ -126,7 +126,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('normal' in unitdate.attrib)
 
     def testEAD_xml_with_files_output(self):
-        rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        rec = CollectionRecord.objects.get(pk="4")
         ead_xml = rec.ead_xml
         try:
             ET.fromstring(ead_xml)
@@ -138,7 +138,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('test-2.pdf' in ead_xml)
 
     def testEAD_file_save(self):
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
         rec.dir_root = dir_root
         if not os.path.isdir(rec.ead_dir):
@@ -150,7 +150,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
     def testXMLURL(self):
         '''test that the xml url function exists & returns something.
         '''
-        rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        rec = CollectionRecord.objects.get(pk="4")
         url = rec.get_xml_url
         self.failUnless(url is not None)
 
@@ -158,7 +158,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         '''Test that the EAD xml file is removed when the Collection Record is 
         deleted
         '''
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         dir_root = os.path.join(os.path.abspath(os.path.split(__file__)[0]), 'data')
         rec.dir_root = dir_root
         if not os.path.isdir(rec.ead_dir):
@@ -215,7 +215,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
         self.assertContains(response, 'fk4vh5x06')
         url_add = reverse('collection_record_add', args=None)
         self.assertContains(response, url_add)
-        rec = CollectionRecord.objects.get(pk='ark:/99999/fk4vh5x06')
+        rec = CollectionRecord.objects.get(pk='2')
         url_rec = rec.get_absolute_url()
         self.assertContains(response, url_rec)
         url_xml = rec.get_xml_url()
@@ -230,7 +230,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
 ###
 ###
 ###    def testXMLView(self):
-###        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+###        rec = CollectionRecord.objects.get(pk="1")
 ###        url = rec.get_absolute_url() + '/xml/'
 ###        ret = self.client.login(username='testuser',password='testuser')
 ###        response = self.client.get(url)
@@ -250,12 +250,12 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
 
     def setUp(self):
         super(CollectionRecordEditTestCase, self).setUp()
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         if not os.path.isdir(rec.ead_dir):
             os.makedirs(rec.ead_dir)
 
     def testEditPageAuth(self):
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_edit_url()
         response = self.app.get(url)
         self.failUnlessEqual('302 FOUND', response.status)
@@ -270,7 +270,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
 
     def testEditAttr(self):
         '''Edit a directly associated value of the Record'''
-        rec = CollectionRecord.objects.get(pk="ark:/99999/fk46h4rq4")
+        rec = CollectionRecord.objects.get(pk="4")
         if not os.path.isdir(rec.ead_dir):
             os.makedirs(rec.ead_dir)
         url = rec.get_edit_url()
@@ -308,7 +308,7 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
         '''
         u = User.objects.get(username="testuser")
         print "TU=======>", u
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_edit_url()
         response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
@@ -560,7 +560,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
         super(CollectionRecordOACViewTestCase, self).tearDown()
 
     def testOACView(self):
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_absolute_url()
         url = self.live_server_url+url
         response = self.client.get(url)
@@ -580,7 +580,7 @@ class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveSer
         '''Check that the "Edit" button link doesn't appear in the preview
         for people who can't edit the findaid
         '''
-        rec = CollectionRecord.objects.get(pk="ark:/13030/c8s180ts")
+        rec = CollectionRecord.objects.get(pk="1")
         url = rec.get_absolute_url()
         url = self.live_server_url+url
         response = self.client.get(url)
