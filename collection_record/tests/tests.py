@@ -530,7 +530,6 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
-        print response
         self.assertContains(response, 'LOCALID')
         cr=CollectionRecord.objects.get(ark=testark)
         response = self.app.get(cr.get_edit_url(), user='testuser')
