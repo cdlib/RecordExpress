@@ -156,7 +156,7 @@ def _url_xtf_preview(pk):
     import os
     import socket
     if os.environ.has_key('BACK_SERVER'): #OAC
-        URL_THIS_SERVER = ''.join(('http://', os.environ.get('BACK_SERVER'), '/djsite/collection-record/'))
+        URL_THIS_SERVER = ''.join(('http://', os.environ.get('BACK_SERVER'), '/djsite/collection-record/' if OAC else '/collection-record/'))
     else:
         URL_THIS_SERVER = ''.join(('http://', socket.gethostbyname(socket.gethostname()), '/collection-record/'))
     URL_XTF_EAD_VIEW = ''.join(('http://', os.environ.get('FINDAID_HOSTNAME', 'www.oac.cdlib.org'), '/view?docId=ead-preview&doc.view=entire_text&source=', URL_THIS_SERVER))
@@ -363,7 +363,6 @@ def view_collection_record_xml(request, *args, **kwargs):
         collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
     else:
         collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
     xml = collection_record.ead_xml
     response = HttpResponse(xml)
     response['Content-Type'] = 'application/xml; charset=utf-8'
