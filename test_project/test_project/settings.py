@@ -10,8 +10,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-PROJECT_ROOT = os.path.abspath(os.path.splitext(__file__)[0])
-sqlite_dir = os.path.abspath(os.path.join(PROJECT_ROOT, '../../db'))
+PROJECT_ROOT = PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
+sqlite_dir = os.path.abspath(os.path.join(PROJECT_ROOT, '../db'))
 sqlite_file = os.path.join(sqlite_dir, 'dublincore_test_db.sqlite3')
 
 DATABASES = {
