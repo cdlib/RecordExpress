@@ -1,4 +1,5 @@
 import os
+import sys
 from urllib import quote
 import xml.etree.ElementTree as ET
 import shutil
@@ -339,10 +340,6 @@ class CollectionRecordEditTestCase(CollectionRecordTestDirSetupMixin, WebTest, L
 class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest):
     fixtures = ['collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
     def setUp(self):
-        '''Override the "databases" config file to use the test shoulder'''
-##        os.environ['DATABASES_XML_FILE'] = os.path.join(os.environ['HOME'], '.databases-test.xml')
-        #testuser_default_inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, 'csl')
-        #create test user dirs, will be there on prod
         testuser = User.objects.get(username='testuser')
         for i in get_publishing_institutions_for_user(testuser):
             inst_dir = os.path.join(CollectionRecordTestDirSetupMixin.dir_root, i.cdlpath)
