@@ -27,7 +27,7 @@ if not OAC:
         '''
         name = models.CharField(max_length=255)
         mainagency = models.CharField(max_length=255,)
-        ark = models.CharField(max_length=255, unique=True, blank=True)
+        ark = models.CharField(max_length=255, blank=True)
         cdlpath = models.CharField(max_length=255, blank=True)
         parent_institution = models.ForeignKey('self', null=True, blank=True, related_name='children')
         def __unicode__(self):
@@ -49,7 +49,7 @@ class CollectionRecord(models.Model):
     #TODO: remove EZID minter and ARK_validator.
     local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
-    ark = models.CharField(max_length=255, unique=True, blank=True)
+    ark = models.CharField(max_length=255, blank=True)
     title = models.CharField('Collection Title', max_length=512,)
     title_filing = models.CharField('Collection Title (Filing)', max_length=255)#, unique=True)
     date_dacs = models.CharField('Collection Date', max_length=128,)
@@ -221,6 +221,7 @@ class CollectionRecord(models.Model):
 
     @property
     def dir_supplemental_files(self):
+        #TODO: make not OAC ARK specific, but allow when OAC
         return os.path.join(self.xtf_dir_root, dir_pairtree_for_ark(self.ark), 'files')
 
     #or should I just make a nice dictionary of subsetted values?
