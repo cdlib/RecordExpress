@@ -92,11 +92,11 @@ class CollectionRecord(models.Model):
         if hasattr(self, '_dir_root'):
             return self._dir_root
         else:
-            EAD_ROOT_DIR='.'
+            EAD_ROOT_DIR='./data-ead/'
             if os.path.exists('~/.recordexpressrc'):
                 #TODO: get root from config
                 pass
-            if OAC:#OAC override
+            else:
                 if os.environ.has_key('EAD_ROOT_DIR'):
                     EAD_ROOT_DIR = os.environ.get('EAD_ROOT_DIR')
                 else:
@@ -104,7 +104,7 @@ class CollectionRecord(models.Model):
                         EAD_ROOT_DIR = settings.EAD_ROOT_DIR
                     except AttributeError:
                         pass
-                    if not EAD_ROOT_DIR:
+                    if OAC and EAD_ROOT_DIR == './data-ead/':
                         EAD_ROOT_DIR = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/in/oac-ead/prime2002')
             self._dir_root = EAD_ROOT_DIR
             return EAD_ROOT_DIR
