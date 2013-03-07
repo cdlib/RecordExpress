@@ -196,15 +196,14 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'Collection')
-        self.assertContains(response, '0')
-        self.assertContains(response, 'fk4vh5x06')
+        self.assertContains(response, '/collection-record/')
         ret = self.client.login(username='admin', password='admin')
         self.failUnless(ret)
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'Collection')
         self.assertContains(response, '5')
-        self.assertContains(response, 'fk42r40zx')
+        self.assertContains(response, '/collection-record/')
         
     def testLinksOnCollectionRecordListPage(self):
         '''Check that some links do exist on the collection record list page
@@ -213,7 +212,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
         ret = self.client.login(username='testuser',password='testuser')
         response = self.client.get(url)
         self.failUnlessEqual(200, response.status_code)
-        self.assertContains(response, 'fk4vh5x06')
+        self.assertContains(response, '/collection-record/')
         url_add = reverse('collection_record_add', args=None)
         self.assertContains(response, url_add)
         rec = CollectionRecord.objects.get(pk='2')
