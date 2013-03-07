@@ -31,7 +31,7 @@ class CollectionRecordAdmin(admin.ModelAdmin):
     #readonly_fields = ('ark', ) #Had to remove to allow adding through admin
     # still guarded in the CollectionRecord.save() method
     search_fields = ('ark', 'title', 'title_filing', 'abstract')
-    list_display = ('pk', 'ark', 'title_filing' , 'publisher', 'has_extended_metadata', 'has_supplemental_files', 'updated_at', 'created_at', )
+    list_display = ('pk', 'local_identifier', 'title_filing' , 'publisher', 'ark', 'has_extended_metadata', 'has_supplemental_files', 'updated_at', 'created_at', )
     #list_filter = ('QDCElements',)
     inlines = (QDCElementInline, SupplementalFileInline)
     save_on_top = True
