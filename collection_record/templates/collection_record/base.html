@@ -9,13 +9,13 @@
 
     {% block blueprintcss %}
     <!-- Framework CSS -->
-    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/screen.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/print.css" type="text/css" media="print">
-    <!--[if lt IE 8]><link rel="stylesheet" href="/site_media/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint-css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint-css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]><link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint/ie.css" type="text/css" media="screen, projection">
 <![endif]-->
     <!-- Import fancy-type plugin for the sample page. -->
-    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="/site_media/css/djsite/blueprint_dsc.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint-css/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/djsite/blueprint_dsc.css" type="text/css" media="screen, projection">
     {%endblock blueprintcss%}
 
 <style type="text/css"> h4 { font-weight:bold;}</style>
@@ -24,7 +24,7 @@
         padding-left:18px;
         padding-top:10px;
         display:block;
-        background:url(/site_media/images/formsets/add.png) no-repeat left center;
+        background:url({{ STATIC_URL }}images/formsets/add.png) no-repeat left center;
     }
     .delete-row {
         /*float:right;
@@ -32,7 +32,7 @@
         vertical-align:middle;
         margin-left:4px;
         padding-left:18px;
-        background:url(/site_media/images/formsets/delete.png) no-repeat left center;
+        background:url({{ STATIC_URL }}images/formsets/delete.png) no-repeat left center;
     }
 </style>
 <style type="text/css">
@@ -88,7 +88,7 @@
     <div class="container" id="headercontainer">
       <div class="span-24">
           <span class="span-14">
-          {% block header_title%}<a href="{% url 'collection_record_view_all' %}"><img class="header_title" src="/site_media/images/logos/record_express_med.png" alt="RecordEXPRESS"/></a>{% endblock header_title%}
+          {% block header_title%}<a href="{% url 'collection_record_view_all' %}"><img class="header_title" src="{{ STATIC_URL }}images/logos/record_express_med.png" alt="RecordEXPRESS"/></a>{% endblock header_title%}
           </span>
           <span class="span-10 last">
               <span style="float:right">
