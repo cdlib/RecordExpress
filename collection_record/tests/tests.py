@@ -383,14 +383,11 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
-        self.assertTrue('ark:' in response.request.url)
         #can't test without a live server, xtf needs to talk to
         pk_from_url = self.parsePK(response.request.url)
-        #ark_from_url = self.parseARK(response.request.url)
-        cr=CollectionRecord.objects.get(ark=ark_from_url)
+        cr=CollectionRecord.objects.get(pk=pk_from_url)
         response = self.app.get(cr.get_edit_url(), user='testuser')
         self.failUnlessEqual(200, response.status_code)
-        self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test Title')
 
     def testNewView(self):
@@ -439,8 +436,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
-        self.assertTrue('ark:' in response.request.url)
-        self.assertContains(response, 'ark:')
+        self.assertContains(response, 'LOCALID')
         url = reverse('collection_record_add')
         response = self.app.get(url, user='testuser')
         self.failUnlessEqual(200, response.status_code)
@@ -534,70 +530,71 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
-        self.assertTrue('ark:' in response.request.url)
-        self.assertContains(response, 'ark:')
+        print response
+        self.assertContains(response, 'LOCALID')
         cr=CollectionRecord.objects.get(ark=testark)
         response = self.app.get(cr.get_edit_url(), user='testuser')
         self.failUnlessEqual(200, response.status_code)
-        self.assertContains(response, 'ark:')
         self.assertContains(response, 'Test Title')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
 
 
-class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveServerTestCase):
-    '''Test the annotated view from the xtf. We add a couple of elements (edit button)
-    There needs to be a working DSC OAC xtf running on the host specified in 
-    the env var FINDAID_HOSTNAME
-    '''
-    fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
-
-    def setUp(self):
-        # Start a test server and tell selenium where to find it.
-        live_server = self.live_server_url.replace('http://', '')
-        os.environ['BACK_SERVER'] = live_server
-        #self.start_test_server('localhost', 8080)
-        super(CollectionRecordOACViewTestCase, self).setUp()
-
-    def tearDown(self):
-        #self.stop_test_server()
-        super(CollectionRecordOACViewTestCase, self).tearDown()
-
-    def testOACView(self):
-        rec = CollectionRecord.objects.get(pk="1")
-        url = rec.get_absolute_url()
-        url = self.live_server_url+url
-        response = self.client.get(url)
-        self.failUnlessEqual(302, response.status_code)
-        ret = self.client.login(username='testuser',password='testuser')
-        self.failUnless(ret)
-        response = self.client.get(url)
-        self.failUnlessEqual(200, response.status_code)
-        #Need a live serverfor this to work....
-        self.assertContains(response, 'First Test Title')
-        self.assertContains(response, 'localid')
-        self.assertContains(response, 'Bancroft')
-        self.assertContains(response, rec.get_edit_url())
-        self.assertContains(response, 'logout')
-
-    def testOACViewNotOwner(self):
-        '''Check that the "Edit" button link doesn't appear in the preview
-        for people who can't edit the findaid
+from collection_record.is_oac import is_OAC
+if is_OAC():
+    class CollectionRecordOACViewTestCase(CollectionRecordTestDirSetupMixin, LiveServerTestCase):
+        '''Test the annotated view from the xtf. We add a couple of elements (edit button)
+        There needs to be a working DSC OAC xtf running on the host specified in 
+        the env var FINDAID_HOSTNAME
         '''
-        rec = CollectionRecord.objects.get(pk="1")
-        url = rec.get_absolute_url()
-        url = self.live_server_url+url
-        response = self.client.get(url)
-        self.failUnlessEqual(302, response.status_code)
-        ret = self.client.login(username='testuser',password='testuser')
-        self.failUnless(ret)
-        response = self.client.get(url)
-        self.failUnlessEqual(200, response.status_code)
-        #Need a live serverfor this to work....
-        self.assertContains(response, 'First Test Title')
-        self.assertContains(response, 'localid')
-        self.assertContains(response, 'Bancroft')
-        self.assertNotContains(response, rec.get_edit_url())
-        self.assertContains(response, 'logout')
+        fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.publishinginstitution.json', 'collection_record.auth.user.json']
+    
+        def setUp(self):
+            # Start a test server and tell selenium where to find it.
+            live_server = self.live_server_url.replace('http://', '')
+            os.environ['BACK_SERVER'] = live_server
+            #self.start_test_server('localhost', 8080)
+            super(CollectionRecordOACViewTestCase, self).setUp()
+    
+        def tearDown(self):
+            #self.stop_test_server()
+            super(CollectionRecordOACViewTestCase, self).tearDown()
+    
+        def testOACView(self):
+            rec = CollectionRecord.objects.get(pk="1")
+            url = rec.get_absolute_url()
+            url = self.live_server_url+url
+            response = self.client.get(url)
+            self.failUnlessEqual(302, response.status_code)
+            ret = self.client.login(username='testuser',password='testuser')
+            self.failUnless(ret)
+            response = self.client.get(url)
+            self.failUnlessEqual(200, response.status_code)
+            #Need a live serverfor this to work....
+            self.assertContains(response, 'First Test Title')
+            self.assertContains(response, 'localid')
+            self.assertContains(response, 'Bancroft')
+            self.assertContains(response, rec.get_edit_url())
+            self.assertContains(response, 'logout')
+    
+        def testOACViewNotOwner(self):
+            '''Check that the "Edit" button link doesn't appear in the preview
+            for people who can't edit the findaid
+            '''
+            rec = CollectionRecord.objects.get(pk="1")
+            url = rec.get_absolute_url()
+            url = self.live_server_url+url
+            response = self.client.get(url)
+            self.failUnlessEqual(302, response.status_code)
+            ret = self.client.login(username='testuser',password='testuser')
+            self.failUnless(ret)
+            response = self.client.get(url)
+            self.failUnlessEqual(200, response.status_code)
+            #Need a live serverfor this to work....
+            self.assertContains(response, 'First Test Title')
+            self.assertContains(response, 'localid')
+            self.assertContains(response, 'Bancroft')
+            self.assertNotContains(response, rec.get_edit_url())
+            self.assertContains(response, 'logout')
 
 
 class CollectionRecordPermissionsBackendTestCase(CollectionRecordTestDirSetupMixin, TestCase):
