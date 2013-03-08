@@ -28,5 +28,13 @@ setup(
         'Topic :: Internet :: WWW/HTTP',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
+    install_requires = [
+        'django>=1.4',
+        'django-dublincore>=0.1',
+        'django-sortable',
+        'BeautifulSoup',
+        'webtest',
+        'django-webtest'
+        ],
 )
 

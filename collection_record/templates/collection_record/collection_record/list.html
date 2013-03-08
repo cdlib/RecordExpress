@@ -1,5 +1,6 @@
 {% extends "collection_record/base.html" %}
 {% load url from future %}
+{% load sortable %}
 {% block pagetitle %}Collection Records{% endblock pagetitle %}
 
 {% block bodycontent %}
@@ -17,21 +18,31 @@
         </div>
         <div class="span-24">
             <table>
-                <tr>
+                <thead>
+                <tr class="span-24">
+                    <th class="span-8">{% sortable_link title_filing "Filing Title" %}</th>
+                    <th class="span-2">{% sortable_link local_identifier "Local ID" %}</th>
+                    <th class="span-4">{% sortable_link updated_at "Updated At" %}</th>
+                    <th class="span-4">{% sortable_link created_at "Created At" %}</th>
+                    <!--
             <td class="span-8"><strong>Filing Title</strong></td>
         <td class="span-2"><strong>Local ID</strong></td>
         <td class="span-4"><strong>Updated</strong></td>
         <td class="span-4"><strong>Created</strong></td>
-        <td class="span-4"><strong>Link to EAD xml</strong></td>
-        </tr>
-        {%for obj in object_list %}
-        <tr>
-        <td class="span-8"><a href="{{obj.get_absolute_url|safe}}">{{obj.title_filing}}</a></td>
+        -->
+                    <th class="span-3"><strong>Link to EAD xml</strong></th>
+                </tr>
+                </thead>
+        <tbody>
+        {%for obj in collection_record_sortable %}
+        <tr class="span-24">
+        <td class="span-9"><a href="{{obj.get_absolute_url|safe}}">{{obj.title_filing}}</a></td>
         <td class="span-2"><a href="{{obj.get_absolute_url|safe}}">{{obj.local_identifier}}</a></td>
         <td class="span-4"><a href="{{obj.get_absolute_url|safe}}">{{obj.updated_at}}</a></td>
         <td class="span-4"><a href="{{obj.get_absolute_url|safe}}">{{obj.created_at}}</a></td>
         <td class="last span-1"><a href="{{obj.get_xml_url|safe}}">[xml]</a></td>
         {%endfor%}
+        </tbody>
     </table>
     </div>
     </div>

@@ -369,6 +369,8 @@ def view_collection_record_xml(request, *args, **kwargs):
     #response['Last-Modified'] = http_date(time.mktime(arkobject.dc_last_modified.timetuple()))
     return response
 
+from django_sortable.helpers import sortable_helper
+
 @never_cache
 @login_required
 def view_all_collection_records(request,):# *args, **kwargs):
@@ -386,6 +388,7 @@ def view_all_collection_records(request,):# *args, **kwargs):
             if rec.publisher.id in [ inst.id for inst in user_insts]:
                 user_records.append(rec)
     object_list = user_records #alias for Django generic view
+    collection_record_sortable = sortable_helper(request, object_list)
     return render(request, 'collection_record/collection_record/list.html',
             locals(),
             )
