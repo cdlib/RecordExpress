@@ -356,6 +356,8 @@ def view_collection_record_xml(request, ark, *args, **kwargs):
     #response['Last-Modified'] = http_date(time.mktime(arkobject.dc_last_modified.timetuple()))
     return response
 
+from django_sortable.helpers import sortable_helper
+
 @never_cache
 @login_required
 def view_all_collection_records(request,):# *args, **kwargs):
@@ -363,13 +365,14 @@ def view_all_collection_records(request,):# *args, **kwargs):
     the logged in user's publishing institutions association.
     '''
     collection_records = CollectionRecord.objects.all()
+    collection_record_sortable = sortable_helper(request, collection_records)
     if request.user.is_superuser:
-        user_records = collection_records
+        user_records = collection_record_sortable
     else:
         #subset records based on user
         user_insts = get_publishing_institutions_for_user(request.user)
         user_records = []
-        for rec in collection_records:
+        for rec in collection_record_sortable:
             if rec.publisher.id in [ inst.id for inst in user_insts]:
                 user_records.append(rec)
     object_list = user_records #alias for Django generic view

@@ -1,3 +1,4 @@
+{% load url from future %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
   <head>
@@ -87,13 +88,13 @@
     <div class="container" id="headercontainer">
       <div class="span-24">
           <span class="span-14">
-          {% block header_title%}<a href="{% url collection_record_view_all %}"><img class="header_title" src="/site_media/images/logos/record_express_med.png" alt="RecordEXPRESS"/></a>{% endblock header_title%}
+          {% block header_title%}<a href="{% url "collection_record_view_all" %}"><img class="header_title" src="/site_media/images/logos/record_express_med.png" alt="RecordEXPRESS"/></a>{% endblock header_title%}
           </span>
           <span class="span-10 last">
               <span style="float:right">
                   <strong>{{user.username}}</strong>
-                {% url contrib_admin:logout as logout_url %}
-                <a href="{{ logout_url }}">Log out</a>
+                  {% url "admin:logout" as logout_url %}
+                  <a href="{{ logout_url }}">Log out</a>
                </span>
           </span>
         </div>
