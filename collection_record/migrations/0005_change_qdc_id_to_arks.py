@@ -9,7 +9,7 @@ class Migration(DataMigration):
     def forwards(self, orm):
         "Write your forwards methods here."
         for coll in orm.CollectionRecord.objects.all():
-            for qdc in orm['DublinCore.qualifieddublincoreelement'].objects.filter(object_id=coll.pk):
+            for qdc in orm['dublincore.qualifieddublincoreelement'].objects.filter(object_id=coll.pk):
                 qdc.object_id = coll.ark
                 qdc.save()
 
@@ -17,14 +17,14 @@ class Migration(DataMigration):
     def backwards(self, orm):
         "Write your backwards methods here."
         for coll in orm.CollectionRecord.objects.all():
-            for qdc in orm['DublinCore.qualifieddublincoreelement'].objects.filter(object_id=coll.pk):
+            for qdc in orm['dublincore.qualifieddublincoreelement'].objects.filter(object_id=coll.pk):
                 qdc.object_id = coll.id
                 qdc.save()
 
 
 
     models = {
-        'DublinCore.qualifieddublincoreelement': {
+        'dublincore.qualifieddublincoreelement': {
             'Meta': {'ordering': "['term']", 'object_name': 'QualifiedDublinCoreElement'},
             'content': ('django.db.models.fields.TextField', [], {}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),

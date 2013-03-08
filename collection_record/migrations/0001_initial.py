@@ -37,7 +37,7 @@ class Migration(SchemaMigration):
 
 
     models = {
-        'DublinCore.qualifieddublincoreelement': {
+        'dublincore.qualifieddublincoreelement': {
             'Meta': {'ordering': "['term']", 'object_name': 'QualifiedDublinCoreElement'},
             'content': ('django.db.models.fields.TextField', [], {}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
