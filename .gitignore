@@ -4,3 +4,4 @@
 local_settings.py
 *.out
 *.swp
+test_project/data-ead
