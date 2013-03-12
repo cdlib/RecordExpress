@@ -2,6 +2,7 @@ RecordExpress
 =============
 
 RecordExpress lightweight EAD generator
+---------------------------------------
 
 A tool for creating lightweight, high level descriptive EAD files to which you can attach an internet hosted pdf file containing detailed collection descriptions.
 
@@ -10,10 +11,34 @@ I want to refactor into a direct EAD model of the data. This will cause numerous
 
 It currently also has a number of dependencies on OAC data and software.
 
-TODO:
+TODO
+----
 
 1. Test project bundled with package.
 2. Make tests pass on clean install. 
 3. Detail the mapping of QDC to EAD elements.
 4. How to make the "preview" work when not on an OAC box?
 5. Refactor to remove DjangoDublinCore and use direct foreign key metadata fields.
+
+
+QUICKSTART
+----------
+
+You'll need a python 2 (2.6, 2.7 have been tested) installed on your machine with `setuptools <https://pypi.python.org/pypi/setuptools>`_ installed. 
+You'll also need a github client (if you don't have git goto `github:windows <http://windows.github.com/>`_ or `github:mac <http://mac.github.com/>`_)
+
+TODO: add virtualenv setup, gets around admin privileges.
+
+1. Install python (`http://www.python.org/download/ <http://www.python.org/download/>`_).
+2. Install setuptools (`setuptools <https://pypi.python.org/pypi/setuptools>`_. 
+3. From your GitHub client clone `https://github.com/cdlib/RecordExpress.git <https://github.com/cdlib/RecordExpress.git>`_
+4. Move to the RecordExpress directory in a terminal.
+5. At the command prompt run::
+
+    python setup.py install
+
+6. At command prompt run::
+
+    python test_project\manage.py runserver
+
+7. Point your browser at `http://localhost:8000/admin <http://localhost:8000/admin>`_

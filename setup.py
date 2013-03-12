@@ -11,6 +11,7 @@ setup(
     version = '0.0',
     packages = ['collection_record'],
     include_package_data = True,
+    dependency_links = ['https://github.com/cdlib/RecordExpress.git'],
     license = 'BSD License - see LICENSE file', 
     description = 'A lightweight EAD creator',
     long_description = README,
@@ -18,6 +19,7 @@ setup(
     author_email = 'mark.redar@ucop.edu',
     classifiers = [
         'Environment :: Web Environment',
+        'Development Status :: 3 - Alpha',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
