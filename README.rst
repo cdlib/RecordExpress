@@ -41,4 +41,5 @@ TODO: add virtualenv setup, gets around admin privileges.
 
     python test_project\manage.py runserver
 
-7. Point your browser at `http://localhost:8000/admin <http://localhost:8000/admin>`_
+7. Point your browser at `http://localhost:8000/admin <http://localhost:8000/admin>`_. Login is admin:admin. `http://localhost:8000/collection-record <http://localhost:8000/collection-record>`_ is the entrance to the application for end user creation of collection records.
+
