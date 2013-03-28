@@ -365,17 +365,17 @@ def view_all_collection_records(request,):# *args, **kwargs):
     the logged in user's publishing institutions association.
     '''
     collection_records = CollectionRecord.objects.all()
-    collection_record_sortable = sortable_helper(request, collection_records)
     if request.user.is_superuser:
-        user_records = collection_record_sortable
+        user_records = collection_records
     else:
         #subset records based on user
         user_insts = get_publishing_institutions_for_user(request.user)
         user_records = []
-        for rec in collection_record_sortable:
+        for rec in collection_records:
             if rec.publisher.id in [ inst.id for inst in user_insts]:
                 user_records.append(rec)
     object_list = user_records #alias for Django generic view
+    collection_record_sortable = sortable_helper(request, object_list)
     return render(request, 'collection_record/collection_record/list.html',
             locals(),
             )

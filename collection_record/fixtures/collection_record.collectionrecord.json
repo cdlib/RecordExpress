@@ -118,5 +118,29 @@
       "ark": "ark:/99999/fk42r40zx",
       "acqinfo": "l"
     }
+  },
+  {
+    "pk": 6,
+    "model": "collection_record.collectionrecord",
+    "fields": {
+      "online_items_url": "",
+      "publisher": 1,
+      "extent": "x",
+      "date_iso": "2110",
+      "date_dacs": "2110",
+      "abstract": "y",
+      "title": "Test Multi entry -- 3",
+      "updated_at": "2011-12-21 19:02:46",
+      "bioghist": "",
+      "accessrestrict": "z",
+      "language": "eng",
+      "local_identifier": "lid-2-inst1",
+      "title_filing": "M2-1",
+      "scopecontent": "m",
+      "created_at": "2011-12-21 19:02:46",
+      "userestrict": "k",
+      "ark": "ark:/99999/fk42r40zz",
+      "acqinfo": "l"
+    }
   }
 ]

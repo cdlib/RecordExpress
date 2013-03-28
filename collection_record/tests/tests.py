@@ -197,6 +197,7 @@ class CollectionRecordViewAllTestCase(CollectionRecordTestDirSetupMixin, TestCas
         self.assertContains(response, 'Collection')
         self.assertContains(response, '0')
         self.assertContains(response, 'fk4vh5x06')
+        self.assertContains(response, 'collection-record/ark:/', count=25)
         ret = self.client.login(username='oactestsuperuser', password='oactestsuperuser')
         self.failUnless(ret)
         response = self.client.get(url)
