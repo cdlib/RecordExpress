@@ -7,15 +7,21 @@
 <div class="container" id="collection_record">
       <div class="area span-24">
         <div class="span-24">
+        <div>
+          <span class="span-21">&nbsp;</span>
+          <span class="span-3 last right">{%include "collection_record/help_link.html"%}
+          </span>
+          <hr/>
+        </div>
+        <div>
           <span class="span-16">
           <h2>Collection Records in system: {{object_list|length}}</h2>
           </span>
-          <span class="span-5">
-          <strong><a style="vertical-align:bottom" class="right" href="{% url "collection_record.views.add_collection_record" %}"><img src="/site_media/css/blueprint-css/icons/add.png"/>Add a collection record.</a></strong>
+          <span class="span-7" style="vertical-align:bottom">
+          <strong class="large"><a class="right" href="{% url "collection_record.views.add_collection_record" %}"><img src="/site_media/css/blueprint-css/icons/add.png"/>Add a collection record.</a></strong>
           </span>
-          <span class="span-3 last right">{%include "collection_record/help_link.html"%}
-          </span>
-        </div>
+      </div>
+      </div>
         <div class="span-24">
             <table>
                 <thead>
