@@ -14,17 +14,33 @@ class CollectionRecordForm(forms.ModelForm):
         exclude = ('ark', 'publisher')
 
 class CollectionRecordAddForm(forms.Form):
-    ark = forms.CharField(max_length=255, initial='<Will be assigned>',
+    ark = forms.CharField(initial='<Will be assigned>',
             required=False,
             help_text='If you have a previously assigned ARK add it here',
-            label='ARK')
-    title = forms.CharField(max_length=512, widget=forms.TextInput(attrs={'size':'100'},), label='Collection Title')
-    title_filing = forms.CharField(max_length=256, label='Collection Title (Filing)', widget=forms.TextInput(attrs={'size':'100'},))
+            label='ARK',
+            max_length=CollectionRecord._meta.get_field_by_name('ark')[0].max_length,
+            )
+    title = forms.CharField(widget=forms.Textarea, label='Collection Title',
+            max_length=CollectionRecord._meta.get_field_by_name('title')[0].max_length,
+            )
+    title_filing = forms.CharField(label='Collection Title (Filing)',
+            widget=forms.Textarea,
+            max_length=CollectionRecord._meta.get_field_by_name('title_filing')[0].max_length,
+            )
     publishing_institution = forms.ChoiceField(label="Publishing Institution")
-    date_dacs = forms.CharField(label='Collection Date')
-    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', required=False)
-    local_identifier = forms.CharField(max_length=512, label='Collection Identifier/Call Number')
-    extent=forms.CharField(widget=forms.TextInput(attrs={'size':'40'},), label='Extent of Collection')
+    date_dacs = forms.CharField(label='Collection Date',
+            max_length=CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length,
+            )
+    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', required=False,
+            max_length=CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length,
+            )
+    local_identifier = forms.CharField(label='Collection Identifier/Call Number',
+            max_length=CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length,
+            )
+    extent=forms.CharField(widget=forms.Textarea,
+            label='Extent of Collection',
+            max_length=CollectionRecord._meta.get_field_by_name('extent')[0].max_length,
+            )
     abstract=forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}))
     language = forms.ChoiceField(choices=(ISO_639_2b), initial='eng', label='Language of Materials')
     accessrestrict = forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}), label='Access Conditions')
