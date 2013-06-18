@@ -54,7 +54,7 @@ class CollectionRecord(models.Model):
     local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     date_dacs = models.CharField('Collection Date', max_length=128,)
     date_iso = models.CharField('Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', max_length=128, blank=True)
-    extent=models.CharField('Extent of Collection', max_length=255)
+    extent=models.CharField('Extent of Collection', max_length=1000)
     abstract=models.TextField()
     language = models.CharField('Language of materials', max_length=3, choices=(ISO_639_2b), )
     accessrestrict = models.TextField('Access Conditions')
