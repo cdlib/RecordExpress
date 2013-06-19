@@ -356,13 +356,10 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         pk_from_url = url_string.rstrip('/').rsplit('/',1)[1]
         return pk_from_url
 
-    def createNewMinimalCR(self):
-        '''A helper function to create a new Collection Record with
-        a known set of data
+    def fill_form_values(self, form):
+        '''Helper function to fill in form values for valid submission
+        form is an Webtest response.form object
         '''
-        url = reverse('collection_record_add')
-        response = self.app.get(url, user='testuser')
-        form = response.form
         #fill out basic info only,required fields only
         form['title'] = 'Test Title'
         form['title_filing'] = 'Test Filing Title'
@@ -375,6 +372,16 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         #form['userestrict'] = 'go craxy'
         #form['acqinfo'] = 'by mark'
         form['scopecontent'] = 'test content'
+
+    def createNewMinimalCR(self):
+        '''A helper function to create a new Collection Record with
+        a known set of data
+        '''
+        url = reverse('collection_record_add')
+        response = self.app.get(url, user='testuser')
+        form = response.form
+        #fill out basic info only,required fields only
+        self.fill_form_values(form)
         response = form.submit(user='testuser')
         self.failUnlessEqual(302, response.status_code)
         response = response.follow()
@@ -532,6 +539,65 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         self.failUnlessEqual(200, response.status_code)
         self.assertContains(response, 'Test Title')
         self.assertTemplateUsed(response,'collection_record/collection_record/edit.html') 
+
+    def testLongInput(self):
+        '''Test that form invalid on long inputs (title, extent, all char fields)
+        '''
+        def check_resp_error_field(self, form, fieldname):
+            response = form.submit(user='oactestuser')
+            self.failUnlessEqual(200, response.status_code)
+            self.assertContains(response, 'errors below')
+            self.assertContains(response, CollectionRecord._meta.get_field_by_name(fieldname)[0].max_length)
+            return response.form
+        def check_resp_success(self, form):
+            response = form.submit(user='oactestuser')
+            self.failUnlessEqual(302, response.status_code)
+            response = response.follow()
+            self.failUnlessEqual(200, response.status_code)
+            self.assertTrue('ark:' in response.request.url)
+        def get_form_and_fill(self, url):
+            response = self.app.get(url, user='oactestuser')
+            form = response.form
+            self.fill_form_values(form)
+            return form
+
+        url_add = reverse('collection_record_add')
+
+        form = get_form_and_fill(self, url_add)
+        form['title'] = 'x' * 513
+        form = check_resp_error_field(self, form, 'title')
+        self.fill_form_values(form)
+        form['title'] = 'x' * 512
+        check_resp_success(self, form)
+        form = get_form_and_fill(self, url_add)
+        form['title_filing'] = 'x' * 256
+        form = check_resp_error_field(self, form, 'title_filing')
+        form['title_filing'] = 'x' * 255
+        check_resp_success(self, form)
+        form = get_form_and_fill(self, url_add)
+        form['title_filing'] = '0'
+        form['extent'] = 'x' * 1001
+        form = check_resp_error_field(self, form, 'extent')
+        form['extent'] = 'x' * 1000
+        check_resp_success(self, form)
+        form = get_form_and_fill(self, url_add)
+        form['title_filing'] = '1'
+        form['date_dacs'] = 'x' * 129
+        form = check_resp_error_field(self, form, 'date_dacs')
+        form['date_dacs'] = 'x' * 128
+        check_resp_success(self, form)
+        form = get_form_and_fill(self, url_add)
+        form['title_filing'] = '2'
+        form['date_iso'] = 'x' * 129
+        form = check_resp_error_field(self, form, 'date_iso')
+        form['date_iso'] = 'x' * 128
+        check_resp_success(self, form)
+        form = get_form_and_fill(self, url_add)
+        form['title_filing'] = '3'
+        form['local_identifier'] = 'x' * 256
+        form = check_resp_error_field(self, form, 'title')
+        form['local_identifier'] = 'x' * 255
+        check_resp_success(self, form)
 
 
 from collection_record.is_oac import is_OAC
