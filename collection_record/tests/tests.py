@@ -554,7 +554,6 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
             self.failUnlessEqual(302, response.status_code)
             response = response.follow()
             self.failUnlessEqual(200, response.status_code)
-            self.assertTrue('ark:' in response.request.url)
         def get_form_and_fill(self, url):
             response = self.app.get(url, user='oactestuser')
             form = response.form
@@ -595,7 +594,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         form = get_form_and_fill(self, url_add)
         form['title_filing'] = '3'
         form['local_identifier'] = 'x' * 256
-        form = check_resp_error_field(self, form, 'title')
+        form = check_resp_error_field(self, form, 'local_identifier')
         form['local_identifier'] = 'x' * 255
         check_resp_success(self, form)
 
