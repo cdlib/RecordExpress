@@ -174,6 +174,9 @@ class CollectionRecord(models.Model):
         if not os.path.exists(self.ead_dir):
             os.makedirs(self.ead_dir)
         fname = self.ead_filename
+        fdir, fname = os.path.split(fname)
+        fname = fname[:139]
+        os.chdir(fdir)
         foo =  codecs.open(fname, 'w', 'utf-8')
         try:
             foo.write(self.ead_xml)
