@@ -98,6 +98,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         did = archdesc.find('did')
         corpname = did.find('repository/corpname')
         self.failUnless(corpname.text.strip() == 'UC Berkeley. Bancroft Library')
+        self.failUnless('<corpname>UC Berkeley. Bancroft Library</corpname' in ead_xml)
         prefercite_p = archdesc.find('prefercite/p')
         self.failUnless('UC Berkeley. Bancroft Library' in prefercite_p.text)
         unitdate = did.find('unitdate')
