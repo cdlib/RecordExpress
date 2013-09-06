@@ -17,9 +17,15 @@
                      <addressline>{{instance.publisher.address2}}</addressline>
                      {% endif %}
                      <addressline>{{instance.publisher.city}}, California {{instance.publisher.zip4}}</addressline>
+                     {% if instance.publisher.phone %}
                      <addressline>{{instance.publisher.phone}}</addressline>
+                     {% endif %}
+                     {% if instance.publisher.email %}
                      <addressline>{{instance.publisher.email}}</addressline>
+                     {% endif %}
+                     {% if instance.publisher.url %}
                      <addressline>{{instance.publisher.url}}</addressline>
+                     {% endif %}
                  </address>
                  <date>{{publishing_year}}</date>
              </publicationstmt>
