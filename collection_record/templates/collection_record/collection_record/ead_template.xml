@@ -7,10 +7,10 @@
              <titlestmt>
                  <titleproper>{{instance.title}}</titleproper>
                  <titleproper type="filing">{{instance.title_filing}}</titleproper>
-                 <author>{{instance.publisher_name}}</author>
+                 <author>{{instance.publisher.name}}</author>
              </titlestmt>
              <publicationstmt>
-                 <publisher>{{instance.publisher_name}}</publisher>
+                 <publisher>{{instance.publisher.name}}</publisher>
                  <date>{{instance.date_dacs}}</date>
              </publicationstmt>
          </filedesc>
