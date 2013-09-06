@@ -1,4 +1,5 @@
 import os
+import sys
 from urllib import quote
 import xml.etree.ElementTree as ET
 import shutil
@@ -17,7 +18,7 @@ from collection_record.models import SupplementalFile
 from collection_record.perm_backend import CollectionRecordPermissionBackend
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
-debug_print = lambda x: sys.stdout.write(x+'\n\n') if os.environ.get('DEBUG', False) else lambda x: x
+debug_print = lambda x: sys.stdout.write(u''.join((x,'\n\n'))) if os.environ.get('DEBUG', False) else lambda x: x
 
 class CollectionRecordTestDirSetupMixin(object):
     '''Mixin to add override of output directory for EAD files'''
@@ -80,9 +81,13 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         self.failIf('<!DOCTYPE' in ead_xml)
         self.failUnless('UC Berkeley' in ead_xml)
-        debug_print(ead_xml)
-        self.failUnless('<publisher>UC Berkeley. Bancroft Library</publisher>' in ead_xml)
         self.failUnless('<date>'+str(datetime.date.today().year)+'</date>' in ead_xml)
+        self.failUnless('<publisher>UC Berkeley. Bancroft Library</publisher>' in ead_xml)
+        self.failUnless('<addressline>University of California, Berkeley, The Bancroft Library</addressline>' in ead_xml)
+        self.failUnless('<addressline>Berkeley, California 94720-6000</addressline>' in ead_xml)
+        self.failUnless('<addressline>510-642-6481</addressline>' in ead_xml)
+        self.failUnless('<addressline>bancref@library.berkeley.edu</addressline>' in ead_xml)
+        self.failUnless('<addressline>http://bancroft.berkeley.edu/</addressline>' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:

@@ -11,6 +11,16 @@
              </titlestmt>
              <publicationstmt>
                  <publisher>{{instance.publisher.name}}</publisher>
+                 <address>
+                     <addressline>{{instance.publisher.address1}}</addressline>
+                     {% if instance.publisher.address2 %}
+                     <addressline>{{instance.publisher.address2}}</addressline>
+                     {% endif %}
+                     <addressline>{{instance.publisher.city}}, California {{instance.publisher.zip4}}</addressline>
+                     <addressline>{{instance.publisher.phone}}</addressline>
+                     <addressline>{{instance.publisher.email}}</addressline>
+                     <addressline>{{instance.publisher.url}}</addressline>
+                 </address>
                  <date>{{publishing_year}}</date>
              </publicationstmt>
          </filedesc>
