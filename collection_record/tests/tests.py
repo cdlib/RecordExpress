@@ -3,6 +3,7 @@ from urllib import quote
 import xml.etree.ElementTree as ET
 import shutil
 import glob
+import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.test import LiveServerTestCase
@@ -79,8 +80,9 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('repositorycode="'+rec.publisher.mainagency+'" countrycode="US">'+rec.local_identifier+'</unitid>' in ead_xml)
         self.failIf('<!DOCTYPE' in ead_xml)
         self.failUnless('UC Berkeley' in ead_xml)
-        print ead_xml
+        debug_print(ead_xml)
         self.failUnless('<publisher>UC Berkeley. Bancroft Library</publisher>' in ead_xml)
+        self.failUnless('<date>'+str(datetime.date.today().year)+'</date>' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:

@@ -11,7 +11,7 @@
              </titlestmt>
              <publicationstmt>
                  <publisher>{{instance.publisher.name}}</publisher>
-                 <date>{{instance.date_dacs}}</date>
+                 <date>{{publishing_year}}</date>
              </publicationstmt>
          </filedesc>
      </eadheader>

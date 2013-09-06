@@ -7,6 +7,7 @@ from xml.sax.saxutils import escape
 import codecs
 import subprocess
 import shlex
+import datetime
 from django.db import models
 from django.contrib.contenttypes import generic
 from django.conf import settings
@@ -270,6 +271,7 @@ class CollectionRecord(models.Model):
         ead_template_data = dict( 
                     instance = self,
                     publisher_marc = quoteattr(self.publisher.mainagency),
+                    publishing_year = datetime.date.today().year
                 )
         c = Context(ead_template_data)
         ead_xml = ead_template.render(c)
