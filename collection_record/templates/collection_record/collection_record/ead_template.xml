@@ -50,6 +50,9 @@
              {% endif %}
              <repository label="Repository">
                  <corpname>{{ instance.publisher.name }}</corpname>
+                 <address>
+                     <addressline>{{instance.publisher.city}}, California {{instance.publisher.zip4}}</addressline>
+                 </address>
              </repository>
              <abstract label="Abstract">{{instance.abstract}}</abstract>
              <langmaterial><language langcode="{{instance.language}}"/></langmaterial>

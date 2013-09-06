@@ -88,6 +88,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('<addressline>510-642-6481</addressline>' in ead_xml)
         self.failUnless('<addressline>bancref@library.berkeley.edu</addressline>' in ead_xml)
         self.failUnless('<addressline>http://bancroft.berkeley.edu/</addressline>' in ead_xml)
+        self.failUnless('<corpname>UC Berkeley. Bancroft Library</corpname' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:
@@ -98,7 +99,8 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         did = archdesc.find('did')
         corpname = did.find('repository/corpname')
         self.failUnless(corpname.text.strip() == 'UC Berkeley. Bancroft Library')
-        self.failUnless('<corpname>UC Berkeley. Bancroft Library</corpname' in ead_xml)
+        addressline = did.find('repository/address/addressline')
+        self.failUnless(addressline.text.strip() == 'Berkeley, California 94720-6000')
         prefercite_p = archdesc.find('prefercite/p')
         self.failUnless('UC Berkeley. Bancroft Library' in prefercite_p.text)
         unitdate = did.find('unitdate')
