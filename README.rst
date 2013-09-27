@@ -14,12 +14,14 @@ It currently also has a number of dependencies on OAC data and software.
 TODO
 ----
 
+0. fix problem with new django-sortable package
 1. Test project bundled with package.
 2. Make tests pass on clean install. 
 3. Detail the mapping of QDC to EAD elements.
 4. How to make the "preview" work when not on an OAC box?
 5. Refactor to remove DjangoDublinCore and use direct foreign key metadata fields.
-
+6. Add creating the DB and initializing a publishing institution on install or first run of server.
+7. Add usage in typical workflow. Create repo, create EAD and then cut & paste?
 
 QUICKSTART
 ----------
@@ -30,7 +32,7 @@ You'll also need a github client (if you don't have git goto `github:windows <ht
 TODO: add virtualenv setup, gets around admin privileges.
 
 1. Install python (`http://www.python.org/download/ <http://www.python.org/download/>`_).
-2. Install setuptools (`setuptools <https://pypi.python.org/pypi/setuptools>`_. 
+2. Install setuptools (`setuptools <https://pypi.python.org/pypi/setuptools>`_). 
 3. From your GitHub client clone `https://github.com/cdlib/RecordExpress.git <https://github.com/cdlib/RecordExpress.git>`_
 4. Move to the RecordExpress directory in a terminal.
 5. At the command prompt run::
