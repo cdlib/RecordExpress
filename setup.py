@@ -11,7 +11,9 @@ setup(
     version = '0.0',
     packages = ['collection_record'],
     include_package_data = True,
-    dependency_links = ['https://github.com/cdlib/RecordExpress.git'],
+    dependency_links = ['https://github.com/cdlib/RecordExpress.git',
+        'https://github.com/drewyeaton/django-sortable/archive/master.zip#egg=django-sortable', #pypi package currently broken - 2013/09
+        ], 
     license = 'BSD License - see LICENSE file', 
     description = 'A lightweight EAD creator',
     long_description = README,
