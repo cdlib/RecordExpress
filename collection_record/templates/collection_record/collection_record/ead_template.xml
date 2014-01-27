@@ -7,7 +7,7 @@
              <titlestmt>
                  <titleproper>{{instance.title}}</titleproper>
                  <titleproper type="filing">{{instance.title_filing}}</titleproper>
-                 <author>{{instance.publisher.name}}</author>
+                 <author>Finding aid created by {{instance.publisher.name_leaf_inst}} staff using RecordExpress</author>
              </titlestmt>
              <publicationstmt>
                  <publisher>{{instance.publisher.name}}</publisher>
