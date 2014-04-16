@@ -89,7 +89,7 @@ class CollectionRecordModelTest(CollectionRecordTestDirSetupMixin, TestCase):
         self.failUnless('<addressline>bancref@library.berkeley.edu</addressline>' in ead_xml)
         self.failUnless('<addressline>http://bancroft.berkeley.edu/</addressline>' in ead_xml)
         self.failUnless('<corpname>UC Berkeley. Bancroft Library</corpname' in ead_xml)
-        self.failUnless('<author>Finding aid created by Bancroft Library staff using RecordExpress</author>' in ead_xml)
+        self.failUnless('<author>Finding aid created by Bancroft Library staff using RecordEXPRESS</author>' in ead_xml)
         try:
             etree = ET.XML(ead_xml.encode('utf-8'))
         except:
