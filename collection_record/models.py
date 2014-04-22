@@ -151,7 +151,7 @@ class CollectionRecord(models.Model):
                             stdout=logfile,
                             stderr=subprocess.STDOUT
                             )
-            if returncode != 0:
+            if returncode != 0 and returncode != 103:
                 raise Exception('Error with holdMets removal process. Check log:'+log_path)
         if os.path.isfile(self.ead_filename):
             os.remove(self.ead_filename)
