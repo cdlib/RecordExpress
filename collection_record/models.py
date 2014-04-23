@@ -330,8 +330,10 @@ class SupplementalFile(models.Model):
 
     def rip_to_text(self):
         '''Rip pdf to text, place next to pdf file'''
-        pdftotext_command = "/cdlcommon/products/xpdf-3.02/bin/pdftotext"
-        cmd_line = ''.join((pdftotext_command, ' -enc UTF-8 -eol unix -nopgbrk "', str(self.file_path), '"'))
+        pdftotext_command = "java -jar " + os.environ['HOME'] + "/java/pdfbox/pdfbox-app.jar ExtractText -force"
+        out_file_path = os.path.splitext(self.file_path)[0] + '.txt'
+
+        cmd_line = ''.join((pdftotext_command, ' "', str(self.file_path), '" "', str(out_file_path), '"'))
         args = shlex.split(cmd_line)
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
         p.wait()
