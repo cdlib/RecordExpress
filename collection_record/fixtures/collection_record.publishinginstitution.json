@@ -1,0 +1,25 @@
+[
+  {
+    "pk": 1, 
+    "model": "collection_record.publishinginstitution", 
+    "fields": {
+      "cdlpath": "", 
+      "ark": "ark:/99999/fk4n312z7",
+      "mainagency": "ucop", 
+      "name": "UCOP",
+      "parent_institution": null
+
+    }
+  },
+  {
+    "pk": 2, 
+    "model": "collection_record.publishinginstitution", 
+    "fields": {
+      "cdlpath": "", 
+      "ark": "ark:/13030/tf5580116c", 
+      "mainagency": "caolucdl", 
+      "name": "CDL",
+      "parent_institution": 1
+    }
+  }
+]

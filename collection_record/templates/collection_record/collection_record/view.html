@@ -8,7 +8,7 @@
         padding-left:18px;
         padding-top:10px;
         display:block;
-        background:url(/site_media/images/formsets/add.png) no-repeat left center;
+        background:url({{ STATIC_URL }}images/formsets/add.png) no-repeat left center;
     }
     .delete-row {
         /*float:right;
@@ -16,7 +16,7 @@
         vertical-align:middle;
         margin-left:4px;
         padding-left:18px;
-        background:url(/site_media/images/formsets/delete.png) no-repeat left center;
+        background:url({{ STATIC_URL }}images/formsets/delete.png) no-repeat left center;
     }
 </style>
 <style type="text/css">
@@ -32,8 +32,8 @@
 {%endcomment%}
 
 {%block extrahead%}
-<script type="text/javascript" src="/site_media/js/jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="/site_media/js/jquery.formset.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.formset.js"></script>
 <script type="text/javascript" src="/media/js/core.js"></script>
 <script type="text/javascript" src="/media/js/calendar.js"></script>
 <script type="text/javascript" src="/media/js/admin/DateTimeShortcuts.js"></script>

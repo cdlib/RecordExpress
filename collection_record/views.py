@@ -13,14 +13,16 @@ from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 from django.forms.models import inlineformset_factory
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
-from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseForbidden
 from django.core.urlresolvers import reverse as django_url_reverse
 #from django.http import Http404, HttpResponseForbidden, HttpResponseBadRequest
 import BeautifulSoup
-from DSC_EZID_minter import main as EZIDMinter
+from is_oac import is_OAC
+OAC = is_OAC()
+if OAC:
+    from DSC_EZID_minter import main as EZIDMinter
 from dublincore.models import QualifiedDublinCoreElement
 from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
@@ -54,13 +56,10 @@ from collection_record.forms import SupplementalFileForm
 from collection_record.forms import SupplementalFileUploadForm
 from collection_record.perm_backend import get_publishing_institutions_for_user
 
-from util.csrf_check import csrf_check
-
 logger = logging.getLogger(__name__)
 
 @never_cache
 @login_required
-#@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
 def add_collection_record(request):
     '''Add a collection record. Must be a logged in user supplemental with a 
     publishing institution.
@@ -98,7 +97,10 @@ def add_collection_record(request):
             ark = form_main.cleaned_data['ark']
             if ark == '' or ark == form_main.fields['ark'].initial:
                 #mint an ark
-                ark = EZIDMinter(1)[0]
+                if OAC:
+                    ark = EZIDMinter(1)[0]
+                else:
+                    ark = ''
             collection_record = CollectionRecord()
             collection_record.ark = ark
             collection_record.title = form_main.cleaned_data['title']
@@ -150,11 +152,16 @@ def add_collection_record(request):
                               locals(),
                               )
 
-def _url_xtf_preview(ark):
+def _url_xtf_preview(pk):
     import os
-    URL_XTF_EAD_VIEW = ''.join(('http://', os.environ['FINDAID_HOSTNAME'], ':', os.environ['FRONT_PORT'], '/view?docId=ead-preview&doc.view=entire_text&source=http://', os.environ['BACK_SERVER'], '/djsite/collection-record/'))
+    import socket
+    if os.environ.has_key('BACK_SERVER'): #OAC
+        URL_THIS_SERVER = ''.join(('http://', os.environ.get('BACK_SERVER'), '/djsite/collection-record/' if OAC else '/collection-record/'))
+    else:
+        URL_THIS_SERVER = ''.join(('http://', socket.gethostbyname(socket.gethostname()), '/collection-record/'))
+    URL_XTF_EAD_VIEW = ''.join(('http://', os.environ.get('FINDAID_HOSTNAME', 'www.oac.cdlib.org'), '/view?docId=ead-preview&doc.view=entire_text&source=', URL_THIS_SERVER))
     URL_XTF_EAD_VIEW_SUFFIX = '/xml/'
-    return ''.join((URL_XTF_EAD_VIEW, ark, URL_XTF_EAD_VIEW_SUFFIX))
+    return ''.join((URL_XTF_EAD_VIEW, str(pk), URL_XTF_EAD_VIEW_SUFFIX))
 
 def handle_uploaded_file(collection_record, f, label=''):
     supp_file = SupplementalFile()
@@ -164,19 +171,22 @@ def handle_uploaded_file(collection_record, f, label=''):
     with supp_file.get_filehandle(mode='wb') as supp_file_obj:
         for chunk in f.chunks():
             supp_file_obj.write(chunk)
-    supp_file.rip_to_text()
+    if OAC:
+        supp_file.rip_to_text()
     supp_file.save()
     return supp_file
 
 @never_cache
 @login_required
-#@user_passes_test(lambda u: u.is_superuser, login_url='/admin/OAC_admin/')
-def edit_collection_record(request, ark, *args, **kwargs):
+def edit_collection_record(request, *args, **kwargs):
     '''Formatted html view of the collection record with ark'''
     pagetitle = 'Edit Collection Record'
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
-    if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
-        return  HttpResponseForbidden('<h1>Permission Denied</h1>')
+    if 'pk' in kwargs:
+        collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
+    else:
+        collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
+    #if not request.user.has_perm('collection_record.change_collectionrecord', collection_record):
+    #    return  HttpResponseForbidden('<h1>Permission Denied</h1>')
     url_preview = _url_xtf_preview(collection_record.ark)
     dcformset_factory = generic_inlineformset_factory(QualifiedDublinCoreElement, extra=0, can_delete=True)
     supp_files_formset_factory = inlineformset_factory(CollectionRecord, SupplementalFile,  form=SupplementalFileForm, extra=0)
@@ -347,9 +357,12 @@ def edit_collection_record(request, ark, *args, **kwargs):
 
 @never_cache
 #@login_required
-def view_collection_record_xml(request, ark, *args, **kwargs):
+def view_collection_record_xml(request, *args, **kwargs):
     '''XML view of collection record'''
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    if 'pk' in kwargs:
+        collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
+    else:
+        collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
     xml = collection_record.ead_xml
     response = HttpResponse(xml)
     response['Content-Type'] = 'application/xml; charset=utf-8'
@@ -382,10 +395,14 @@ def view_all_collection_records(request,):# *args, **kwargs):
 
 @never_cache
 @login_required
-def view_collection_record_oac_preview(request, ark, *args, **kwargs):
+def view_collection_record_oac_preview(request, *args, **kwargs):
     '''Proxy the xtf preview page'''
-    url = _url_xtf_preview(ark)
-    collection_record = get_object_or_404(CollectionRecord, ark=ark)
+    if 'pk' in kwargs:
+        collection_record = get_object_or_404(CollectionRecord, pk=kwargs['pk'])
+    else:
+        collection_record = get_object_or_404(CollectionRecord, ark=kwargs['ark'])
+    url = _url_xtf_preview(collection_record.pk)
+    collection_record = get_object_or_404(CollectionRecord, pk=collection_record.pk)
     foo = urllib.urlopen(url)
     html = foo.read()
     soup = BeautifulSoup.BeautifulSoup(html)
@@ -431,7 +448,7 @@ line-height:1.5;\
     closetag.insert(0, 'Close')
     body.insert(0, closetag)
     logouttag = BeautifulSoup.Tag(soup, 'a',
-            attrs={'href':django_url_reverse('contrib_admin:logout'),
+            attrs={'href':django_url_reverse('admin:logout'),
                 'style':"""\
 float:right;\
 background-color:#C2492C;\
