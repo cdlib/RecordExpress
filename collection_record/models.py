@@ -76,18 +76,20 @@ class CollectionRecord(models.Model):
     def __unicode__(self):
         return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
 
+    def __unicode__(self):
+        return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
+
     @models.permalink
     def get_absolute_url(self):
-        return ('collectionrecord_view', (), {'pk': self.pk, })
+        return ('collectionrecord_view', (), {'ark': self.ark, })
 
     @models.permalink
     def get_edit_url(self):
-        return ('collectionrecord_edit', (), {'pk': self.pk, })
+        return ('collectionrecord_edit', (), {'ark': self.ark, })
 
     @models.permalink
     def get_xml_url(self):
-        return ('collectionrecord_view_xml', (), {'pk': self.pk, })
-
+        return ('collectionrecord_view_xml', (), {'ark': self.ark, })
 
     def _get_dir_root(self):
         if hasattr(self, '_dir_root'):
