@@ -22,24 +22,49 @@ class CollectionRecordAddForm(forms.Form):
             )
     title = forms.CharField(widget=forms.Textarea, label='Collection Title',
             max_length=CollectionRecord._meta.get_field_by_name('title')[0].max_length,
+            help_text=''.join(('Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('title')[0].max_length),
+                    )
+                ),
             )
     title_filing = forms.CharField(label='Collection Title (Filing)',
             widget=forms.Textarea,
             max_length=CollectionRecord._meta.get_field_by_name('title_filing')[0].max_length,
+            help_text=''.join(('Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('title_filing')[0].max_length),
+                    )
+                ),
             )
     publishing_institution = forms.ChoiceField(label="Publishing Institution")
     date_dacs = forms.CharField(label='Collection Date',
             max_length=CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length,
+            help_text=''.join(('Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length),
+                    )
+                ),
             )
-    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', required=False,
+    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)',
+                required=False,
             max_length=CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length,
+                help_text=''.join(('Enter the dates normalized using the ISO 8601 format', 'Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length),
+                    )
+                ),
             )
     local_identifier = forms.CharField(label='Collection Identifier/Call Number',
             max_length=CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length,
+            help_text=''.join(('Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length),
+                    )
+                ),
             )
     extent=forms.CharField(widget=forms.Textarea,
             label='Extent of Collection',
             max_length=CollectionRecord._meta.get_field_by_name('extent')[0].max_length,
+            help_text=''.join(('Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('extent')[0].max_length),
+                    )
+                ),
             )
     abstract=forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}))
     language = forms.ChoiceField(choices=(ISO_639_2b), initial='eng', label='Language of Materials')
