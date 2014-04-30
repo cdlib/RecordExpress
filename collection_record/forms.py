@@ -42,6 +42,7 @@ class CollectionRecordAddForm(forms.Form):
                 unicode(CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length),
                     )
                 ),
+<<<<<<< HEAD
             )
     date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)',
                 required=False,
@@ -50,12 +51,23 @@ class CollectionRecordAddForm(forms.Form):
                     )
                 ),
             max_length=CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length,
+=======
+>>>>>>> master
             )
-    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', required=False,
+    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)',
+                required=False,
             max_length=CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length,
+                help_text=''.join(('Enter the dates normalized using the ISO 8601 format', 'Maximum length: ',
+                unicode(CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length),
+                    )
+                ),
             )
     local_identifier = forms.CharField(label='Collection Identifier/Call Number',
+<<<<<<< HEAD
             max_length=CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length,
+=======
+            max_length=CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length,
+>>>>>>> master
             help_text=''.join(('Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length),
                     )
