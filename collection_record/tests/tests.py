@@ -17,6 +17,7 @@ from collection_record.models import CollectionRecord
 from collection_record.models import SupplementalFile
 from collection_record.perm_backend import CollectionRecordPermissionBackend
 from collection_record.perm_backend import get_publishing_institutions_for_user
+from collection_record.forms import SupplementalFileUploadForm
 
 debug_print = lambda x: sys.stdout.write(u''.join((x,'\n\n'))) if os.environ.get('DEBUG', False) else lambda x: x
 
@@ -726,3 +727,22 @@ class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     def testRipToText(self):
         sf = SupplementalFile.objects.get(pk=53)
         sf.rip_to_text()
+
+class SupplementalFileFormTestCase(TestCase):
+    '''Test the clean function for this form and verify that bad filenames
+    are not let in.
+    '''
+    def testBadFilename(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        fin = SimpleUploadedFile('this has is OK.pdf', 'CONTENT', content_type='application/pdf')
+        data =  { 'label':'nice',
+                }
+        FILES = { 'file':fin,
+                }
+        f = SupplementalFileUploadForm(data, FILES)
+        self.assertTrue(f.is_valid())
+        fin = SimpleUploadedFile('this has bad chars [].pdf', 'CONTENT', content_type='application/pdf')
+        FILES = { 'file':fin,
+                }
+        f = SupplementalFileUploadForm(data, FILES)
+        self.assertFalse(f.is_valid())
