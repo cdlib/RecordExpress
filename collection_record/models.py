@@ -15,27 +15,24 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template import Context
-
+from is_oac import is_OAC
 from ISO_639_2b import ISO_639_2b
 from dublincore.models import QualifiedDublinCoreElement
 
 logger = logging.getLogger(__name__)
 
-#allow override by environment var
-OAC = False
-try:
-    from oac.models import Institution
-    OAC = True
-except ImportError:
-    pass
+OAC = is_OAC()
 if not OAC:
     class PublishingInstitution(models.Model):
         '''Publisher if you're not oac
         '''
         name = models.CharField(max_length=255)
         mainagency = models.CharField(max_length=255,)
-        ark = models.CharField(max_length=255, unique=True)
+        ark = models.CharField(max_length=255, blank=True)
         cdlpath = models.CharField(max_length=255, blank=True)
+        parent_institution = models.ForeignKey('self', null=True, blank=True, related_name='children')
+        def __unicode__(self):
+            return self.name
 else:
     class PublishingInstitution(Institution):
         '''Proxy for the Institution, to make it look like a Publisher?
@@ -50,13 +47,14 @@ def dir_pairtree_for_ark(ark):
 
 
 class CollectionRecord(models.Model):
-    ark = models.CharField(max_length=255, primary_key=True)
+    #TODO: remove EZID minter and ARK_validator.
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
+    ark = models.CharField(max_length=255, blank=True)
     title = models.CharField('Collection Title', max_length=512,)
-    title_filing = models.CharField('Collection Title (Filing)', max_length=255)#, unique=True)
+    title_filing = models.CharField('Collection Title (Filing)', max_length=255)
+    local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     date_dacs = models.CharField('Collection Date', max_length=128,)
     date_iso = models.CharField('Collection Date (ISO 8601 Format)', help_text='Enter the dates normalized using the ISO 8601 format', max_length=128, blank=True)
-    local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
     extent=models.CharField('Extent of Collection', max_length=1000)
     abstract=models.TextField()
     language = models.CharField('Language of materials', max_length=3, choices=(ISO_639_2b), )
@@ -71,7 +69,12 @@ class CollectionRecord(models.Model):
     QDCElements = generic.GenericRelation(QualifiedDublinCoreElement)
 
     class Meta:
-        unique_together = (("title_filing", "publisher"),)
+        unique_together = (
+                ("title_filing", "publisher")
+                )
+
+    def __unicode__(self):
+        return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
 
     def __unicode__(self):
         return mark_safe(unicode(self.ark + ' : ' + self.title_filing))
@@ -88,21 +91,25 @@ class CollectionRecord(models.Model):
     def get_xml_url(self):
         return ('collectionrecord_view_xml', (), {'ark': self.ark, })
 
-
     def _get_dir_root(self):
         if hasattr(self, '_dir_root'):
             return self._dir_root
         else:
-            EAD_ROOT_DIR=None
-            if os.environ.has_key('EAD_ROOT_DIR'):
-                EAD_ROOT_DIR = os.environ.get('EAD_ROOT_DIR')
+            EAD_ROOT_DIR='./data-ead/'
+            if os.path.exists('~/.recordexpressrc'):
+                #TODO: get root from config
+                pass
             else:
-                try:
-                    EAD_ROOT_DIR = settings.EAD_ROOT_DIR
-                except AttributeError:
-                    pass
-                if not EAD_ROOT_DIR:
-                    EAD_ROOT_DIR = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/in/oac-ead/prime2002')
+                if os.environ.has_key('EAD_ROOT_DIR'):
+                    EAD_ROOT_DIR = os.environ.get('EAD_ROOT_DIR')
+                else:
+                    try:
+                        EAD_ROOT_DIR = settings.EAD_ROOT_DIR
+                    except AttributeError:
+                        pass
+                    if OAC and EAD_ROOT_DIR == './data-ead/':
+                        EAD_ROOT_DIR = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/in/oac-ead/prime2002')
+            self._dir_root = EAD_ROOT_DIR
             return EAD_ROOT_DIR
 
     def _set_dir_root(self, value):
@@ -123,6 +130,8 @@ class CollectionRecord(models.Model):
                     pass
                 if not XTF_DATA:
                     XTF_DATA = os.path.join(os.environ.get('HOME', '/apps/dsc'), 'data/xtf/data')
+            if not XTF_DATA:
+                XTF_DATA = './data'
             return XTF_DATA
 
     def _set_xtf_dir_root(self, value):
@@ -135,24 +144,29 @@ class CollectionRecord(models.Model):
 
     @property
     def ead_filename(self):
-        return os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
+        if OAC:
+            fname = os.path.join(self.ead_dir, self.ark.rsplit('/', 1)[1]+'.xml')
+        else:
+            fname = os.path.join(self.ead_dir, self.title_filing.replace(' ', '_')+'.xml')
+        return fname
 
     def delete(self, **kwargs):
         '''Run holdMets.pl on the ark, then
         delete the file first then the DB object'''
-        HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
-        holdMets_path = os.path.join( HOME_DIR,
-                                'branches/production/voro/batch-bin/holdMETS.pl')
-        #setup log file
-        log_path = os.path.join(HOME_DIR, 'log/holdMets/', self.ark.replace(':','').replace('/', '-'))
-        with open(log_path, 'w') as logfile: 
-            logfile.write('Running:'+holdMets_path+' '+self.ark)
-            returncode = subprocess.call((holdMets_path, self.ark),
-                            stdout=logfile,
-                            stderr=subprocess.STDOUT
-                            )
-            if returncode != 0 and returncode != 103:
-                raise Exception('Error with holdMets removal process. Check log:'+log_path)
+        if OAC:
+            HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
+            holdMets_path = os.path.join( HOME_DIR,
+                                    'branches/production/voro/batch-bin/holdMETS.pl')
+            #setup log file
+            log_path = os.path.join(HOME_DIR, 'log/holdMets/', self.ark.replace(':','').replace('/', '-'))
+            with open(log_path, 'w') as logfile: 
+                logfile.write('Running:'+holdMets_path+' '+self.ark)
+                returncode = subprocess.call((holdMets_path, self.ark),
+                                stdout=logfile,
+                                stderr=subprocess.STDOUT
+                                )
+                if returncode != 0 and returncode != 103:
+                    raise Exception('Error with holdMets removal process. Check log:'+log_path)
         if os.path.isfile(self.ead_filename):
             os.remove(self.ead_filename)
         super(CollectionRecord, self).delete(**kwargs)
@@ -160,7 +174,12 @@ class CollectionRecord(models.Model):
     def save_ead_file(self):
         '''Save the EAD file to it's DSC CDL specific location?
         '''
+        if not os.path.exists(self.ead_dir):
+            os.makedirs(self.ead_dir)
         fname = self.ead_filename
+        fdir, fname = os.path.split(fname)
+        fname = fname[:139]
+        os.chdir(fdir)
         foo =  codecs.open(fname, 'w', 'utf-8')
         try:
             foo.write(self.ead_xml)
@@ -186,8 +205,9 @@ class CollectionRecord(models.Model):
                     raise ValueError('Can not change ARK for an collection')
             except CollectionRecord.DoesNotExist:
                 pass
-        if not self.ark:
-            raise ValueError('Collection Records must have an ARK')
+        if OAC:
+            if not self.ark:
+                raise ValueError('Collection Records must have an ARK')
         super(CollectionRecord, self).save(*args, **kwargs)
         #TODO: save the ead file?? can use a public bool to determine if saved 
         # to disk
@@ -206,6 +226,7 @@ class CollectionRecord(models.Model):
 
     @property
     def dir_supplemental_files(self):
+        #TODO: make not OAC ARK specific, but allow when OAC
         return os.path.join(self.xtf_dir_root, dir_pairtree_for_ark(self.ark), 'files')
 
     #or should I just make a nice dictionary of subsetted values?

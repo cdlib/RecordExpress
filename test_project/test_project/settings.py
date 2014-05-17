@@ -10,7 +10,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-sqlite_dir = os.path.abspath(os.path.join(os.path.abspath(os.path.splitext(__file__)[0]), '../../db'))
+PROJECT_ROOT = PROJECT_PATH = os.path.abspath(os.path.split(__file__)[0])
+sqlite_dir = os.path.abspath(os.path.join(PROJECT_ROOT, '../db'))
 sqlite_file = os.path.join(sqlite_dir, 'dublincore_test_db.sqlite3')
 
 DATABASES = {
@@ -64,7 +65,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static/')
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"

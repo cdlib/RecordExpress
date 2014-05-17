@@ -9,13 +9,13 @@
 
     {% block blueprintcss %}
     <!-- Framework CSS -->
-    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/screen.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/print.css" type="text/css" media="print">
-    <!--[if lt IE 8]><link rel="stylesheet" href="/site_media/css/blueprint/ie.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint-css/blueprint/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint-css/blueprint/print.css" type="text/css" media="print">
+    <!--[if lt IE 8]><link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint/ie.css" type="text/css" media="screen, projection">
 <![endif]-->
     <!-- Import fancy-type plugin for the sample page. -->
-    <link rel="stylesheet" href="/site_media/css/blueprint-css/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
-    <link rel="stylesheet" href="/site_media/css/djsite/blueprint_dsc.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint-css/blueprint/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/djsite/blueprint_dsc.css" type="text/css" media="screen, projection">
     {%endblock blueprintcss%}
 
 <style type="text/css"> h4 { font-weight:bold;}</style>
@@ -24,7 +24,7 @@
         padding-left:18px;
         padding-top:10px;
         display:block;
-        background:url(/site_media/images/formsets/add.png) no-repeat left center;
+        background:url({{ STATIC_URL }}images/formsets/add.png) no-repeat left center;
     }
     .delete-row {
         /*float:right;
@@ -32,7 +32,7 @@
         vertical-align:middle;
         margin-left:4px;
         padding-left:18px;
-        background:url(/site_media/images/formsets/delete.png) no-repeat left center;
+        background:url({{ STATIC_URL }}images/formsets/delete.png) no-repeat left center;
     }
 </style>
 <style type="text/css">
@@ -93,8 +93,8 @@
           <span class="span-10 last">
               <span style="float:right">
                   <strong>{{user.username}}</strong>
-                  {% url "admin:logout" as logout_url %}
-                  <a href="{{ logout_url }}">Log out</a>
+                {% url "admin:logout" as logout_url %}
+                <a href="{{ logout_url }}">Log out</a>
                </span>
           </span>
         </div>

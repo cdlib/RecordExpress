@@ -1,0 +1,114 @@
+[
+  {
+    "pk": 1, 
+    "model": "auth.user", 
+    "fields": {
+      "username": "admin", 
+      "first_name": "", 
+      "last_name": "", 
+      "is_active": true, 
+      "is_superuser": true, 
+      "is_staff": true, 
+      "last_login": "2013-03-01T22:12:52.279Z", 
+      "groups": [], 
+      "user_permissions": [], 
+      "password": "pbkdf2_sha256$10000$iYqN7OjffJ0h$A8PzBT0+LG65C7IXPNF/0LYg6XaLFwUDJ5Rj0FnvGvg=", 
+      "email": "mark.redar@ucop.edu", 
+      "date_joined": "2013-03-01T22:12:36.947Z"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "auth.user", 
+    "fields": {
+      "username": "testuser", 
+      "first_name": "", 
+      "last_name": "", 
+      "is_active": true, 
+      "is_superuser": false, 
+      "is_staff": false, 
+      "last_login": "2013-03-01T22:36:14Z", 
+      "groups": [], 
+      "user_permissions": [
+        [
+          "add_collectionrecord", 
+          "collection_record", 
+          "collectionrecord"
+        ], 
+        [
+          "change_collectionrecord", 
+          "collection_record", 
+          "collectionrecord"
+        ], 
+        [
+          "delete_collectionrecord", 
+          "collection_record", 
+          "collectionrecord"
+        ], 
+        [
+          "add_publishinginstitution", 
+          "collection_record", 
+          "publishinginstitution"
+        ], 
+        [
+          "change_publishinginstitution", 
+          "collection_record", 
+          "publishinginstitution"
+        ], 
+        [
+          "delete_publishinginstitution", 
+          "collection_record", 
+          "publishinginstitution"
+        ], 
+        [
+          "add_supplementalfile", 
+          "collection_record", 
+          "supplementalfile"
+        ], 
+        [
+          "change_supplementalfile", 
+          "collection_record", 
+          "supplementalfile"
+        ], 
+        [
+          "delete_supplementalfile", 
+          "collection_record", 
+          "supplementalfile"
+        ], 
+        [
+          "add_qualifieddublincoreelement", 
+          "dublincore", 
+          "qualifieddublincoreelement"
+        ], 
+        [
+          "change_qualifieddublincoreelement", 
+          "dublincore", 
+          "qualifieddublincoreelement"
+        ], 
+        [
+          "delete_qualifieddublincoreelement", 
+          "dublincore", 
+          "qualifieddublincoreelement"
+        ], 
+        [
+          "add_qualifieddublincoreelementhistory", 
+          "dublincore", 
+          "qualifieddublincoreelementhistory"
+        ], 
+        [
+          "change_qualifieddublincoreelementhistory", 
+          "dublincore", 
+          "qualifieddublincoreelementhistory"
+        ], 
+        [
+          "delete_qualifieddublincoreelementhistory", 
+          "dublincore", 
+          "qualifieddublincoreelementhistory"
+        ]
+      ], 
+      "password": "pbkdf2_sha256$10000$uxel6i8Rypeu$ziy8lXIVvI7P1/5jwTjl7Nwv9X1qC9EGPVMYXa1sc5U=", 
+      "email": "", 
+      "date_joined": "2013-03-01T22:36:14Z"
+    }
+  }
+]

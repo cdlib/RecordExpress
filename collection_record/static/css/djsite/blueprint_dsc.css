@@ -1,0 +1,47 @@
+<style type="text/css">
+    .ci {border:2px solid #DDDDDD; margin-bottom:1em; padding:0.8em; background:none repeat scroll 0 0 #E6EBEC;}
+    .img { text-decoration:none; } 
+    img {  border-style: none; }
+    h1 { margin-top:0.5em; 
+        }
+    h2 { color:#C2492C; }
+    h3 { color:#335C64; }
+    h4 { color:#036; }
+    textarea {
+        width:620px;
+        height:40px;
+        vertical-align:bottom;
+    }
+    th {
+        font-weight: bold;
+        font-size: large;
+        /*color:#C2492C;*/
+    }
+    td {
+        padding: 3px;
+    }
+    .error {
+        color: red;
+    }
+    .errorlist {
+        color: red;
+    }
+    input[name="_reset"] {
+        float: right;
+    }
+    .area {background:none repeat scroll 0 0 #E6EBEC; padding:0.8em; margin-bottom:1em;}
+    .pageheader {
+        background-color: #B8C4C4;
+    }
+    .pageheader h1 {
+        color:white;
+    }
+    .error {
+        color: red;
+    }
+    .errorlist {
+        color: red;
+    }
+
+
+</style>
