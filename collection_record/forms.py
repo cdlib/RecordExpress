@@ -1,3 +1,4 @@
+import string
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms import ValidationError
@@ -21,58 +22,50 @@ class CollectionRecordAddForm(forms.Form):
             max_length=CollectionRecord._meta.get_field_by_name('ark')[0].max_length,
             )
     title = forms.CharField(widget=forms.Textarea, label='Collection Title',
-            max_length=CollectionRecord._meta.get_field_by_name('title')[0].max_length,
             help_text=''.join(('Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('title')[0].max_length),
                     )
                 ),
+            max_length=CollectionRecord._meta.get_field_by_name('title')[0].max_length,
             )
     title_filing = forms.CharField(label='Collection Title (Filing)',
             widget=forms.Textarea,
-            max_length=CollectionRecord._meta.get_field_by_name('title_filing')[0].max_length,
             help_text=''.join(('Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('title_filing')[0].max_length),
                     )
                 ),
+            max_length=CollectionRecord._meta.get_field_by_name('title_filing')[0].max_length,
             )
     publishing_institution = forms.ChoiceField(label="Publishing Institution")
     date_dacs = forms.CharField(label='Collection Date',
-            max_length=CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length,
             help_text=''.join(('Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length),
                     )
                 ),
+            max_length=CollectionRecord._meta.get_field_by_name('date_dacs')[0].max_length,
             )
     date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)',
                 required=False,
-            max_length=CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length,
                 help_text=''.join(('Enter the dates normalized using the ISO 8601 format', 'Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length),
                     )
                 ),
-            )
-    date_iso = forms.CharField(label='Collection Date (ISO 8601 Format)',
-                required=False,
             max_length=CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length,
-                help_text=''.join(('Enter the dates normalized using the ISO 8601 format', 'Maximum length: ',
-                unicode(CollectionRecord._meta.get_field_by_name('date_iso')[0].max_length),
-                    )
-                ),
             )
     local_identifier = forms.CharField(label='Collection Identifier/Call Number',
-            max_length=CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length,
             help_text=''.join(('Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length),
                     )
                 ),
+            max_length=CollectionRecord._meta.get_field_by_name('local_identifier')[0].max_length,
             )
     extent=forms.CharField(widget=forms.Textarea,
             label='Extent of Collection',
-            max_length=CollectionRecord._meta.get_field_by_name('extent')[0].max_length,
             help_text=''.join(('Maximum length: ',
                 unicode(CollectionRecord._meta.get_field_by_name('extent')[0].max_length),
                     )
                 ),
+            max_length=CollectionRecord._meta.get_field_by_name('extent')[0].max_length,
             )
     abstract=forms.CharField(widget=forms.Textarea(attrs={'rows':3, 'cols':'60',}))
     language = forms.ChoiceField(choices=(ISO_639_2b), initial='eng', label='Language of Materials')
@@ -177,6 +170,7 @@ class SupplementalFileForm(forms.ModelForm):
 class SupplementalFileUploadForm(forms.Form):
     label = forms.CharField(max_length=512)
     file  = forms.FileField(widget=forms.FileInput(attrs={'accept':'application/pdf'}))
+    valid_chars = ''.join((string.ascii_letters, string.digits, ' .'))
 
     def clean_file(self):
         '''Verify that it is a pdf being uploaded. How tricky should I get here?
@@ -189,4 +183,9 @@ class SupplementalFileUploadForm(forms.Form):
         #TODO: add a check of actual file contents
         #probably easiest using pyPdf.PdfFileReader
         #maybe best to do this in the handle function
+        # check the name. Only allow alpha, numeric and '.' in name
+        # this is so saxon doesn't choke
+        for c in f.name:
+            if c not in self.valid_chars:
+                raise ValidationError('Illegal character in filename: "'+c+'"')
         return f
