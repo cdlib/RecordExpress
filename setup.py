@@ -33,11 +33,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires = [
-<<<<<<< HEAD
-        'django>=1.4',
-=======
         'django==1.4, ==1.5',
->>>>>>> master
         'django-dublincore>=0.1',
         'django-sortable',
         'BeautifulSoup',
