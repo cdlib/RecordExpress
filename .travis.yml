@@ -8,3 +8,8 @@ install:
 
 # command to run tests
 script: python test_project/manage.py test collection_record
+
+#test OAC branch from dsc-voro-djsite
+branches:
+    only:
+        - master
