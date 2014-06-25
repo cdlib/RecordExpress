@@ -51,7 +51,6 @@ class CollectionRecord(models.Model):
     #TODO: remove EZID minter and ARK_validator.
     ark = models.CharField(max_length=255, primary_key=True)
     publisher = models.ForeignKey(PublishingInstitution, verbose_name='Publishing Institution')
-    #ark = models.CharField(max_length=255, blank=True)
     title = models.CharField('Collection Title', max_length=512,)
     title_filing = models.CharField('Collection Title (Filing)', max_length=255)
     local_identifier = models.CharField('Collection Identifier/Call Number', max_length=255, )
