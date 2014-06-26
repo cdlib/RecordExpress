@@ -180,6 +180,7 @@ class CollectionRecord(models.Model):
         fname = self.ead_filename
         fdir, fname = os.path.split(fname)
         fname = fname[:139]
+        olddir = os.getcwd()
         os.chdir(fdir)
         foo =  codecs.open(fname, 'w', 'utf-8')
         try:
@@ -193,6 +194,7 @@ class CollectionRecord(models.Model):
                     os.remove(fname) #TODO: TEST THIS
             except:
                 print "!!!! PROBLEM REMOVING %s. Check that its gone !!!" % (fname, )
+        os.chdir(olddir)
 
     def save(self, *args, **kwargs):
         '''On save if ark is not set, get a new one from EZID.

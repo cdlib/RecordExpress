@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 import shutil
 import glob
 import datetime
+import re
 from django.conf import settings
 from django.test import TestCase
 from django.test import LiveServerTestCase
@@ -365,6 +366,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
     def parseARK(self, url_string):
         '''Parse the ark from the string'''
         ark_from_url = url_string[url_string.index('ark'):]
+        ark_from_url = re.match('(ark:/\d{5}/\w{7,10})(/|)', ark_from_url).group(0)
         ark_from_url = ark_from_url.rstrip('/')
         return ark_from_url
 
@@ -560,8 +562,7 @@ class NewCollectionRecordViewTestCase(CollectionRecordTestDirSetupMixin, WebTest
         response = response.follow()
         self.failUnlessEqual(200, response.status_code)
         #goto edit page to confirm, need live server to test view
-        ark_from_url = response.request.url[response.request.url.index('ark:'):]
-        ark_from_url = ark_from_url.rstrip('/')
+        ark_from_url = self.parseARK(response.request.url)
         cr=CollectionRecord.objects.get(ark=ark_from_url)
         response = self.app.get(cr.get_edit_url(), user='oactestuser')
         self.assertContains(response, 'ark:')
@@ -700,9 +701,13 @@ class SupplementalFileTestCase(CollectionRecordTestDirSetupMixin, TestCase):
     fixtures = ['collection_record.collectionrecord.json', 'collection_record.dublincore.json', 'collection_record.supplementalfile.json', 'oac.institution.json', 'oac.groupprofile.json', 'oac.city.json', 'oac.county.json', 'sites.json', 'auth.json',]
 
     def setUp(self):
+        print("CWD:{0}".format(os.getcwd()))
         super(SupplementalFileTestCase, self).setUp()
+        os.environ['XTF_DATA'] = 'xtf/tests'
         cr = CollectionRecord.objects.get(ark='ark:/99999/fk46h4rq4') 
         debug_print( "SUPP DIR" + cr.dir_supplemental_files)
+        print("++++++++++++++ DIR: {0}".format(cr.dir_supplemental_files))
+        print("CWD:{0}".format(os.getcwd()))
         if not os.path.isdir(cr.dir_supplemental_files):
             os.makedirs(cr.dir_supplemental_files)
         fixtures_dir = os.path.abspath(os.path.join(os.path.split(__file__)[0], '../', 'fixtures'))
