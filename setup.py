@@ -35,7 +35,7 @@ setup(
     install_requires = [
         'django==1.4, ==1.5',
         'django-dublincore>=0.1',
-        'django-sortable',
+#        'django-sortable',
         'BeautifulSoup',
         'webtest',
         'django-webtest'
