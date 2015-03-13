@@ -365,6 +365,7 @@ class SupplementalFile(models.Model):
         if os.path.isfile(self.txt_file_path):
             os.remove(self.txt_file_path)
         super(SupplementalFile, self).delete(**kwargs)
+        self.collection_record.save_ead_file() # to force re-indexing
 
     def unicode(self):
         return ''.join((self.filename, ' for ', self.collection_record))
