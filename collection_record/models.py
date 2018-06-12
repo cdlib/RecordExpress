@@ -162,7 +162,7 @@ class CollectionRecord(models.Model):
                                 stdout=logfile,
                                 stderr=subprocess.STDOUT
                                 )
-                if returncode != 0:
+                if returncode != 0 and returncode != 103:
                     raise Exception('Error with holdMets removal process. Check log:'+log_path)
         if os.path.isfile(self.ead_filename):
             os.remove(self.ead_filename)
@@ -365,6 +365,7 @@ class SupplementalFile(models.Model):
         if os.path.isfile(self.txt_file_path):
             os.remove(self.txt_file_path)
         super(SupplementalFile, self).delete(**kwargs)
+        self.collection_record.save_ead_file() # to force re-indexing
 
     def unicode(self):
         return ''.join((self.filename, ' for ', self.collection_record))
