@@ -366,6 +366,17 @@ class SupplementalFile(models.Model):
             stderr = p.stderr.read()
             logger.error("Problem ripping %s to text: %s" % (self.file_path, stderr))
             raise Exception("Problem ripping %s to text: %s" % (self.file_path, stderr))
+        # perl -pi -e 's/[[:cntrl:]]/ /g'
+        fix_illegal_in_xml_command = "perl -pi -e 's/[[:cntrl:]]/ /g' "
+        args2 = shlex.split(fix_illegal_in_xml_command ) + [out_file_path]
+        p = subprocess.Popen(args2, stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+        p.wait()
+        if p.returncode:
+            stdout = p.stdout.read()
+            stderr = p.stderr.read()
+            logger.error("Problem cleaning illegal characters %s: %s" % (self.file_path, stderr))
+            raise Exception("Problem cleaning illegal characters %s: %s" % (self.file_path, stderr))
+
     
     def delete(self, **kwargs):
         '''Delete the file first then the DB object'''
