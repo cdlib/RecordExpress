@@ -1,6 +1,6 @@
 [
   {
-    "pk": 776,
+    "pk": 1,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "CR",
@@ -16,7 +16,7 @@
     }
   },
   {
-    "pk": 777,
+    "pk": 2,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "CR",
@@ -32,7 +32,7 @@
     }
   },
   {
-    "pk": 778,
+    "pk": 3,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
@@ -48,7 +48,7 @@
     }
   },
   {
-    "pk": 779,
+    "pk": 4,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
@@ -64,7 +64,7 @@
     }
   },
   {
-    "pk": 780,
+    "pk": 5,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
@@ -80,7 +80,7 @@
     }
   },
   {
-    "pk": 782,
+    "pk": 6,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
@@ -96,7 +96,7 @@
     }
   },
   {
-    "pk": 783,
+    "pk": 7,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "SUB",
@@ -112,7 +112,7 @@
     }
   },
   {
-    "pk": 781,
+    "pk": 8,
     "model": "dublincore.qualifieddublincoreelement",
     "fields": {
       "term": "TYP",

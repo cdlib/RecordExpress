@@ -1,3 +1,4 @@
+import string
 from django import forms
 from django.forms.formsets import formset_factory
 from django.forms import ValidationError
@@ -169,6 +170,7 @@ class SupplementalFileForm(forms.ModelForm):
 class SupplementalFileUploadForm(forms.Form):
     label = forms.CharField(max_length=512)
     file  = forms.FileField(widget=forms.FileInput(attrs={'accept':'application/pdf'}))
+    valid_chars = ''.join((string.ascii_letters, string.digits, ' ._-'))
 
     def clean_file(self):
         '''Verify that it is a pdf being uploaded. How tricky should I get here?
@@ -181,4 +183,9 @@ class SupplementalFileUploadForm(forms.Form):
         #TODO: add a check of actual file contents
         #probably easiest using pyPdf.PdfFileReader
         #maybe best to do this in the handle function
+        # check the name. Only allow alpha, numeric and '.' in name
+        # this is so saxon doesn't choke
+        for c in f.name:
+            if c not in self.valid_chars:
+                raise ValidationError('Illegal character in filename: "'+c+'"')
         return f

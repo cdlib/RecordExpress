@@ -1,0 +1,16 @@
+language: python
+python:
+  - "2.7"
+
+# command to install dependencies
+install: 
+  - "python setup.py install"
+  - "pip install https://github.com/drewyeaton/django-sortable/archive/master.zip"
+
+# command to run tests
+script: python test_project/manage.py test collection_record
+
+#test OAC branch from dsc-voro-djsite
+branches:
+    only:
+        - master
