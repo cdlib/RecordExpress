@@ -46,6 +46,10 @@ def dir_pairtree_for_ark(ark):
     match = re.compile("ark:/(?P<NAAN>\d{5}|\d{9})/([a-zA-Z0-9=#\*\+@_\$/%-\.]+)$").match(ark)
     return os.path.join(match.group('NAAN'), ark[-2:], match.group(2), )
 
+def rightpart_for_ark(ark):
+    match = re.compile("ark:/(?P<NAAN>\d{5}|\d{9})/([a-zA-Z0-9=#\*\+@_\$/%-\.]+)$").match(ark)
+    return match.group(2)
+
 
 class CollectionRecord(models.Model):
     #TODO: remove EZID minter and ARK_validator.
@@ -151,10 +155,18 @@ class CollectionRecord(models.Model):
             fname = os.path.join(self.ead_dir, self.title_filing.replace(' ', '_')+'.xml')
         return fname
 
+    @property
+    def has_xtf_mets(self):
+        # /dsc/data/xtf//data/13030/qb/c8f47vqb/c8f47vqb.mets.xml
+        file_to_test = os.path.join(self.xtf_dir_root,
+                                    dir_pairtree_for_ark(self.ark),
+                                    '{0}.mets.xml'.format(rightpart_for_ark(self.ark)))
+        return os.path.isfile(file_to_test)
+
     def delete(self, **kwargs):
         '''Run holdMets.pl on the ark, then
         delete the file first then the DB object'''
-        if OAC:
+        if OAC and self.has_xtf_mets:
             HOME_DIR = os.environ.get('HOME', '/apps/dsc/')
             holdMets_path = os.path.join( HOME_DIR,
                                     'branches/production/voro/batch-bin/holdMETS.pl')
